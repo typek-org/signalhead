@@ -11,16 +11,13 @@ export interface Signal<T> extends MinimalSignal<T> {
 	map<S>(fn: (value: T) => S): Signal<S>;
 }
 
-export interface WritableSignal<T> extends Signal<T> {
+export interface WriteonlySignal<T> {
 	set(value: T): void;
 	update(fn: Updater<T>): void;
-	toReadonly(): Signal<T>;
 }
 
-export type Component<Props, Context> = (
-	props: Props,
-) => Mountable<Context>;
-
-export interface Mountable<Context> {
-	mount(context: Context): () => void;
+export interface WritableSignal<T>
+	extends Signal<T>,
+		WriteonlySignal<T> {
+	toReadonly(): Signal<T>;
 }

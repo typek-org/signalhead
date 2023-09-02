@@ -1,11 +1,12 @@
-import { DomText, Html, type HtmlContext } from "./lib/html";
-import { cons, writableSignal } from "./lib/signals";
-import type { Component } from "./lib/types";
+import { cons, mut } from "./lib/signals/";
+import type { Component, HtmlContext } from "./lib/components/";
+import { Html, DomText } from "./lib/components";
 
 export const Counter: Component<{}, HtmlContext> = () => ({
 	mount(ctx) {
-		let count = writableSignal(0);
-		let clickEvent = writableSignal<MouseEvent>();
+		let count = mut(0);
+		let clickEvent = mut<MouseEvent>();
+
 		const unsub = clickEvent.subscribe(() => {
 			count.update((c) => c + 1);
 		});

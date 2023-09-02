@@ -1,4 +1,5 @@
-import type { Component, Mountable, Signal } from "./types";
+import type { Component, Mountable } from "./types.ts";
+import type { Signal } from "../signals";
 
 export interface HtmlProps {
 	tag: Signal<keyof HTMLElementTagNameMap>;
@@ -34,7 +35,8 @@ export const Html: Component<HtmlProps, HtmlContext> = ({
 				if (eventMatch) {
 					const eventName =
 						eventMatch[1].toLowerCase() + eventMatch[2];
-					const callback = (e) => val.set(e);
+
+					const callback = (e: any) => val.set(e);
 					el.addEventListener(eventName, callback);
 					disposeEl.push(() =>
 						el.removeEventListener(eventName, callback),
@@ -58,35 +60,6 @@ export const Html: Component<HtmlProps, HtmlContext> = ({
 			unsubTag();
 			removeElement();
 			disposeEl.forEach((u) => u());
-		};
-	},
-});
-
-export interface DomTextProps {
-	text: Signal<string>;
-}
-
-export const DomText: Component<DomTextProps, HtmlContext> = ({
-	text,
-}) => ({
-	mount({ htmlParent }) {
-		let removeNode = () => {};
-
-		const unsub = text.subscribe(($text) => {
-			// remove old node
-			removeNode();
-
-			// create new node
-			const node = document.createTextNode($text);
-			removeNode = () => node.remove();
-
-			// mount into dom
-			htmlParent.appendChild(node);
-		});
-
-		return () => {
-			unsub();
-			removeNode();
 		};
 	},
 });
