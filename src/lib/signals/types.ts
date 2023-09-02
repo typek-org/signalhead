@@ -4,11 +4,13 @@ export type Updater<T> = (value: T) => T;
 
 export interface MinimalSignal<T> {
 	subscribe(fn: Subscriber<T>): Unsubscriber;
+	get?(): T | undefined;
 }
 
 export interface Signal<T> extends MinimalSignal<T> {
 	get(): T | undefined;
 	map<S>(fn: (value: T) => S): Signal<S>;
+	enumerate(): Signal<[number, T]>;
 }
 
 export interface WriteonlySignal<T> {

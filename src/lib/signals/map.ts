@@ -1,6 +1,7 @@
-import { MinimalSignal, Signal, Subscriber } from "./types.ts";
+import { Signal } from "./readable.ts";
+import type { MinimalSignal, Subscriber } from "./types.ts";
 
-export const mappedSignal = <S, T>(
+export const MappedSignal = <S, T>(
 	signal: MinimalSignal<S>,
 	fn: (value: S) => T,
 ): Signal<T> => {
@@ -33,14 +34,12 @@ export const mappedSignal = <S, T>(
 
 	const get = () => {
 		if (subs.size === 0) {
+			if (signal.get) return fn(signal.get()!);
 			start();
 			stop();
 		}
 		return value;
 	};
 
-	const map = <S>(fn: (value: T) => S) =>
-		mappedSignal({ subscribe }, fn);
-
-	return { subscribe, get, map };
+	return Signal.fromMinimal({ subscribe, get });
 };

@@ -1,9 +1,9 @@
-import { mappedSignal } from "./map";
 import type {
 	Subscriber,
 	Updater,
 	WritableSignal as WritableSignal_,
 } from "./types";
+import { Signal } from "./readable";
 
 export type WritableSignal<T> = WritableSignal_<T>;
 
@@ -27,12 +27,14 @@ export const WritableSignal: {
 		return () => subs.delete(fn);
 	};
 
-	const map = <S>(fn: (value: T) => S) =>
-		mappedSignal({ subscribe }, fn);
+	const toReadonly = () => Signal.fromMinimal({ subscribe, get });
 
-	const toReadonly = () => ({ subscribe, get, map });
-
-	return { subscribe, get, set, update, map, toReadonly };
+	return {
+		...Signal.fromMinimal({ subscribe, get }),
+		set,
+		update,
+		toReadonly,
+	};
 };
 
 /**
