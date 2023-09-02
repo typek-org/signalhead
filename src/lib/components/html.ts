@@ -3,7 +3,7 @@ import type { Signal } from "../signals";
 
 export interface HtmlProps {
 	tag: Signal<keyof HTMLElementTagNameMap>;
-	children: Mountable<any>[];
+	children?: Mountable<any>[];
 	[props: string]: any;
 }
 export interface HtmlContext {
@@ -48,7 +48,7 @@ export const Html: Component<HtmlProps, HtmlContext> = ({
 
 			// mount children
 			const childContext = { ...ctx, htmlParent: el };
-			for (const child of children) {
+			for (const child of children ?? []) {
 				disposeEl.push(child.mount(childContext));
 			}
 

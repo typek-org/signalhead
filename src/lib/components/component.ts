@@ -4,13 +4,15 @@ export interface ComponentMethods {
 	defer(destructor: () => void): void;
 }
 
+export type ComponentRender<Props, Context> = (
+	props: Props,
+	methods: ComponentMethods,
+) => void | Mountable<Context> | Mountable<Context>[];
+
 export type Component<Props, Context> = Component_<Props, Context>;
 export const Component =
 	<Props = {}, Context = {}>(
-		render: (
-			props: Props,
-			methods: ComponentMethods,
-		) => Mountable<Context>,
+		render: ComponentRender<Props, Context>,
 	): Component<Props, Context> =>
 	(props: Props): Mountable<Context> => {
 		return {
@@ -19,7 +21,11 @@ export const Component =
 				const defer = (fn: () => void) => destructors.push(fn);
 
 				const output = render(props, { defer });
-				defer(output.mount(ctx));
+
+				if (output) {
+					const outArr = Array.isArray(output) ? output : [output];
+					outArr.forEach(({ mount }) => defer(mount(ctx)));
+				}
 
 				return () => {
 					while (destructors.length > 0) destructors.pop()!();
