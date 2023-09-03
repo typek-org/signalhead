@@ -2,6 +2,7 @@ import type {
 	Subscriber,
 	Updater,
 	WritableSignal as WritableSignal_,
+	WriteonlySignal,
 } from "./types";
 import { Signal } from "./readable";
 
@@ -28,12 +29,14 @@ export const WritableSignal: {
 	};
 
 	const toReadonly = () => Signal.fromMinimal({ subscribe, get });
+	const toWriteonly = (): WriteonlySignal<T> => ({ set });
 
 	return {
 		...Signal.fromMinimal({ subscribe, get }),
 		set,
 		update,
 		toReadonly,
+		toWriteonly,
 	};
 };
 

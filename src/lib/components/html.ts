@@ -1,20 +1,22 @@
-import type { Component, Mountable } from "./types.ts";
+import type { Mountable } from "./types.ts";
 import type { Signal } from "../signals";
+import { AttributesTagNameMap, TagName } from "./html-types.ts";
 
-export interface HtmlProps {
-	tag: Signal<keyof HTMLElementTagNameMap>;
+export type HtmlProps<T extends TagName> = AttributesTagNameMap[T] & {
+	tag: Signal<T>;
 	children?: Mountable<any>[];
-	[props: string]: any;
-}
+};
+
 export interface HtmlContext {
 	htmlParent: HTMLElement;
 }
 
-export const Html: Component<HtmlProps, HtmlContext> = ({
+export const Html = <T extends TagName>({
 	tag,
 	children,
+	self,
 	...props
-}: HtmlProps) => ({
+}: HtmlProps<T>): Mountable<HtmlContext> => ({
 	mount(ctx: HtmlContext) {
 		let removeElement = () => {};
 		let disposeEl: Array<() => void> = [];
@@ -29,12 +31,11 @@ export const Html: Component<HtmlProps, HtmlContext> = ({
 			removeElement = () => el.remove();
 
 			// assign props and events
-			for (const [attr, val] of Object.entries(props)) {
-				const eventMatch = attr.match(/^on([A-Z])(.*)$/);
+			for (let [attr, val] of Object.entries(props)) {
+				const eventMatch = attr.match(/^on([A-Z].*)$/);
 
 				if (eventMatch) {
-					const eventName =
-						eventMatch[1].toLowerCase() + eventMatch[2];
+					const eventName = eventMatch[1].toLowerCase();
 
 					const callback = (e: any) => val.set(e);
 					el.addEventListener(eventName, callback);
@@ -42,6 +43,8 @@ export const Html: Component<HtmlProps, HtmlContext> = ({
 						el.removeEventListener(eventName, callback),
 					);
 				} else {
+					if (attr === "httpEquiv") attr = "http-equiv";
+					attr = attr.toLowerCase();
 					el.setAttribute(attr, val);
 				}
 			}
@@ -54,6 +57,9 @@ export const Html: Component<HtmlProps, HtmlContext> = ({
 
 			// mount into dom
 			ctx.htmlParent.appendChild(el);
+
+			// update self
+			self?.set(el);
 		});
 
 		return () => {

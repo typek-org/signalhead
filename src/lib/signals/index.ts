@@ -3,6 +3,7 @@ export type {
 	Unsubscriber,
 	Updater,
 	MinimalSignal,
+	MinimalWritableSignal,
 	WriteonlySignal,
 } from "./types.ts";
 

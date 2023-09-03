@@ -15,11 +15,16 @@ export interface Signal<T> extends MinimalSignal<T> {
 
 export interface WriteonlySignal<T> {
 	set(value: T): void;
-	update(fn: Updater<T>): void;
 }
+
+export interface MinimalWritableSignal<T>
+	extends MinimalSignal<T>,
+		WriteonlySignal<T> {}
 
 export interface WritableSignal<T>
 	extends Signal<T>,
-		WriteonlySignal<T> {
+		Omit<MinimalWritableSignal<T>, "get"> {
+	update(fn: Updater<T>): void;
 	toReadonly(): Signal<T>;
+	toWriteonly(): WriteonlySignal<T>;
 }
