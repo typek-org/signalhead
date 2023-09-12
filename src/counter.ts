@@ -16,6 +16,12 @@ export const Counter = Component(() => {
 	const text = count.map((c) => `count it ${c}`);
 	const isEven = count.map((c) => c % 2 === 0);
 
+	const aggregate = count.scan((r, x) => [...r, x], [] as number[]);
+	const sum = aggregate.map((arr) => arr.reduce((a, b) => a + b));
+	const aggregateStr = aggregate.map(
+		(arr) => `${arr.join(" + ")} = ${sum.get()}`,
+	);
+
 	return p({
 		children: [
 			button({
@@ -23,6 +29,9 @@ export const Counter = Component(() => {
 				children: [DomText({ text })],
 			}),
 			br(),
+			p({
+				children: [DomText({ text: aggregateStr })],
+			}),
 			If({
 				cond: isEven,
 				then: strong({

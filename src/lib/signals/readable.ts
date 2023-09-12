@@ -2,6 +2,7 @@ import { MapSet } from "../utils/collections.ts";
 import { CountedSignal } from "./count.ts";
 import { EnumeratedSignal } from "./enumerate.ts";
 import { MappedSignal } from "./map.ts";
+import { ScannedSignal } from "./scan.ts";
 import {
 	Subscriber,
 	type MinimalSignal,
@@ -14,15 +15,17 @@ export const Signal = {
 	fromSubscribeAndGet<T>({
 		subscribe,
 		get,
-	}: Pick<Signal<T>, "subscribe" | "get">) {
+	}: Pick<Signal<T>, "subscribe" | "get">): Signal<T> {
 		const map = <S>(fn: (value: T) => S) =>
 			MappedSignal({ subscribe, get }, fn);
 
 		const enumerate = () => EnumeratedSignal({ subscribe, get });
-
 		const count = () => CountedSignal({ subscribe, get });
 
-		return { subscribe, get, map, enumerate, count };
+		const scan = <U>(fn: (prev: U, curr: T) => U, initialValue?: U) =>
+			ScannedSignal({ subscribe, get }, fn, initialValue!);
+
+		return { subscribe, get, map, enumerate, count, scan };
 	},
 
 	fromMinimal<T>(signal: MinimalSignal<T>): Signal<T> {
