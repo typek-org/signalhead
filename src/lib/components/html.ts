@@ -22,17 +22,10 @@ export const Html = <T extends HtmlTagName>({
 	...props
 }: HtmlProps<T>): Mountable<HtmlContext> => ({
 	mount(ctx: HtmlContext) {
-		let removeElement = () => {};
-		let disposeEl: Array<() => void> = [];
-
-		const unsubTag = tag.subscribe(($tag) => {
-			// clean old element
-			removeElement();
-			disposeEl.forEach((u) => u());
-
+		return tag.subscribe(($tag, { defer }) => {
 			// create new element
 			const el = document.createElement($tag as string);
-			removeElement = () => el.remove();
+			defer(() => el.remove());
 
 			// assign props and events
 			for (let [attr, val] of Object.entries(props)) {
@@ -43,9 +36,7 @@ export const Html = <T extends HtmlTagName>({
 
 					const callback = (e: any) => val.set(e);
 					el.addEventListener(eventName, callback);
-					disposeEl.push(() =>
-						el.removeEventListener(eventName, callback),
-					);
+					defer(() => el.removeEventListener(eventName, callback));
 				} else {
 					if (attr === "httpEquiv") attr = "http-equiv";
 					attr = attr.toLowerCase();
@@ -56,7 +47,7 @@ export const Html = <T extends HtmlTagName>({
 			// mount children
 			const childContext = { ...ctx, htmlParent: el };
 			for (const child of children ?? []) {
-				disposeEl.push(child.mount(childContext));
+				defer(child.mount(childContext));
 			}
 
 			// mount into dom
@@ -65,12 +56,6 @@ export const Html = <T extends HtmlTagName>({
 			// update self
 			self?.set(el as any);
 		});
-
-		return () => {
-			unsubTag();
-			removeElement();
-			disposeEl.forEach((u) => u());
-		};
 	},
 });
 
