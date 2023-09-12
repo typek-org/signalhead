@@ -1,4 +1,5 @@
 import { MapSet } from "../utils/collections.ts";
+import { CountedSignal } from "./count.ts";
 import { EnumeratedSignal } from "./enumerate.ts";
 import { MappedSignal } from "./map.ts";
 import {
@@ -19,7 +20,9 @@ export const Signal = {
 
 		const enumerate = () => EnumeratedSignal({ subscribe, get });
 
-		return { subscribe, get, map, enumerate };
+		const count = () => CountedSignal({ subscribe, get });
+
+		return { subscribe, get, map, enumerate, count };
 	},
 
 	fromMinimal<T>(signal: MinimalSignal<T>): Signal<T> {

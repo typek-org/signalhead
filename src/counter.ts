@@ -3,7 +3,7 @@ import { Component, Html, DomText, If } from "./lib/components";
 
 export const Counter = Component(() => {
 	const onClick = mut<MouseEvent>();
-	const count = onClick.enumerate().map(([i]) => i);
+	const count = onClick.count();
 	const text = count.map((c) => `count it ${c}`);
 	const isEven = count.map((c) => c % 2 === 0);
 

@@ -21,6 +21,7 @@ export interface Signal<T> extends MinimalSignal<T> {
 	get(): T | undefined;
 	map<S>(fn: (value: T) => S): Signal<S>;
 	enumerate(): Signal<[number, T]>;
+	count(): Signal<number>;
 }
 
 export interface WriteonlySignal<T> {
