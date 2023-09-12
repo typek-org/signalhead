@@ -1,4 +1,4 @@
-import type { Mountable } from "./types.ts";
+import { type Mountable } from "./types.ts";
 import type { Signal } from "../signals";
 import { AttributesTagNameMap, TagName } from "./html-types.ts";
 
