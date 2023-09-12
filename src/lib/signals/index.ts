@@ -1,5 +1,7 @@
 export type {
+	MinimalSubscriber,
 	Subscriber,
+	SubscriberParams,
 	Unsubscriber,
 	Updater,
 	MinimalSignal,

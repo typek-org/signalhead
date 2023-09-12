@@ -1,11 +1,11 @@
 import { Signal } from "./readable.ts";
-import type { MinimalSignal, Subscriber } from "./types.ts";
+import type { MinimalSignal, MinimalSubscriber } from "./types.ts";
 
 export const MappedSignal = <S, T>(
 	signal: MinimalSignal<S>,
 	fn: (value: S) => T,
 ): Signal<T> => {
-	const subs = new Set<Subscriber<T>>();
+	const subs = new Set<MinimalSubscriber<T>>();
 	let unsub = () => {};
 	let value: T;
 
@@ -20,14 +20,14 @@ export const MappedSignal = <S, T>(
 		unsub = () => {};
 	};
 
-	const subscribe = (fn: Subscriber<T>) => {
+	const subscribe = (s: MinimalSubscriber<T>) => {
 		if (subs.size === 0) start();
 
-		subs.add(fn);
-		fn(value);
+		subs.add(s);
+		s(value);
 
 		return () => {
-			subs.delete(fn);
+			subs.delete(s);
 			if (subs.size === 0) stop();
 		};
 	};
