@@ -1,3 +1,11 @@
+export function* range(a: number, b?: number, step: number = 1) {
+	const [start, end] = b === undefined ? [0, a] : [a, b];
+
+	for (let i = start; i < end; i += step) {
+		yield i;
+	}
+}
+
 export class MapSet<K, V> implements Map<K, Set<V>> {
 	#data = new Map<K, Set<V>>();
 

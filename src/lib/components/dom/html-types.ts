@@ -35,9 +35,9 @@
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 2.8
 
-import type { InProp, InOutProp, OutProp } from "./types";
+import type { InProp, InOutProp, OutProp } from "../types.ts";
 
-type Booleanish = boolean | 'true' | 'false';
+type Booleanish = boolean | "true" | "false";
 
 //
 // Event Handler Types
@@ -48,21 +48,66 @@ type EventProp<
 	T extends EventTarget = Element,
 > = OutProp<E & { currentTarget: EventTarget & T }>;
 
-export type ClipboardEventSignal<T extends EventTarget> = EventProp<ClipboardEvent, T>;
-export type CompositionEventSignal<T extends EventTarget> = EventProp<CompositionEvent, T>;
-export type DragEventSignal<T extends EventTarget> = EventProp<DragEvent, T>;
-export type FocusEventSignal<T extends EventTarget> = EventProp<FocusEvent, T>;
-export type FormEventSignal<T extends EventTarget> = EventProp<Event, T>;
-export type ChangeEventSignal<T extends EventTarget> = EventProp<Event, T>;
-export type KeyboardEventSignal<T extends EventTarget> = EventProp<KeyboardEvent, T>;
-export type MouseEventSignal<T extends EventTarget> = EventProp<MouseEvent, T>;
-export type TouchEventSignal<T extends EventTarget> = EventProp<TouchEvent, T>;
-export type PointerEventSignal<T extends EventTarget> = EventProp<PointerEvent, T>;
-export type UIEventSignal<T extends EventTarget> = EventProp<UIEvent, T>;
-export type WheelEventSignal<T extends EventTarget> = EventProp<WheelEvent, T>;
-export type AnimationEventSignal<T extends EventTarget> = EventProp<AnimationEvent, T>;
-export type TransitionEventSignal<T extends EventTarget> = EventProp<TransitionEvent, T>;
-export type MessageEventSignal<T extends EventTarget> = EventProp<MessageEvent, T>;
+export type ClipboardEventSignal<T extends EventTarget> = EventProp<
+	ClipboardEvent,
+	T
+>;
+export type CompositionEventSignal<T extends EventTarget> = EventProp<
+	CompositionEvent,
+	T
+>;
+export type DragEventSignal<T extends EventTarget> = EventProp<
+	DragEvent,
+	T
+>;
+export type FocusEventSignal<T extends EventTarget> = EventProp<
+	FocusEvent,
+	T
+>;
+export type FormEventSignal<T extends EventTarget> = EventProp<
+	Event,
+	T
+>;
+export type ChangeEventSignal<T extends EventTarget> = EventProp<
+	Event,
+	T
+>;
+export type KeyboardEventSignal<T extends EventTarget> = EventProp<
+	KeyboardEvent,
+	T
+>;
+export type MouseEventSignal<T extends EventTarget> = EventProp<
+	MouseEvent,
+	T
+>;
+export type TouchEventSignal<T extends EventTarget> = EventProp<
+	TouchEvent,
+	T
+>;
+export type PointerEventSignal<T extends EventTarget> = EventProp<
+	PointerEvent,
+	T
+>;
+export type UIEventSignal<T extends EventTarget> = EventProp<
+	UIEvent,
+	T
+>;
+export type WheelEventSignal<T extends EventTarget> = EventProp<
+	WheelEvent,
+	T
+>;
+export type AnimationEventSignal<T extends EventTarget> = EventProp<
+	AnimationEvent,
+	T
+>;
+export type TransitionEventSignal<T extends EventTarget> = EventProp<
+	TransitionEvent,
+	T
+>;
+export type MessageEventSignal<T extends EventTarget> = EventProp<
+	MessageEvent,
+	T
+>;
 
 //
 // DOM Attributes
@@ -267,7 +312,6 @@ export interface DomAttributes<T extends EventTarget> {
 	onTransitionEndCapture?: TransitionEventSignal<T>;
 }
 
-
 export interface StandardHtmlAttributes {
 	accessKey?: InProp<string>;
 	autoFocus?: InProp<boolean>;
@@ -276,7 +320,9 @@ export interface StandardHtmlAttributes {
 	contextMenu?: InProp<string>;
 	dir?: InProp<string>;
 	draggable?: InProp<Booleanish>;
-	enterKeyHint?: InProp<'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send'>;
+	enterKeyHint?: InProp<
+		"enter" | "done" | "go" | "next" | "previous" | "search" | "send"
+	>;
 	hidden?: InProp<boolean>;
 	id?: InProp<string>;
 	lang?: InProp<string>;
@@ -288,7 +334,7 @@ export interface StandardHtmlAttributes {
 	style?: InProp<string>;
 	tabIndex?: InProp<number>;
 	title?: InProp<string>;
-	translate?: InProp<'yes' | 'no'>;
+	translate?: InProp<"yes" | "no">;
 	inert?: InProp<boolean>;
 
 	// WAI-ARIA
@@ -300,7 +346,16 @@ export interface LivingStandardHtmlAttributes {
 	 * Hints at the type of data that might be entered by the user while editing the element or its contents
 	 * @see https://html.spec.whatwg.org/multipage/interaction.html#input-modalities:-the-inputmode-attribute
 	 */
-	inputMode?: InProp<'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search'>;
+	inputMode?: InProp<
+		| "none"
+		| "text"
+		| "tel"
+		| "url"
+		| "email"
+		| "numeric"
+		| "decimal"
+		| "search"
+	>;
 	/**
 	 * Specify that a standard HTML element should behave like a defined custom built-in element
 	 * @see https://html.spec.whatwg.org/multipage/custom-elements.html#attr-is
@@ -321,292 +376,325 @@ export interface NonStandardHtmlAttributes {
 	itemRef?: InProp<string>;
 	results?: InProp<number>;
 	security?: InProp<string>;
-	unselectable?: InProp<'on' | 'off'>;
+	unselectable?: InProp<"on" | "off">;
 }
 
 export interface AriaAttributes {
 	/** Identifies the currently active element when DOM focus is on a composite widget, textbox, group, or application. */
-	'aria-activedescendant'?: InProp<string>;
+	"aria-activedescendant"?: InProp<string>;
 	/** Indicates whether assistive technologies will present all, or only parts of, the changed region based on the change notifications defined by the aria-relevant attribute. */
-	'aria-atomic'?: InProp<Booleanish>;
+	"aria-atomic"?: InProp<Booleanish>;
 	/**
 	 * Indicates whether inputting text could trigger display of one or more predictions of the user's intended value for an input and specifies how predictions would be
 	 * presented if they are made.
 	 */
-	'aria-autocomplete'?: InProp<'none' | 'inline' | 'list' | 'both'>;
+	"aria-autocomplete"?: InProp<"none" | "inline" | "list" | "both">;
 	/** Indicates an element is being modified and that assistive technologies MAY want to wait until the modifications are complete before exposing them to the user. */
 	/**
 	 * Defines a string value that labels the current element, which is intended to be converted into Braille.
 	 * @see aria-label.
 	 */
-	'aria-braillelabel'?: InProp<string>;
+	"aria-braillelabel"?: InProp<string>;
 	/**
 	 * Defines a human-readable, author-localized abbreviated description for the role of an element, which is intended to be converted into Braille.
 	 * @see aria-roledescription.
 	 */
-	'aria-brailleroledescription'?: InProp<string>;
-	'aria-busy'?: InProp<Booleanish>;
+	"aria-brailleroledescription"?: InProp<string>;
+	"aria-busy"?: InProp<Booleanish>;
 	/**
 	 * Indicates the current "checked" state of checkboxes, radio buttons, and other widgets.
 	 * @see aria-pressed @see aria-selected.
 	 */
-	'aria-checked'?: InProp<boolean | 'false' | 'mixed' | 'true'>;
+	"aria-checked"?: InProp<boolean | "false" | "mixed" | "true">;
 	/**
 	 * Defines the total number of columns in a table, grid, or treegrid.
 	 * @see aria-colindex.
 	 */
-	'aria-colcount'?: InProp<number>;
+	"aria-colcount"?: InProp<number>;
 	/**
 	 * Defines an element's column index or position with respect to the total number of columns within a table, grid, or treegrid.
 	 * @see aria-colcount @see aria-colspan.
 	 */
-	'aria-colindex'?: InProp<number>;
+	"aria-colindex"?: InProp<number>;
 	/**
 	 * Defines a human readable text alternative of aria-colindex.
 	 * @see aria-rowindextext.
 	 */
-	'aria-colindextext'?: InProp<string>;
+	"aria-colindextext"?: InProp<string>;
 	/**
 	 * Defines the number of columns spanned by a cell or gridcell within a table, grid, or treegrid.
 	 * @see aria-colindex @see aria-rowspan.
 	 */
-	'aria-colspan'?: InProp<number>;
+	"aria-colspan"?: InProp<number>;
 	/**
 	 * Identifies the element (or elements) whose contents or presence are controlled by the current element.
 	 * @see aria-owns.
 	 */
-	'aria-controls'?: InProp<string>;
+	"aria-controls"?: InProp<string>;
 	/** Indicates the element that represents the current item within a container or set of related elements. */
-	'aria-current'?: InProp<boolean | 'false' | 'true' | 'page' | 'step' | 'location' | 'date' | 'time'>;
+	"aria-current"?: InProp<
+		| boolean
+		| "false"
+		| "true"
+		| "page"
+		| "step"
+		| "location"
+		| "date"
+		| "time"
+	>;
 	/**
 	 * Identifies the element (or elements) that describes the object.
 	 * @see aria-labelledby
 	 */
-	'aria-describedby'?: InProp<string>;
+	"aria-describedby"?: InProp<string>;
 	/**
 	 * Defines a string value that describes or annotates the current element.
 	 * @see related aria-describedby.
 	 */
-	'aria-description'?: InProp<string>;
+	"aria-description"?: InProp<string>;
 	/**
 	 * Identifies the element that provides a detailed, extended description for the object.
 	 * @see aria-describedby.
 	 */
-	'aria-details'?: InProp<string>;
+	"aria-details"?: InProp<string>;
 	/**
 	 * Indicates that the element is perceivable but disabled, so it is not editable or otherwise operable.
 	 * @see aria-hidden @see aria-readonly.
 	 */
-	'aria-disabled'?: InProp<Booleanish>;
+	"aria-disabled"?: InProp<Booleanish>;
 	/**
 	 * Indicates what functions can be performed when a dragged object is released on the drop target.
 	 * @deprecated in ARIA 1.1
 	 */
-	'aria-dropeffect'?: InProp<'none' | 'copy' | 'execute' | 'link' | 'move' | 'popup'>;
+	"aria-dropeffect"?: InProp<
+		"none" | "copy" | "execute" | "link" | "move" | "popup"
+	>;
 	/**
 	 * Identifies the element that provides an error message for the object.
 	 * @see aria-invalid @see aria-describedby.
 	 */
-	'aria-errormessage'?: InProp<string>;
+	"aria-errormessage"?: InProp<string>;
 	/** Indicates whether the element, or another grouping element it controls, is currently expanded or collapsed. */
-	'aria-expanded'?: InProp<Booleanish>;
+	"aria-expanded"?: InProp<Booleanish>;
 	/**
 	 * Identifies the next element (or elements) in an alternate reading order of content which, at the user's discretion,
 	 * allows assistive technology to override the general default of reading in document source order.
 	 */
-	'aria-flowto'?: InProp<string>;
+	"aria-flowto"?: InProp<string>;
 	/**
 	 * Indicates an element's "grabbed" state in a drag-and-drop operation.
 	 * @deprecated in ARIA 1.1
 	 */
-	'aria-grabbed'?: InProp<Booleanish>;
+	"aria-grabbed"?: InProp<Booleanish>;
 	/** Indicates the availability and type of interactive popup element, such as menu or dialog, that can be triggered by an element. */
-	'aria-haspopup'?: InProp<boolean | 'false' | 'true' | 'menu' | 'listbox' | 'tree' | 'grid' | 'dialog'>;
+	"aria-haspopup"?: InProp<
+		| boolean
+		| "false"
+		| "true"
+		| "menu"
+		| "listbox"
+		| "tree"
+		| "grid"
+		| "dialog"
+	>;
 	/**
 	 * Indicates whether the element is exposed to an accessibility API.
 	 * @see aria-disabled.
 	 */
-	'aria-hidden'?: InProp<Booleanish>;
+	"aria-hidden"?: InProp<Booleanish>;
 	/**
 	 * Indicates the entered value does not conform to the format expected by the application.
 	 * @see aria-errormessage.
 	 */
-	'aria-invalid'?: InProp<boolean | 'false' | 'true' | 'grammar' | 'spelling'>;
+	"aria-invalid"?: InProp<
+		boolean | "false" | "true" | "grammar" | "spelling"
+	>;
 	/** Indicates keyboard shortcuts that an author has implemented to activate or give focus to an element. */
-	'aria-keyshortcuts'?: InProp<string>;
+	"aria-keyshortcuts"?: InProp<string>;
 	/**
 	 * Defines a string value that labels the current element.
 	 * @see aria-labelledby.
 	 */
-	'aria-label'?: InProp<string>;
+	"aria-label"?: InProp<string>;
 	/**
 	 * Identifies the element (or elements) that labels the current element.
 	 * @see aria-describedby.
 	 */
-	'aria-labelledby'?: InProp<string>;
+	"aria-labelledby"?: InProp<string>;
 	/** Defines the hierarchical level of an element within a structure. */
-	'aria-level'?: InProp<number>;
+	"aria-level"?: InProp<number>;
 	/** Indicates that an element will be updated, and describes the types of updates the user agents, assistive technologies, and user can expect from the live region. */
-	'aria-live'?: InProp<'off' | 'assertive' | 'polite'>;
+	"aria-live"?: InProp<"off" | "assertive" | "polite">;
 	/** Indicates whether an element is modal when displayed. */
-	'aria-modal'?: InProp<Booleanish>;
+	"aria-modal"?: InProp<Booleanish>;
 	/** Indicates whether a text box accepts multiple lines of input or only a single line. */
-	'aria-multiline'?: InProp<Booleanish>;
+	"aria-multiline"?: InProp<Booleanish>;
 	/** Indicates that the user may select more than one item from the current selectable descendants. */
-	'aria-multiselectable'?: InProp<Booleanish>;
+	"aria-multiselectable"?: InProp<Booleanish>;
 	/** Indicates whether the element's orientation is horizontal, vertical, or unknown/ambiguous. */
-	'aria-orientation'?: InProp<'horizontal' | 'vertical'>;
+	"aria-orientation"?: InProp<"horizontal" | "vertical">;
 	/**
 	 * Identifies an element (or elements) in order to define a visual, functional, or contextual parent/child relationship
 	 * between DOM elements where the DOM hierarchy cannot be used to represent the relationship.
 	 * @see aria-controls.
 	 */
-	'aria-owns'?: InProp<string>;
+	"aria-owns"?: InProp<string>;
 	/**
 	 * Defines a short hint (a word or short phrase) intended to aid the user with data entry when the control has no value.
 	 * A hint could be a sample value or a brief description of the expected format.
 	 */
-	'aria-placeholder'?: InProp<string>;
+	"aria-placeholder"?: InProp<string>;
 	/**
 	 * Defines an element's number or position in the current set of listitems or treeitems. Not required if all elements in the set are present in the DOM.
 	 * @see aria-setsize.
 	 */
-	'aria-posinset'?: InProp<number>;
+	"aria-posinset"?: InProp<number>;
 	/**
 	 * Indicates the current "pressed" state of toggle buttons.
 	 * @see aria-checked @see aria-selected.
 	 */
-	'aria-pressed'?: InProp<boolean | 'false' | 'mixed' | 'true'>;
+	"aria-pressed"?: InProp<boolean | "false" | "mixed" | "true">;
 	/**
 	 * Indicates that the element is not editable, but is otherwise operable.
 	 * @see aria-disabled.
 	 */
-	'aria-readonly'?: InProp<Booleanish>;
+	"aria-readonly"?: InProp<Booleanish>;
 	/**
 	 * Indicates what notifications the user agent will trigger when the accessibility tree within a live region is modified.
 	 * @see aria-atomic.
 	 */
-	'aria-relevant'?: InProp<'additions' | 'additions removals' | 'additions text' | 'all' | 'removals' | 'removals additions' | 'removals text' | 'text' | 'text additions' | 'text removals'>;
+	"aria-relevant"?: InProp<
+		| "additions"
+		| "additions removals"
+		| "additions text"
+		| "all"
+		| "removals"
+		| "removals additions"
+		| "removals text"
+		| "text"
+		| "text additions"
+		| "text removals"
+	>;
 	/** Indicates that user input is required on the element before a form may be submitted. */
-	'aria-required'?: InProp<Booleanish>;
+	"aria-required"?: InProp<Booleanish>;
 	/** Defines a human-readable, author-localized description for the role of an element. */
-	'aria-roledescription'?: InProp<string>;
+	"aria-roledescription"?: InProp<string>;
 	/**
 	 * Defines the total number of rows in a table, grid, or treegrid.
 	 * @see aria-rowindex.
 	 */
-	'aria-rowcount'?: InProp<number>;
+	"aria-rowcount"?: InProp<number>;
 	/**
 	 * Defines an element's row index or position with respect to the total number of rows within a table, grid, or treegrid.
 	 * @see aria-rowcount @see aria-rowspan.
 	 */
-	'aria-rowindex'?: InProp<number>;
+	"aria-rowindex"?: InProp<number>;
 	/**
 	 * Defines a human readable text alternative of aria-rowindex.
 	 * @see aria-colindextext.
 	 */
-	'aria-rowindextext'?: InProp<string>;
+	"aria-rowindextext"?: InProp<string>;
 	/**
 	 * Defines the number of rows spanned by a cell or gridcell within a table, grid, or treegrid.
 	 * @see aria-rowindex @see aria-colspan.
 	 */
-	'aria-rowspan'?: InProp<number>;
+	"aria-rowspan"?: InProp<number>;
 	/**
 	 * Indicates the current "selected" state of various widgets.
 	 * @see aria-checked @see aria-pressed.
 	 */
-	'aria-selected'?: InProp<Booleanish>;
+	"aria-selected"?: InProp<Booleanish>;
 	/**
 	 * Defines the number of items in the current set of listitems or treeitems. Not required if all elements in the set are present in the DOM.
 	 * @see aria-posinset.
 	 */
-	'aria-setsize'?: InProp<number>;
+	"aria-setsize"?: InProp<number>;
 	/** Indicates if items in a table or grid are sorted in ascending or descending order. */
-	'aria-sort'?: InProp<'none' | 'ascending' | 'descending' | 'other'>;
+	"aria-sort"?: InProp<"none" | "ascending" | "descending" | "other">;
 	/** Defines the maximum allowed value for a range widget. */
-	'aria-valuemax'?: InProp<number>;
+	"aria-valuemax"?: InProp<number>;
 	/** Defines the minimum allowed value for a range widget. */
-	'aria-valuemin'?: InProp<number>;
+	"aria-valuemin"?: InProp<number>;
 	/**
 	 * Defines the current value for a range widget.
 	 * @see aria-valuetext.
 	 */
-	'aria-valuenow'?: InProp<number>;
+	"aria-valuenow"?: InProp<number>;
 	/** Defines the human readable text alternative of aria-valuenow for a range widget. */
-	'aria-valuetext'?: InProp<string>;
+	"aria-valuetext"?: InProp<string>;
 }
 
 // All the WAI-ARIA 1.1 role attribute values from https://www.w3.org/TR/wai-aria-1.1/#role_definitions
 export type AriaRole =
-	| 'alert'
-	| 'alertdialog'
-	| 'application'
-	| 'article'
-	| 'banner'
-	| 'button'
-	| 'cell'
-	| 'checkbox'
-	| 'columnheader'
-	| 'combobox'
-	| 'complementary'
-	| 'contentinfo'
-	| 'definition'
-	| 'dialog'
-	| 'directory'
-	| 'document'
-	| 'feed'
-	| 'figure'
-	| 'form'
-	| 'grid'
-	| 'gridcell'
-	| 'group'
-	| 'heading'
-	| 'img'
-	| 'link'
-	| 'list'
-	| 'listbox'
-	| 'listitem'
-	| 'log'
-	| 'main'
-	| 'marquee'
-	| 'math'
-	| 'menu'
-	| 'menubar'
-	| 'menuitem'
-	| 'menuitemcheckbox'
-	| 'menuitemradio'
-	| 'navigation'
-	| 'none'
-	| 'note'
-	| 'option'
-	| 'presentation'
-	| 'progressbar'
-	| 'radio'
-	| 'radiogroup'
-	| 'region'
-	| 'row'
-	| 'rowgroup'
-	| 'rowheader'
-	| 'scrollbar'
-	| 'search'
-	| 'searchbox'
-	| 'separator'
-	| 'slider'
-	| 'spinbutton'
-	| 'status'
-	| 'switch'
-	| 'tab'
-	| 'table'
-	| 'tablist'
-	| 'tabpanel'
-	| 'term'
-	| 'textbox'
-	| 'timer'
-	| 'toolbar'
-	| 'tooltip'
-	| 'tree'
-	| 'treegrid'
-	| 'treeitem'
+	| "alert"
+	| "alertdialog"
+	| "application"
+	| "article"
+	| "banner"
+	| "button"
+	| "cell"
+	| "checkbox"
+	| "columnheader"
+	| "combobox"
+	| "complementary"
+	| "contentinfo"
+	| "definition"
+	| "dialog"
+	| "directory"
+	| "document"
+	| "feed"
+	| "figure"
+	| "form"
+	| "grid"
+	| "gridcell"
+	| "group"
+	| "heading"
+	| "img"
+	| "link"
+	| "list"
+	| "listbox"
+	| "listitem"
+	| "log"
+	| "main"
+	| "marquee"
+	| "math"
+	| "menu"
+	| "menubar"
+	| "menuitem"
+	| "menuitemcheckbox"
+	| "menuitemradio"
+	| "navigation"
+	| "none"
+	| "note"
+	| "option"
+	| "presentation"
+	| "progressbar"
+	| "radio"
+	| "radiogroup"
+	| "region"
+	| "row"
+	| "rowgroup"
+	| "rowheader"
+	| "scrollbar"
+	| "search"
+	| "searchbox"
+	| "separator"
+	| "slider"
+	| "spinbutton"
+	| "status"
+	| "switch"
+	| "tab"
+	| "table"
+	| "tablist"
+	| "tabpanel"
+	| "term"
+	| "textbox"
+	| "timer"
+	| "toolbar"
+	| "tooltip"
+	| "tree"
+	| "treegrid"
+	| "treeitem"
 	| (string & {});
 
 export interface RdfaHtmlAttributes {
@@ -674,27 +762,27 @@ export interface RdfaHtmlAttributes {
 }
 
 export interface HtmlAttributes<T extends EventTarget>
-extends
-	DomAttributes<T>,
-	StandardHtmlAttributes,
-	LivingStandardHtmlAttributes,
-	NonStandardHtmlAttributes,
-	AriaAttributes,
-	RdfaHtmlAttributes {}
+	extends DomAttributes<T>,
+		StandardHtmlAttributes,
+		LivingStandardHtmlAttributes,
+		NonStandardHtmlAttributes,
+		AriaAttributes,
+		RdfaHtmlAttributes {}
 
 export type HtmlLinkTarget =
-	| '_self'
-	| '_blank'
-	| '_parent'
-	| '_top'
+	| "_self"
+	| "_blank"
+	| "_parent"
+	| "_top"
 	| (string & {});
 
 export type HtmlCrossOriginPolicy =
- 	| 'anonymous'
-	| 'use-credentials'
-	| '';
+	| "anonymous"
+	| "use-credentials"
+	| "";
 
-export interface HtmlAnchorAttributes extends HtmlAttributes<HTMLAnchorElement> {
+export interface HtmlAnchorAttributes
+	extends HtmlAttributes<HTMLAnchorElement> {
 	download?: InProp<any>;
 	href?: InProp<string>;
 	hrefLang?: InProp<string>;
@@ -710,9 +798,11 @@ export interface HtmlAnchorAttributes extends HtmlAttributes<HTMLAnchorElement> 
 	type?: InProp<string>;
 }
 
-export interface HtmlAudioAttributes extends HtmlMediaAttributes<HTMLAudioElement> {}
+export interface HtmlAudioAttributes
+	extends HtmlMediaAttributes<HTMLAudioElement> {}
 
-export interface HTMLAreaAttributes extends HtmlAttributes<HTMLAreaElement> {
+export interface HTMLAreaAttributes
+	extends HtmlAttributes<HTMLAreaElement> {
 	alt?: InProp<string>;
 	coords?: InProp<string>;
 	download?: InProp<any>;
@@ -730,16 +820,19 @@ export interface HTMLAreaAttributes extends HtmlAttributes<HTMLAreaElement> {
 	target?: InProp<string>;
 }
 
-export interface HtmlBaseAttributes extends HtmlAttributes<HTMLBaseElement> {
+export interface HtmlBaseAttributes
+	extends HtmlAttributes<HTMLBaseElement> {
 	href?: InProp<string>;
 	target?: InProp<string>;
 }
 
-export interface HtmlBlockquoteAttributes extends HtmlAttributes<HTMLQuoteElement> {
+export interface HtmlBlockquoteAttributes
+	extends HtmlAttributes<HTMLQuoteElement> {
 	cite?: InProp<string>;
 }
 
-export interface HtmlButtonAttributes extends HtmlAttributes<HTMLButtonElement> {
+export interface HtmlButtonAttributes
+	extends HtmlAttributes<HTMLButtonElement> {
 	disabled?: InProp<boolean>;
 	form?: InProp<string>;
 	formAction?: InProp<string>;
@@ -748,56 +841,66 @@ export interface HtmlButtonAttributes extends HtmlAttributes<HTMLButtonElement> 
 	formNoValidate?: InProp<boolean>;
 	formTarget?: InProp<string>;
 	name?: InProp<string>;
-	type?: InProp<'submit' | 'reset' | 'button'>;
+	type?: InProp<"submit" | "reset" | "button">;
 	value?: InProp<string | readonly string[] | number>;
 }
 
-export interface HtmlCanvasAttributes extends HtmlAttributes<HTMLCanvasElement> {
+export interface HtmlCanvasAttributes
+	extends HtmlAttributes<HTMLCanvasElement> {
 	height?: InProp<number | string>;
 	width?: InProp<number | string>;
 }
 
-export interface HtmlColAttributes extends HtmlAttributes<HTMLTableColElement> {
+export interface HtmlColAttributes
+	extends HtmlAttributes<HTMLTableColElement> {
 	span?: InProp<number>;
 	width?: InProp<number | string>;
 }
 
-export interface HtmlColGroupAttributes extends HtmlAttributes<HTMLTableColElement> {
+export interface HtmlColGroupAttributes
+	extends HtmlAttributes<HTMLTableColElement> {
 	span?: InProp<number>;
 }
 
-export interface HtmlDataAttributes extends HtmlAttributes<HTMLDataElement> {
+export interface HtmlDataAttributes
+	extends HtmlAttributes<HTMLDataElement> {
 	value?: InProp<string | readonly string[] | number>;
 }
 
-export interface HtmlDetailsAttributes extends HtmlAttributes<HTMLDetailsElement> {
+export interface HtmlDetailsAttributes
+	extends HtmlAttributes<HTMLDetailsElement> {
 	open?: InOutProp<boolean>;
 }
 
-export interface HtmlDelAttributes extends HtmlAttributes<HTMLModElement> {
+export interface HtmlDelAttributes
+	extends HtmlAttributes<HTMLModElement> {
 	cite?: InProp<string>;
 	dateTime?: InProp<string>;
 }
 
-export interface HtmlDialogAttributes extends HtmlAttributes<HTMLDialogElement> {
+export interface HtmlDialogAttributes
+	extends HtmlAttributes<HTMLDialogElement> {
 	// TODO handle cancel & close
 	open?: InProp<boolean>;
 }
 
-export interface HtmlEmbedAttributes extends HtmlAttributes<HTMLEmbedElement> {
+export interface HtmlEmbedAttributes
+	extends HtmlAttributes<HTMLEmbedElement> {
 	height?: InProp<number | string>;
 	src?: InProp<string>;
 	type?: InProp<string>;
 	width?: InProp<number | string>;
 }
 
-export interface HtmlFieldSetAttributes extends HtmlAttributes<HTMLFieldSetElement> {
+export interface HtmlFieldSetAttributes
+	extends HtmlAttributes<HTMLFieldSetElement> {
 	disabled?: InProp<boolean>;
 	form?: InProp<string>;
 	name?: InProp<string>;
 }
 
-export interface HtmlFormAttributes extends HtmlAttributes<HTMLFormElement> {
+export interface HtmlFormAttributes
+	extends HtmlAttributes<HTMLFormElement> {
 	acceptCharset?: InProp<string>;
 	action?: InProp<string>;
 	autoComplete?: InProp<string>;
@@ -813,11 +916,13 @@ export interface HtmlFormAttributes extends HtmlAttributes<HTMLFormElement> {
 	rel?: InProp<string>;
 }
 
-export interface HtmlHtmlAttributes extends HtmlAttributes<HTMLHtmlElement> {
+export interface HtmlHtmlAttributes
+	extends HtmlAttributes<HTMLHtmlElement> {
 	manifest?: InProp<string>;
 }
 
-export interface HtmlIFrameAttributes extends HtmlAttributes<HTMLIFrameElement>{
+export interface HtmlIFrameAttributes
+	extends HtmlAttributes<HTMLIFrameElement> {
 	allow?: InProp<string>;
 	allowFullScreen?: InProp<boolean>;
 	allowTransparency?: InProp<boolean>;
@@ -840,7 +945,8 @@ export interface HtmlIFrameAttributes extends HtmlAttributes<HTMLIFrameElement>{
 	width?: InProp<number | string>;
 }
 
-export interface HtmlImageAttributes extends HtmlAttributes<HTMLImageElement> {
+export interface HtmlImageAttributes
+	extends HtmlAttributes<HTMLImageElement> {
 	alt?: InProp<string>;
 	crossOrigin?: InProp<HtmlCrossOriginPolicy>;
 	decoding?: InProp<"async" | "auto" | "sync">;
@@ -859,41 +965,43 @@ export interface HtmlImageAttributes extends HtmlAttributes<HTMLImageElement> {
 	naturalWidth?: OutProp<number>;
 }
 
-export interface HtmlInsAttributes extends HtmlAttributes<HTMLModElement> {
+export interface HtmlInsAttributes
+	extends HtmlAttributes<HTMLModElement> {
 	cite?: InProp<string>;
 	dateTime?: InProp<string>;
 }
 
 export type HtmlInputType =
-	| 'button'
-	| 'checkbox'
-	| 'color'
-	| 'date'
-	| 'datetime-local'
-	| 'email'
-	| 'file'
-	| 'hidden'
-	| 'image'
-	| 'month'
-	| 'number'
-	| 'password'
-	| 'radio'
-	| 'range'
-	| 'reset'
-	| 'search'
-	| 'submit'
-	| 'tel'
-	| 'text'
-	| 'time'
-	| 'url'
-	| 'week'
+	| "button"
+	| "checkbox"
+	| "color"
+	| "date"
+	| "datetime-local"
+	| "email"
+	| "file"
+	| "hidden"
+	| "image"
+	| "month"
+	| "number"
+	| "password"
+	| "radio"
+	| "range"
+	| "reset"
+	| "search"
+	| "submit"
+	| "tel"
+	| "text"
+	| "time"
+	| "url"
+	| "week"
 	| (string & {});
 
-export interface HtmlInputAttributes extends HtmlAttributes<HTMLInputElement> {
+export interface HtmlInputAttributes
+	extends HtmlAttributes<HTMLInputElement> {
 	accept?: InProp<string>;
 	alt?: InProp<string>;
 	autoComplete?: InProp<string>;
-	capture?: InProp<boolean | 'user' | 'environment'>;
+	capture?: InProp<boolean | "user" | "environment">;
 	crossOrigin?: InProp<HtmlCrossOriginPolicy>;
 	disabled?: InProp<boolean>;
 	form?: InProp<string>;
@@ -930,7 +1038,8 @@ export interface HtmlInputAttributes extends HtmlAttributes<HTMLInputElement> {
 	onChange?: ChangeEventSignal<HTMLInputElement>;
 }
 
-export interface HtmlKeygenAttributes extends HtmlAttributes<HTMLElement> {
+export interface HtmlKeygenAttributes
+	extends HtmlAttributes<HTMLElement> {
 	challenge?: InProp<string>;
 	disabled?: InProp<boolean>;
 	form?: InProp<string>;
@@ -939,16 +1048,19 @@ export interface HtmlKeygenAttributes extends HtmlAttributes<HTMLElement> {
 	name?: InProp<string>;
 }
 
-export interface HtmlLabelAttributes extends HtmlAttributes<HTMLLabelElement> {
+export interface HtmlLabelAttributes
+	extends HtmlAttributes<HTMLLabelElement> {
 	form?: InProp<string>;
 	for?: InProp<string>;
 }
 
-export interface HtmlLiAttributes extends HtmlAttributes<HTMLLIElement> {
+export interface HtmlLiAttributes
+	extends HtmlAttributes<HTMLLIElement> {
 	value?: InProp<string | readonly string[]>;
 }
 
-export interface HtmlLinkAttributes extends HtmlAttributes<HTMLLinkElement> {
+export interface HtmlLinkAttributes
+	extends HtmlAttributes<HTMLLinkElement> {
 	as?: InProp<string>;
 	crossOrigin?: InProp<HtmlCrossOriginPolicy>;
 	fetchPriority?: InProp<"high" | "low" | "auto">;
@@ -969,18 +1081,27 @@ export interface HtmlLinkAttributes extends HtmlAttributes<HTMLLinkElement> {
 	charSet?: InProp<string>;
 }
 
-export interface HtmlMapAttributes extends HtmlAttributes<HTMLMapElement> {
+export interface HtmlMapAttributes
+	extends HtmlAttributes<HTMLMapElement> {
 	name?: InProp<string>;
 }
 
-export interface HtmlMenuAttributes extends HtmlAttributes<HTMLMenuElement> {
+export interface HtmlMenuAttributes
+	extends HtmlAttributes<HTMLMenuElement> {
 	type?: InProp<string>;
 }
 
-export interface HtmlMediaAttributes<T extends HTMLMediaElement> extends HtmlAttributes<T> {
+export interface HtmlMediaAttributes<T extends HTMLMediaElement>
+	extends HtmlAttributes<T> {
 	autoPlay?: InProp<boolean>;
 	controls?: InProp<boolean>;
-	controlsList?: InProp<'nodownload' | 'nofullscreen' | 'noplaybackrate' | 'noremoteplayback' | (string & {})>;
+	controlsList?: InProp<
+		| "nodownload"
+		| "nofullscreen"
+		| "noplaybackrate"
+		| "noremoteplayback"
+		| (string & {})
+	>;
 	crossOrigin?: InProp<HtmlCrossOriginPolicy>;
 	currentTime?: InProp<number>;
 	loop?: InProp<boolean>;
@@ -997,7 +1118,8 @@ export interface HtmlMediaAttributes<T extends HTMLMediaElement> extends HtmlAtt
 	// TODO lots of stuff to bind here
 }
 
-export interface HtmlMetaAttributes extends HtmlAttributes<HTMLMetaElement> {
+export interface HtmlMetaAttributes
+	extends HtmlAttributes<HTMLMetaElement> {
 	charSet?: InProp<string>;
 	content?: InProp<string>;
 	httpEquiv?: InProp<string>;
@@ -1005,7 +1127,8 @@ export interface HtmlMetaAttributes extends HtmlAttributes<HTMLMetaElement> {
 	media?: InProp<string>;
 }
 
-export interface HtmlMeterAttributes extends HtmlAttributes<HTMLMeterElement> {
+export interface HtmlMeterAttributes
+	extends HtmlAttributes<HTMLMeterElement> {
 	form?: InProp<string>;
 	high?: InProp<number>;
 	low?: InProp<number>;
@@ -1015,11 +1138,13 @@ export interface HtmlMeterAttributes extends HtmlAttributes<HTMLMeterElement> {
 	value?: InProp<string | readonly string[] | number>;
 }
 
-export interface HtmlQuoteAttributes extends HtmlAttributes<HTMLQuoteElement> {
+export interface HtmlQuoteAttributes
+	extends HtmlAttributes<HTMLQuoteElement> {
 	cite?: InProp<string>;
 }
 
-export interface HtmlObjectAttributes extends HtmlAttributes<HTMLObjectElement> {
+export interface HtmlObjectAttributes
+	extends HtmlAttributes<HTMLObjectElement> {
 	/** @deprecated */
 	classId?: InProp<string>;
 	data?: InProp<string>;
@@ -1031,45 +1156,53 @@ export interface HtmlObjectAttributes extends HtmlAttributes<HTMLObjectElement> 
 	width?: InProp<number | string>;
 }
 
-export interface HtmlOlAttributes extends HtmlAttributes<HTMLOListElement> {
+export interface HtmlOlAttributes
+	extends HtmlAttributes<HTMLOListElement> {
 	reversed?: InProp<boolean>;
 	start?: InProp<number>;
-	type?: InProp<'1' | 'a' | 'A' | 'i' | 'I'>;
+	type?: InProp<"1" | "a" | "A" | "i" | "I">;
 }
 
-export interface HtmlOptGroupAttributes extends HtmlAttributes<HTMLOptGroupElement> {
+export interface HtmlOptGroupAttributes
+	extends HtmlAttributes<HTMLOptGroupElement> {
 	disabled?: InProp<boolean>;
 	label?: InProp<string>;
 }
 
-export interface HtmlOptionAttributes extends HtmlAttributes<HTMLOptionElement> {
+export interface HtmlOptionAttributes
+	extends HtmlAttributes<HTMLOptionElement> {
 	disabled?: InProp<boolean>;
 	label?: InProp<string>;
 	selected?: InProp<boolean>;
 	value?: InProp<string | readonly string[] | number>;
 }
 
-export interface HtmlOutputAttributes extends HtmlAttributes<HTMLOutputElement> {
+export interface HtmlOutputAttributes
+	extends HtmlAttributes<HTMLOutputElement> {
 	form?: InProp<string>;
 	for?: InProp<string>;
 	name?: InProp<string>;
 }
 
-export interface HtmlParamAttributes extends HtmlAttributes<HTMLParamElement> {
+export interface HtmlParamAttributes
+	extends HtmlAttributes<HTMLParamElement> {
 	name?: InProp<string>;
 	value?: InProp<string | readonly string[] | number>;
 }
 
-export interface HtmlProgressAttributes extends HtmlAttributes<HTMLProgressElement> {
+export interface HtmlProgressAttributes
+	extends HtmlAttributes<HTMLProgressElement> {
 	max?: InProp<number | string>;
 	value?: InProp<string | readonly string[] | number>;
 }
 
-export interface HtmlSlotAttributes extends HtmlAttributes<HTMLSlotElement> {
+export interface HtmlSlotAttributes
+	extends HtmlAttributes<HTMLSlotElement> {
 	name?: InProp<string>;
 }
 
-export interface HtmlScriptAttributes extends HtmlAttributes<HTMLScriptElement> {
+export interface HtmlScriptAttributes
+	extends HtmlAttributes<HTMLScriptElement> {
 	async?: InProp<boolean>;
 	/** @deprecated */
 	charSet?: InProp<string>;
@@ -1082,7 +1215,8 @@ export interface HtmlScriptAttributes extends HtmlAttributes<HTMLScriptElement> 
 	type?: InProp<string>;
 }
 
-export interface HtmlSelectAttributes extends HtmlAttributes<HTMLSelectElement> {
+export interface HtmlSelectAttributes
+	extends HtmlAttributes<HTMLSelectElement> {
 	autoComplete?: InProp<string>;
 	disabled?: InProp<boolean>;
 	form?: InProp<string>;
@@ -1096,7 +1230,8 @@ export interface HtmlSelectAttributes extends HtmlAttributes<HTMLSelectElement> 
 	onChange?: ChangeEventSignal<HTMLSelectElement>;
 }
 
-export interface HtmlSourceAttributes extends HtmlAttributes<HTMLSourceElement> {
+export interface HtmlSourceAttributes
+	extends HtmlAttributes<HTMLSourceElement> {
 	height?: InProp<number | string>;
 	media?: InProp<string>;
 	sizes?: InProp<string>;
@@ -1106,12 +1241,14 @@ export interface HtmlSourceAttributes extends HtmlAttributes<HTMLSourceElement> 
 	width?: InProp<number | string>;
 }
 
-export interface HtmlStyleAttributes extends HtmlAttributes<HTMLStyleElement> {
+export interface HtmlStyleAttributes
+	extends HtmlAttributes<HTMLStyleElement> {
 	media?: InProp<string>;
 	type?: InProp<string>;
 }
 
-export interface HtmlTableAttributes extends HtmlAttributes<HTMLTableElement> {
+export interface HtmlTableAttributes
+	extends HtmlAttributes<HTMLTableElement> {
 	/** @deprecated */
 	align?: InProp<"left" | "center" | "right">;
 	/** @deprecated */
@@ -1132,7 +1269,8 @@ export interface HtmlTableAttributes extends HtmlAttributes<HTMLTableElement> {
 	width?: InProp<number | string>;
 }
 
-export interface HtmlTextAreaAttributes extends HtmlAttributes<HTMLTextAreaElement> {
+export interface HtmlTextAreaAttributes
+	extends HtmlAttributes<HTMLTextAreaElement> {
 	autoComplete?: InProp<string>;
 	cols?: InProp<number>;
 	dirName?: InProp<string>;
@@ -1152,7 +1290,8 @@ export interface HtmlTextAreaAttributes extends HtmlAttributes<HTMLTextAreaEleme
 	onChange?: ChangeEventSignal<HTMLTextAreaElement>;
 }
 
-export interface HtmlTdAttributes extends HtmlAttributes<HTMLTableCellElement> {
+export interface HtmlTdAttributes
+	extends HtmlAttributes<HTMLTableCellElement> {
 	/** @deprecated */
 	abbr?: InProp<string>;
 	/** @deprecated */
@@ -1170,7 +1309,8 @@ export interface HtmlTdAttributes extends HtmlAttributes<HTMLTableCellElement> {
 	valign?: InProp<"top" | "middle" | "bottom" | "baseline">;
 }
 
-export interface HtmlThAttributes extends HtmlAttributes<HTMLTableCellElement> {
+export interface HtmlThAttributes
+	extends HtmlAttributes<HTMLTableCellElement> {
 	abbr?: InProp<string>;
 	/** @deprecated */
 	align?: InProp<"left" | "center" | "right" | "justify" | "char">;
@@ -1180,11 +1320,13 @@ export interface HtmlThAttributes extends HtmlAttributes<HTMLTableCellElement> {
 	scope?: InProp<string>;
 }
 
-export interface HtmlTimeAttributes extends HtmlAttributes<HTMLTimeElement> {
+export interface HtmlTimeAttributes
+	extends HtmlAttributes<HTMLTimeElement> {
 	dateTime: string;
 }
 
-export interface HtmlTrackAttributes extends HtmlAttributes<HTMLTrackElement> {
+export interface HtmlTrackAttributes
+	extends HtmlAttributes<HTMLTrackElement> {
 	default?: InProp<boolean>;
 	kind?: InProp<string>;
 	label?: InProp<string>;
@@ -1192,7 +1334,8 @@ export interface HtmlTrackAttributes extends HtmlAttributes<HTMLTrackElement> {
 	srcLang?: InProp<string>;
 }
 
-export interface HtmlVideoAttributes extends HtmlMediaAttributes<HTMLVideoElement> {
+export interface HtmlVideoAttributes
+	extends HtmlMediaAttributes<HTMLVideoElement> {
 	height?: InProp<number | string>;
 	playsInline?: InProp<boolean>;
 	poster?: InProp<string>;
@@ -1325,7 +1468,9 @@ export interface HtmlAttributesTagNameMap {
 
 export type HtmlTagName = keyof HtmlAttributesTagNameMap;
 
-export interface SVGAttributes<T extends EventTarget> extends AriaAttributes, DomAttributes<T> {
+export interface SVGAttributes<T extends EventTarget>
+	extends AriaAttributes,
+		DomAttributes<T> {
 	// Attributes which also defined in HtmlAttributes
 	className?: InProp<string>;
 	class?: InProp<string>;
@@ -1346,41 +1491,56 @@ export interface SVGAttributes<T extends EventTarget> extends AriaAttributes, Do
 	// Other HTML properties supported by SVG elements in browsers
 	role?: InProp<AriaRole>;
 	tabindex?: InProp<number>;
-	crossorigin?: InProp<'anonymous' | 'use-credentials' | ''>;
+	crossorigin?: InProp<"anonymous" | "use-credentials" | "">;
 
 	// SVG Specific attributes
-	'accent-height'?: InProp<number | string>;
-	accumulate?: InProp<'none' | 'sum'>;
-	additive?: InProp<'replace' | 'sum'>;
-	'alignment-baseline'?: 'auto' | 'baseline' | 'before-edge' | 'text-before-edge' | 'middle' |
-	  'central' | 'after-edge' | 'text-after-edge' | 'ideographic' | 'alphabetic' | 'hanging' |
-	  'mathematical' | 'inherit';
-	allowReorder?: InProp<'no' | 'yes'>;
+	"accent-height"?: InProp<number | string>;
+	accumulate?: InProp<"none" | "sum">;
+	additive?: InProp<"replace" | "sum">;
+	"alignment-baseline"?:
+		| "auto"
+		| "baseline"
+		| "before-edge"
+		| "text-before-edge"
+		| "middle"
+		| "central"
+		| "after-edge"
+		| "text-after-edge"
+		| "ideographic"
+		| "alphabetic"
+		| "hanging"
+		| "mathematical"
+		| "inherit";
+	allowReorder?: InProp<"no" | "yes">;
 	alphabetic?: InProp<number | string>;
 	amplitude?: InProp<number | string>;
-	'arabic-form'?: InProp<'initial' | 'medial' | 'terminal' | 'isolated'>;
+	"arabic-form"?: InProp<
+		"initial" | "medial" | "terminal" | "isolated"
+	>;
 	ascent?: InProp<number | string>;
 	attributeName?: InProp<string>;
 	attributeType?: InProp<string>;
 	autoReverse?: InProp<number | string>;
 	azimuth?: InProp<number | string>;
 	baseFrequency?: InProp<number | string>;
-	'baseline-shift'?: InProp<number | string>;
+	"baseline-shift"?: InProp<number | string>;
 	baseProfile?: InProp<number | string>;
 	bbox?: InProp<number | string>;
 	begin?: InProp<number | string>;
 	bias?: InProp<number | string>;
 	by?: InProp<number | string>;
 	calcMode?: InProp<number | string>;
-	'cap-height'?: InProp<number | string>;
+	"cap-height"?: InProp<number | string>;
 	clip?: InProp<number | string>;
-	'clip-path'?: InProp<string>;
+	"clip-path"?: InProp<string>;
 	clipPathUnits?: InProp<number | string>;
-	'clip-rule'?: InProp<number | string>;
-	'color-interpolation'?: InProp<number | string>;
-	'color-interpolation-filters'?: InProp<'auto' | 'sRGB' | 'linearRGB' | 'inherit'>;
-	'color-profile'?: InProp<number | string>;
-	'color-rendering'?: InProp<number | string>;
+	"clip-rule"?: InProp<number | string>;
+	"color-interpolation"?: InProp<number | string>;
+	"color-interpolation-filters"?: InProp<
+		"auto" | "sRGB" | "linearRGB" | "inherit"
+	>;
+	"color-profile"?: InProp<number | string>;
+	"color-rendering"?: InProp<number | string>;
 	contentScriptType?: InProp<number | string>;
 	contentStyleType?: InProp<number | string>;
 	cursor?: InProp<number | string>;
@@ -1393,50 +1553,50 @@ export interface SVGAttributes<T extends EventTarget> extends AriaAttributes, Do
 	direction?: InProp<number | string>;
 	display?: InProp<number | string>;
 	divisor?: InProp<number | string>;
-	'dominant-baseline'?: InProp<number | string>;
+	"dominant-baseline"?: InProp<number | string>;
 	dur?: InProp<number | string>;
 	dx?: InProp<number | string>;
 	dy?: InProp<number | string>;
 	edgeMode?: InProp<number | string>;
 	elevation?: InProp<number | string>;
-	'enable-background'?: InProp<number | string>;
+	"enable-background"?: InProp<number | string>;
 	end?: InProp<number | string>;
 	exponent?: InProp<number | string>;
 	externalResourcesRequired?: InProp<number | string>;
 	fill?: InProp<string>;
-	'fill-opacity'?: InProp<number | string>;
-	'fill-rule'?: InProp<'nonzero' | 'evenodd' | 'inherit'>;
+	"fill-opacity"?: InProp<number | string>;
+	"fill-rule"?: InProp<"nonzero" | "evenodd" | "inherit">;
 	filter?: InProp<string>;
 	filterRes?: InProp<number | string>;
 	filterUnits?: InProp<number | string>;
-	'flood-color'?: InProp<number | string>;
-	'flood-opacity'?: InProp<number | string>;
+	"flood-color"?: InProp<number | string>;
+	"flood-opacity"?: InProp<number | string>;
 	focusable?: InProp<number | string>;
-	'font-family'?: InProp<string>;
-	'font-size'?: InProp<number | string>;
-	'font-size-adjust'?: InProp<number | string>;
-	'font-stretch'?: InProp<number | string>;
-	'font-style'?: InProp<number | string>;
-	'font-variant'?: InProp<number | string>;
-	'font-weight'?: InProp<number | string>;
+	"font-family"?: InProp<string>;
+	"font-size"?: InProp<number | string>;
+	"font-size-adjust"?: InProp<number | string>;
+	"font-stretch"?: InProp<number | string>;
+	"font-style"?: InProp<number | string>;
+	"font-variant"?: InProp<number | string>;
+	"font-weight"?: InProp<number | string>;
 	format?: InProp<number | string>;
 	from?: InProp<number | string>;
 	fx?: InProp<number | string>;
 	fy?: InProp<number | string>;
 	g1?: InProp<number | string>;
 	g2?: InProp<number | string>;
-	'glyph-name'?: InProp<number | string>;
-	'glyph-orientation-horizontal'?: InProp<number | string>;
-	'glyph-orientation-vertical'?: InProp<number | string>;
+	"glyph-name"?: InProp<number | string>;
+	"glyph-orientation-horizontal"?: InProp<number | string>;
+	"glyph-orientation-vertical"?: InProp<number | string>;
 	glyphRef?: InProp<number | string>;
 	gradientTransform?: InProp<string>;
 	gradientUnits?: InProp<string>;
 	hanging?: InProp<number | string>;
 	href?: InProp<string>;
-	'horiz-adv-x'?: InProp<number | string>;
-	'horiz-origin-x'?: InProp<number | string>;
+	"horiz-adv-x"?: InProp<number | string>;
+	"horiz-origin-x"?: InProp<number | string>;
 	ideographic?: InProp<number | string>;
-	'image-rendering'?: InProp<number | string>;
+	"image-rendering"?: InProp<number | string>;
 	in2?: InProp<number | string>;
 	in?: InProp<string>;
 	intercept?: InProp<number | string>;
@@ -1452,14 +1612,14 @@ export interface SVGAttributes<T extends EventTarget> extends AriaAttributes, Do
 	keySplines?: InProp<number | string>;
 	keyTimes?: InProp<number | string>;
 	lengthAdjust?: InProp<number | string>;
-	'letter-spacing'?: InProp<number | string>;
-	'lighting-color'?: InProp<number | string>;
+	"letter-spacing"?: InProp<number | string>;
+	"lighting-color"?: InProp<number | string>;
 	limitingConeAngle?: InProp<number | string>;
 	local?: InProp<number | string>;
-	'marker-end'?: InProp<string>;
+	"marker-end"?: InProp<string>;
 	markerHeight?: InProp<number | string>;
-	'marker-mid'?: InProp<string>;
-	'marker-start'?: InProp<string>;
+	"marker-mid"?: InProp<string>;
+	"marker-start"?: InProp<string>;
 	markerUnits?: InProp<number | string>;
 	markerWidth?: InProp<number | string>;
 	mask?: InProp<string>;
@@ -1476,16 +1636,16 @@ export interface SVGAttributes<T extends EventTarget> extends AriaAttributes, Do
 	orientation?: InProp<number | string>;
 	origin?: InProp<number | string>;
 	overflow?: InProp<number | string>;
-	'overline-position'?: InProp<number | string>;
-	'overline-thickness'?: InProp<number | string>;
-	'paint-order'?: InProp<number | string>;
-	'panose-1'?: InProp<number | string>;
+	"overline-position"?: InProp<number | string>;
+	"overline-thickness"?: InProp<number | string>;
+	"paint-order"?: InProp<number | string>;
+	"panose-1"?: InProp<number | string>;
 	path?: InProp<string>;
 	pathLength?: InProp<number | string>;
 	patternContentUnits?: InProp<string>;
 	patternTransform?: InProp<number | string>;
 	patternUnits?: InProp<string>;
-	'pointer-events'?: InProp<number | string>;
+	"pointer-events"?: InProp<number | string>;
 	points?: InProp<string>;
 	pointsAtX?: InProp<number | string>;
 	pointsAtY?: InProp<number | string>;
@@ -1497,7 +1657,7 @@ export interface SVGAttributes<T extends EventTarget> extends AriaAttributes, Do
 	radius?: InProp<number | string>;
 	refX?: InProp<number | string>;
 	refY?: InProp<number | string>;
-	'rendering-intent'?: InProp<number | string>;
+	"rendering-intent"?: InProp<number | string>;
 	repeatCount?: InProp<number | string>;
 	repeatDur?: InProp<number | string>;
 	requiredExtensions?: InProp<number | string>;
@@ -1509,7 +1669,7 @@ export interface SVGAttributes<T extends EventTarget> extends AriaAttributes, Do
 	ry?: InProp<number | string>;
 	scale?: InProp<number | string>;
 	seed?: InProp<number | string>;
-	'shape-rendering'?: InProp<number | string>;
+	"shape-rendering"?: InProp<number | string>;
 	slope?: InProp<number | string>;
 	spacing?: InProp<number | string>;
 	specularConstant?: InProp<number | string>;
@@ -1521,71 +1681,71 @@ export interface SVGAttributes<T extends EventTarget> extends AriaAttributes, Do
 	stemh?: InProp<number | string>;
 	stemv?: InProp<number | string>;
 	stitchTiles?: InProp<number | string>;
-	'stop-color'?: InProp<string>;
-	'stop-opacity'?: InProp<number | string>;
-	'strikethrough-position'?: InProp<number | string>;
-	'strikethrough-thickness'?: InProp<number | string>;
+	"stop-color"?: InProp<string>;
+	"stop-opacity"?: InProp<number | string>;
+	"strikethrough-position"?: InProp<number | string>;
+	"strikethrough-thickness"?: InProp<number | string>;
 	string?: InProp<number | string>;
 	stroke?: InProp<string>;
-	'stroke-dasharray'?: InProp<string | number>;
-	'stroke-dashoffset'?: InProp<string | number>;
-	'stroke-linecap'?: InProp<'butt' | 'round' | 'square' | 'inherit'>;
-	'stroke-linejoin'?: InProp<'miter' | 'round' | 'bevel' | 'inherit'>;
-	'stroke-miterlimit'?: InProp<string>;
-	'stroke-opacity'?: InProp<number | string>;
-	'stroke-width'?: InProp<number | string>;
+	"stroke-dasharray"?: InProp<string | number>;
+	"stroke-dashoffset"?: InProp<string | number>;
+	"stroke-linecap"?: InProp<"butt" | "round" | "square" | "inherit">;
+	"stroke-linejoin"?: InProp<"miter" | "round" | "bevel" | "inherit">;
+	"stroke-miterlimit"?: InProp<string>;
+	"stroke-opacity"?: InProp<number | string>;
+	"stroke-width"?: InProp<number | string>;
 	surfaceScale?: InProp<number | string>;
 	systemLanguage?: InProp<number | string>;
 	tableValues?: InProp<number | string>;
 	targetX?: InProp<number | string>;
 	targetY?: InProp<number | string>;
-	'text-anchor'?: InProp<string>;
-	'text-decoration'?: InProp<number | string>;
+	"text-anchor"?: InProp<string>;
+	"text-decoration"?: InProp<number | string>;
 	textLength?: InProp<number | string>;
-	'text-rendering'?: InProp<number | string>;
+	"text-rendering"?: InProp<number | string>;
 	to?: InProp<number | string>;
 	transform?: InProp<string>;
 	u1?: InProp<number | string>;
 	u2?: InProp<number | string>;
-	'underline-position'?: InProp<number | string>;
-	'underline-thickness'?: InProp<number | string>;
+	"underline-position"?: InProp<number | string>;
+	"underline-thickness"?: InProp<number | string>;
 	unicode?: InProp<number | string>;
-	'unicode-bidi'?: InProp<number | string>;
-	'unicode-range'?: InProp<number | string>;
-	'units-per-em'?: InProp<number | string>;
-	'v-alphabetic'?: InProp<number | string>;
+	"unicode-bidi"?: InProp<number | string>;
+	"unicode-range"?: InProp<number | string>;
+	"units-per-em"?: InProp<number | string>;
+	"v-alphabetic"?: InProp<number | string>;
 	values?: InProp<string>;
-	'vector-effect'?: InProp<number | string>;
+	"vector-effect"?: InProp<number | string>;
 	version?: InProp<string>;
-	'vert-adv-y'?: InProp<number | string>;
-	'vert-origin-x'?: InProp<number | string>;
-	'vert-origin-y'?: InProp<number | string>;
-	'v-hanging'?: InProp<number | string>;
-	'v-ideographic'?: InProp<number | string>;
+	"vert-adv-y"?: InProp<number | string>;
+	"vert-origin-x"?: InProp<number | string>;
+	"vert-origin-y"?: InProp<number | string>;
+	"v-hanging"?: InProp<number | string>;
+	"v-ideographic"?: InProp<number | string>;
 	viewBox?: InProp<string>;
 	viewTarget?: InProp<number | string>;
 	visibility?: InProp<number | string>;
-	'v-mathematical'?: InProp<number | string>;
+	"v-mathematical"?: InProp<number | string>;
 	widths?: InProp<number | string>;
-	'word-spacing'?: InProp<number | string>;
-	'writing-mode'?: InProp<number | string>;
+	"word-spacing"?: InProp<number | string>;
+	"writing-mode"?: InProp<number | string>;
 	x1?: InProp<number | string>;
 	x2?: InProp<number | string>;
 	x?: InProp<number | string>;
 	xChannelSelector?: InProp<string>;
-	'x-height'?: InProp<number | string>;
-	'xlink:actuate'?: InProp<string>;
-	'xlink:arcrole'?: InProp<string>;
-	'xlink:href'?: InProp<string>;
-	'xlink:role'?: InProp<string>;
-	'xlink:show'?: InProp<string>;
-	'xlink:title'?: InProp<string>;
-	'xlink:type'?: InProp<string>;
-	'xml:base'?: InProp<string>;
-	'xml:lang'?: InProp<string>;
+	"x-height"?: InProp<number | string>;
+	"xlink:actuate"?: InProp<string>;
+	"xlink:arcrole"?: InProp<string>;
+	"xlink:href"?: InProp<string>;
+	"xlink:role"?: InProp<string>;
+	"xlink:show"?: InProp<string>;
+	"xlink:title"?: InProp<string>;
+	"xlink:type"?: InProp<string>;
+	"xml:base"?: InProp<string>;
+	"xml:lang"?: InProp<string>;
 	xmlns?: InProp<string>;
-	'xmlns:xlink'?: InProp<string>;
-	'xml:space'?: InProp<string>;
+	"xmlns:xlink"?: InProp<string>;
+	"xml:space"?: InProp<string>;
 	y1?: InProp<number | string>;
 	y2?: InProp<number | string>;
 	y?: InProp<number | string>;

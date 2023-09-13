@@ -21,5 +21,6 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 `;
 
 Counter({}).mount({
-	htmlParent: document.querySelector<HTMLButtonElement>("#root")!,
+	domDocument: document,
+	domParent: document.querySelector<HTMLButtonElement>("#root")!,
 });

@@ -16,7 +16,12 @@ export const Counter = Component(() => {
 	const text = count.map((c) => `count it ${c}`);
 	const isEven = count.map((c) => c % 2 === 0);
 
-	const aggregate = count.scan((r, x) => [...r, x], [] as number[]);
+	const doubled = count.map((c) => 2 * c);
+	const doubledText = count
+		.zip(doubled)
+		.map(([c, d]) => `The number ${c} doubled is ${d}.`);
+
+	const aggregate = count.scan<number[]>((r, x) => [...r, x], []);
 	const sum = aggregate.map((arr) => arr.reduce((a, b) => a + b));
 	const aggregateStr = aggregate.map(
 		(arr) => `${arr.join(" + ")} = ${sum.get()}`,
@@ -29,6 +34,9 @@ export const Counter = Component(() => {
 				children: [DomText({ text })],
 			}),
 			br(),
+			p({
+				children: [DomText({ text: doubledText })],
+			}),
 			p({
 				children: [DomText({ text: aggregateStr })],
 			}),

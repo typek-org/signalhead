@@ -1,9 +1,10 @@
-import { type Mountable } from "./types.ts";
-import { cons, type Signal } from "../signals";
+import { type Mountable } from "../types.ts";
+import { cons, type Signal } from "../../signals";
 import {
 	HtmlAttributesTagNameMap,
 	HtmlTagName,
 } from "./html-types.ts";
+import { DomElement } from "./dom-element.ts";
 
 export type HtmlProps<T extends HtmlTagName> =
 	HtmlAttributesTagNameMap[T] & {
@@ -11,58 +12,10 @@ export type HtmlProps<T extends HtmlTagName> =
 		children?: Mountable<any>[];
 	};
 
-export interface HtmlContext {
-	htmlParent: HTMLElement;
-}
-
-export const Html = <T extends HtmlTagName>({
-	tag,
-	children,
-	self,
-	...props
-}: HtmlProps<T>): Mountable<HtmlContext> => ({
-	mount(ctx: HtmlContext) {
-		return tag.subscribe(($tag, { defer }) => {
-			// create new element
-			const el = document.createElement($tag as string);
-			defer(() => el.remove());
-
-			// assign props and events
-			for (let [attr, val] of Object.entries(props)) {
-				const eventMatch = attr.match(/^on([A-Z].*)$/);
-
-				if (eventMatch) {
-					const eventName = eventMatch[1].toLowerCase();
-
-					const callback = (e: any) => val.set(e);
-					el.addEventListener(eventName, callback);
-					defer(() => el.removeEventListener(eventName, callback));
-				} else {
-					if (attr === "httpEquiv") attr = "http-equiv";
-					attr = attr.toLowerCase();
-					el.setAttribute(attr, val);
-				}
-			}
-
-			// mount children
-			const childContext = { ...ctx, htmlParent: el };
-			for (const child of children ?? []) {
-				defer(child.mount(childContext));
-			}
-
-			// mount into dom
-			ctx.htmlParent.appendChild(el);
-
-			// update self
-			self?.set(el as any);
-		});
-	},
-});
-
 const tag =
 	<T extends HtmlTagName>(t: T) =>
 	(props: Omit<HtmlProps<T>, "tag"> = {} as any) =>
-		Html<T>({ ...props, tag: cons(t) } as HtmlProps<T>);
+		DomElement({ ...props, tag: cons(t) });
 
 export const a = tag("a");
 export const abbr = tag("abbr");

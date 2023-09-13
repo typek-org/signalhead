@@ -1,5 +1,5 @@
-import type { Signal } from "../signals";
-import type { Mountable } from "./types.ts";
+import type { Signal } from "../../signals";
+import type { Mountable } from "../types";
 
 export interface IfProps<Context> {
 	cond: Signal<boolean>;

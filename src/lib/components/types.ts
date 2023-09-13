@@ -18,15 +18,6 @@ export const coerceToSignal = <T>(x: InProp<T>) => {
 	}
 };
 
-export const isInOutProp = (x: any): x is InOutProp<any> =>
-	"subscribe" in x &&
-	typeof x.subscribe === "function" &&
-	"set" in x &&
-	typeof x.set === "function";
-
-export const isOutProp = (x: any): x is OutProp<any> =>
-	!("subscribe" in x) && "set" in x && typeof x.set === "function";
-
 export type Component<Props, Context> = (
 	props: Props,
 ) => Mountable<Context>;
