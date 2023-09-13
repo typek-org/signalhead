@@ -1,8 +1,9 @@
-import {
-	type Updater,
-	type WritableSignal as WritableSignal_,
-	type WriteonlySignal,
-	type MinimalSubscriber,
+import type {
+	Updater,
+	WritableSignal as WritableSignal_,
+	WriteonlySignal,
+	MinimalSubscriber,
+	Invalidator,
 } from "./types.ts";
 import { Signal } from "./readable.ts";
 
@@ -16,10 +17,17 @@ export const WritableSignal: {
 	const get = () => value;
 
 	const subs = new Set<MinimalSubscriber<T>>();
-	const minSubscribe = (s: MinimalSubscriber<T>) => {
+	const invs = new Set<Invalidator>();
+	const minSubscribe = (s: MinimalSubscriber<T>, i?: Invalidator) => {
 		subs.add(s);
+		if (i) invs.add(i);
+
 		s(value);
-		return () => subs.delete(s);
+
+		return () => {
+			subs.delete(s);
+			if (i) invs.delete(i);
+		};
 	};
 	const { subscribe } = Signal.fromMinimal({
 		subscribe: minSubscribe,
@@ -28,6 +36,7 @@ export const WritableSignal: {
 
 	const set = (v: T) => {
 		value = v;
+		invs.forEach((i) => i());
 		subs.forEach((s) => s(value));
 	};
 	const update = (fn: Updater<T>) => set(fn(value));

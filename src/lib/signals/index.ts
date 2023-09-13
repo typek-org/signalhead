@@ -14,3 +14,5 @@ export * from "./writable.ts";
 export * from "./cons.ts";
 export * from "./map.ts";
 export * from "./enumerate.ts";
+export * from "./scan.ts";
+export * from "./zip.ts";

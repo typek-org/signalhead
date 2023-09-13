@@ -1,6 +1,17 @@
 export type MinimalSubscriber<T> = (value: T) => void;
 export type Unsubscriber = () => void;
+export type Invalidator = () => void;
 export type Updater<T> = (value: T) => T;
+
+export type SignalValue<S extends MinimalSignal<any>> =
+	S extends MinimalSignal<infer V> ? V : never;
+export type SignalArrayValues<S extends MinimalSignal<any>[]> =
+	S extends [
+		infer T extends MinimalSignal<any>,
+		...infer U extends MinimalSignal<any>[],
+	]
+		? [SignalValue<T>, ...SignalArrayValues<U>]
+		: [];
 
 export interface SubscriberParams<T> {
 	oldValue: T | undefined;
@@ -12,19 +23,37 @@ export type Subscriber<T> = (
 ) => void;
 
 export interface MinimalSignal<T> {
-	subscribe(fn: MinimalSubscriber<T>): Unsubscriber;
+	subscribe(
+		subscriber: MinimalSubscriber<T>,
+		invalidate?: Invalidator,
+	): Unsubscriber;
+
 	get?(): T | undefined;
 }
 
 export interface Signal<T> extends MinimalSignal<T> {
-	subscribe(fn: Subscriber<T>): Unsubscriber;
+	subscribe(
+		subscriber: Subscriber<T>,
+		invalidate?: Invalidator,
+	): Unsubscriber;
+
 	get(): T | undefined;
 	map<S>(fn: (value: T) => S): Signal<S>;
 	enumerate(): Signal<[number, T]>;
 	count(): Signal<number>;
+
 	scan(fn: (prev: T, curr: T) => T): Signal<T>;
 	scan(fn: (prev: T, curr: T) => T, initialValue: T): Signal<T>;
 	scan<U>(fn: (prev: U, curr: T) => U, initialValue: U): Signal<U>;
+
+	zip<U>(other: MinimalSignal<U>): Signal<[T, U]>;
+	zip<U, V>(
+		other1: MinimalSignal<U>,
+		other2: MinimalSignal<V>,
+	): Signal<[T, U, V]>;
+	zip<U extends MinimalSignal<any>[]>(
+		...signals: U
+	): Signal<SignalArrayValues<U>>;
 }
 
 export interface WriteonlySignal<T> {

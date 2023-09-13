@@ -3,15 +3,26 @@ import { CountedSignal } from "./count.ts";
 import { EnumeratedSignal } from "./enumerate.ts";
 import { MappedSignal } from "./map.ts";
 import { ScannedSignal } from "./scan.ts";
-import {
+import type {
 	Subscriber,
-	type MinimalSignal,
-	type Signal as Signal_,
+	MinimalSignal,
+	Signal as Signal_,
 	Unsubscriber,
+	Invalidator,
+	WriteonlySignal,
 } from "./types.ts";
+import { ZippedSignal } from "./zip.ts";
 
 export type Signal<T> = Signal_<T>;
 export const Signal = {
+	get<T>(signal: MinimalSignal<T>): T | undefined {
+		if (signal.get) return signal.get()!;
+
+		let value: T | undefined;
+		signal.subscribe((v) => (value = v))();
+		return value;
+	},
+
 	fromSubscribeAndGet<T>({
 		subscribe,
 		get,
@@ -25,42 +36,55 @@ export const Signal = {
 		const scan = <U>(fn: (prev: U, curr: T) => U, initialValue?: U) =>
 			ScannedSignal({ subscribe, get }, fn, initialValue!);
 
-		return { subscribe, get, map, enumerate, count, scan };
+		const zip = (...signals: MinimalSignal<any>[]): Signal<any> =>
+			ZippedSignal({ subscribe, get }, ...signals);
+
+		return { subscribe, get, map, enumerate, count, scan, zip };
 	},
 
 	fromMinimal<T>(signal: MinimalSignal<T>): Signal<T> {
 		let unsub: Unsubscriber = () => {};
 		let value: T | undefined;
 		const subs = new Set<Subscriber<T>>();
+		const invs = new Set<Invalidator>();
 		const deferred = new MapSet<Subscriber<T>, Unsubscriber>();
 
 		const start = () => {
-			unsub = signal.subscribe((val) => {
-				for (const d of deferred.flatValues()) d();
-				deferred.clear();
+			unsub = signal.subscribe(
+				(val) => {
+					for (const d of deferred.flatValues()) d();
+					deferred.clear();
 
-				const oldValue = value;
-				value = val;
+					const oldValue = value;
+					value = val;
 
-				for (const s of subs) {
-					const defer = (d: Unsubscriber) => deferred.add(s, d);
-					s(val, { oldValue, defer });
-				}
-			});
+					for (const s of subs) {
+						const defer = (d: Unsubscriber) => deferred.add(s, d);
+						s(val, { oldValue, defer });
+					}
+				},
+				() => {
+					invs.forEach((i) => i());
+				},
+			);
 		};
 		const stop = () => {
 			unsub();
 			unsub = () => {};
 		};
 
-		const subscribe = (s: Subscriber<T>) => {
+		const subscribe = (s: Subscriber<T>, i?: Invalidator) => {
 			if (subs.size === 0) start();
+
 			subs.add(s);
+			if (i) invs.add(i);
+
 			const defer = (d: Unsubscriber) => deferred.add(s, d);
 			s(value!, { oldValue: value, defer });
 
 			return () => {
 				subs.delete(s);
+				if (i) invs.delete(i);
 				for (const d of deferred.get(s) ?? []) d();
 				deferred.delete(s);
 			};
@@ -76,5 +100,21 @@ export const Signal = {
 		};
 
 		return Signal.fromSubscribeAndGet({ subscribe, get });
+	},
+
+	isReadable(s: any): s is MinimalSignal<any> {
+		return (
+			(typeof s === "object" || typeof s === "function") &&
+			"subscribe" in s &&
+			typeof s.subscribe === "function"
+		);
+	},
+
+	isWritable(s: any): s is WriteonlySignal<any> {
+		return (
+			(typeof s === "object" || typeof s === "function") &&
+			"set" in s &&
+			typeof s.set === "function"
+		);
 	},
 };
