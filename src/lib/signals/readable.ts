@@ -1,5 +1,6 @@
 import { MapSet } from "../utils/collections.ts";
 import { CountedSignal } from "./count.ts";
+import { SideEffectSignal } from "./do.ts";
 import { EnumeratedSignal } from "./enumerate.ts";
 import { MappedSignal } from "./map.ts";
 import { ScannedSignal } from "./scan.ts";
@@ -33,13 +34,27 @@ export const Signal = {
 		const enumerate = () => EnumeratedSignal({ subscribe, get });
 		const count = () => CountedSignal({ subscribe, get });
 
+		const do_ = (
+			listener: (value: T) => void,
+			options?: { keepAlive?: boolean },
+		) => SideEffectSignal({ subscribe, get }, listener, options);
+
 		const scan = <U>(fn: (prev: U, curr: T) => U, initialValue?: U) =>
 			ScannedSignal({ subscribe, get }, fn, initialValue!);
 
 		const zip = (...signals: MinimalSignal<any>[]): Signal<any> =>
 			ZippedSignal({ subscribe, get }, ...signals);
 
-		return { subscribe, get, map, enumerate, count, scan, zip };
+		return {
+			subscribe,
+			get,
+			map,
+			enumerate,
+			count,
+			do: do_,
+			scan,
+			zip,
+		};
 	},
 
 	fromMinimal<T>(signal: MinimalSignal<T>): Signal<T> {
