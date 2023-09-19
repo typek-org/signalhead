@@ -59,7 +59,7 @@ export interface Signal<T> extends MinimalSignal<T> {
 		...signals: U
 	): Signal<SignalArrayValues<U>>;
 
-	do(
+	tap(
 		fn: (value: T) => void,
 		options?: { keepAlive?: boolean },
 	): Signal<T>;

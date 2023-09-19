@@ -1,6 +1,6 @@
 import { MapSet } from "../utils/collections.ts";
 import { CountedSignal } from "./count.ts";
-import { SideEffectSignal } from "./do.ts";
+import { TappedSignal } from "./tap.ts";
 import { EnumeratedSignal } from "./enumerate.ts";
 import { FlatSignal } from "./flat.ts";
 import { FlatMappedSignal } from "./flatMap.ts";
@@ -36,10 +36,10 @@ export const Signal = {
 		const enumerate = () => EnumeratedSignal({ subscribe, get });
 		const count = () => CountedSignal({ subscribe, get });
 
-		const do_ = (
+		const tap = (
 			listener: (value: T) => void,
 			options?: { keepAlive?: boolean },
-		) => SideEffectSignal({ subscribe, get }, listener, options);
+		) => TappedSignal({ subscribe, get }, listener, options);
 
 		const flat = <D extends number>(depth?: D): any =>
 			FlatSignal({ subscribe, get }, depth);
@@ -61,7 +61,7 @@ export const Signal = {
 			flat,
 			flatMap,
 			count,
-			do: do_,
+			tap,
 			scan,
 			zip,
 		};

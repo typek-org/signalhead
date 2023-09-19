@@ -14,7 +14,7 @@ export * from "./writable.ts";
 
 export * from "./cons.ts";
 export * from "./count.ts";
-export * from "./do.ts";
+export * from "./tap.ts";
 export * from "./enumerate.ts";
 export * from "./flat.ts";
 export * from "./flatMap.ts";

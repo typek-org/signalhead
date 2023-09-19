@@ -1,7 +1,7 @@
-import { MappedSignal } from "./map.ts";
-import type { MinimalSignal, Signal } from "./types.ts";
+import { MappedSignal } from "./map.js";
+import type { MinimalSignal, Signal } from "./types.js";
 
-export const SideEffectSignal = <T>(
+export const TappedSignal = <T>(
 	signal: MinimalSignal<T>,
 	listener: (value: T) => void,
 	{ keepAlive }: { keepAlive?: boolean } = {},
