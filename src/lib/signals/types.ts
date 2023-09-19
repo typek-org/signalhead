@@ -1,3 +1,5 @@
+import { FlatSignal } from "./flat";
+
 export type MinimalSubscriber<T> = (value: T) => void;
 export type Unsubscriber = () => void;
 export type Invalidator = () => void;
@@ -40,6 +42,8 @@ export interface Signal<T> extends MinimalSignal<T> {
 	get(): T | undefined;
 	map<S>(fn: (value: T) => S): Signal<S>;
 	enumerate(): Signal<[number, T]>;
+	flat<D extends number = 1>(depth?: D): FlatSignal<Signal<T>, D>;
+	flatMap<S>(fn: (value: T) => S | Signal<S>): Signal<S>;
 	count(): Signal<number>;
 
 	scan(fn: (prev: T, curr: T) => T): Signal<T>;

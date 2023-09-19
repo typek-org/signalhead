@@ -2,6 +2,8 @@ import { MapSet } from "../utils/collections.ts";
 import { CountedSignal } from "./count.ts";
 import { SideEffectSignal } from "./do.ts";
 import { EnumeratedSignal } from "./enumerate.ts";
+import { FlatSignal } from "./flat.ts";
+import { FlatMappedSignal } from "./flatMap.ts";
 import { MappedSignal } from "./map.ts";
 import { ScannedSignal } from "./scan.ts";
 import type {
@@ -39,6 +41,12 @@ export const Signal = {
 			options?: { keepAlive?: boolean },
 		) => SideEffectSignal({ subscribe, get }, listener, options);
 
+		const flat = <D extends number>(depth?: D): any =>
+			FlatSignal({ subscribe, get }, depth);
+
+		const flatMap = <S>(fn: (value: T) => S | MinimalSignal<S>) =>
+			FlatMappedSignal({ subscribe, get }, fn);
+
 		const scan = <U>(fn: (prev: U, curr: T) => U, initialValue?: U) =>
 			ScannedSignal({ subscribe, get }, fn, initialValue!);
 
@@ -50,6 +58,8 @@ export const Signal = {
 			get,
 			map,
 			enumerate,
+			flat,
+			flatMap,
 			count,
 			do: do_,
 			scan,
