@@ -11,9 +11,11 @@ export type {
 
 export * from "./readable.ts";
 export * from "./writable.ts";
+
 export * from "./cons.ts";
+export * from "./count.ts";
 export * from "./do.ts";
-export * from "./map.ts";
 export * from "./enumerate.ts";
+export * from "./map.ts";
 export * from "./scan.ts";
 export * from "./zip.ts";

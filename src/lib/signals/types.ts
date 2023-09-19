@@ -55,7 +55,10 @@ export interface Signal<T> extends MinimalSignal<T> {
 		...signals: U
 	): Signal<SignalArrayValues<U>>;
 
-	do(fn: (value: T) => void, options?: { keepAlive?: boolean }): this;
+	do(
+		fn: (value: T) => void,
+		options?: { keepAlive?: boolean },
+	): Signal<T>;
 }
 
 export interface WriteonlySignal<T> {
