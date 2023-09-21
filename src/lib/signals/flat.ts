@@ -93,7 +93,7 @@ const ShallowFlatSignal = <T>(
 		};
 	};
 
-	const get = (): T | undefined => {
+	const get = () => {
 		if (subs.size === 0) {
 			let v = Signal.get(signal);
 			if (Signal.isReadable(v)) {

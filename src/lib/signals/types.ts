@@ -30,7 +30,7 @@ export interface MinimalSignal<T> {
 		invalidate?: Invalidator,
 	): Unsubscriber;
 
-	get?(): T | undefined;
+	get?(): T;
 }
 
 export interface Signal<T> extends MinimalSignal<T> {
@@ -39,7 +39,7 @@ export interface Signal<T> extends MinimalSignal<T> {
 		invalidate?: Invalidator,
 	): Unsubscriber;
 
-	get(): T | undefined;
+	get(): T;
 	map<S>(fn: (value: T) => S): Signal<S>;
 	enumerate(): Signal<[number, T]>;
 	flat<D extends number = 1>(depth?: D): FlatSignal<Signal<T>, D>;

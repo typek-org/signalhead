@@ -18,10 +18,10 @@ import { ZippedSignal } from "./zip.ts";
 
 export type Signal<T> = Signal_<T>;
 export const Signal = {
-	get<T>(signal: MinimalSignal<T>): T | undefined {
+	get<T>(signal: MinimalSignal<T>): T {
 		if (signal.get) return signal.get()!;
 
-		let value: T | undefined;
+		let value!: T;
 		signal.subscribe((v) => (value = v))();
 		return value;
 	},
