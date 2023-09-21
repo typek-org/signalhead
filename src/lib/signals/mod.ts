@@ -1,11 +1,13 @@
 export type {
+	Invalidator,
+	MinimalSignal,
 	MinimalSubscriber,
+	MinimalWritableSignal,
+	SignalValue,
 	Subscriber,
 	SubscriberParams,
 	Unsubscriber,
 	Updater,
-	MinimalSignal,
-	MinimalWritableSignal,
 	WriteonlySignal,
 } from "./types.ts";
 
