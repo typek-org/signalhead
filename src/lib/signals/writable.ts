@@ -4,15 +4,20 @@ import type {
 	WriteonlySignal,
 	MinimalSubscriber,
 	Invalidator,
+	MinimalWritableSignal,
 } from "./types.ts";
 import { Signal } from "./readable.ts";
+import { MappedSetterSignal } from "./mappedSetter.ts";
 
 export type WritableSignal<T> = WritableSignal_<T>;
 
-export const WritableSignal: {
+/**
+ * a shorthand for WritableSignal
+ */
+export const mut: {
 	<T>(initialValue: T): WritableSignal<T>;
 	<T>(): WritableSignal<T | undefined>;
-} = <T>(initialValue?: T): WritableSignal<T> => {
+} = <T>(initialValue?: T) => {
 	let value: T = initialValue!;
 	const get = () => value;
 
@@ -39,22 +44,51 @@ export const WritableSignal: {
 		invs.forEach((i) => i());
 		subs.forEach((s) => s(value));
 	};
-	const update = (fn: Updater<T>) => set(fn(value));
 
-	const toReadonly = () =>
-		Signal.fromSubscribeAndGet({ subscribe, get });
-	const toWriteonly = (): WriteonlySignal<T> => ({ set });
-
-	return {
-		...Signal.fromSubscribeAndGet({ subscribe, get }),
+	return WritableSignal.fromSetAndSubscribeAndGet({
 		set,
-		update,
-		toReadonly,
-		toWriteonly,
-	};
+		subscribe,
+		get,
+	});
 };
 
-/**
- * a shorthand for WritableSignal
- */
-export const mut = WritableSignal;
+export const WritableSignal = Object.assign(mut, {
+	fromSetAndSubscribeAndGet<T>({
+		set,
+		subscribe,
+		get,
+	}: Pick<
+		WritableSignal<T>,
+		"set" | "subscribe" | "get"
+	>): WritableSignal<T> {
+		const update = (fn: Updater<T>) => set(fn(get()));
+
+		const toWriteonly = (): WriteonlySignal<T> => ({ set });
+		const toReadonly = () =>
+			Signal.fromSubscribeAndGet({ subscribe, get });
+
+		const withMappedSetter = (fn: (value: T) => T) =>
+			MappedSetterSignal({ set, subscribe, get }, fn);
+
+		return {
+			...Signal.fromSubscribeAndGet({ subscribe, get }),
+			set,
+			update,
+			toReadonly,
+			toWriteonly,
+			withMappedSetter,
+		};
+	},
+
+	fromMinimal<T>(
+		signal: MinimalWritableSignal<T>,
+	): WritableSignal<T> {
+		const { set } = signal;
+		const { subscribe, get } = Signal.fromMinimal(signal);
+		return WritableSignal.fromSetAndSubscribeAndGet({
+			set,
+			subscribe,
+			get,
+		});
+	},
+});
