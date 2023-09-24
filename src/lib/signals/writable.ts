@@ -11,19 +11,41 @@ import { MappedSetterSignal } from "./mappedSetter.ts";
 
 export type WritableSignal<T> = WritableSignal_<T>;
 
+export interface WritableSignalOptions {
+	/**
+	 * Called when a subscriber is added to a previously subscriber-less signal.
+	 */
+	onStart?(props: { defer: (destructor: () => void) => void }): void;
+
+	/**
+	 * Called when all subscribers unsubscribe.
+	 */
+	onStop?(): void;
+}
+
 /**
  * a shorthand for WritableSignal
  */
 export const mut: {
-	<T>(initialValue: T): WritableSignal<T>;
+	<T>(
+		initialValue: T,
+		opts?: WritableSignalOptions,
+	): WritableSignal<T>;
 	<T>(): WritableSignal<T | undefined>;
-} = <T>(initialValue?: T) => {
+} = <T>(
+	initialValue?: T,
+	{ onStart, onStop }: WritableSignalOptions = {},
+) => {
 	let value: T = initialValue!;
 	const get = () => value;
 
 	const subs = new Set<MinimalSubscriber<T>>();
 	const invs = new Set<Invalidator>();
+	const defered: Array<() => void> = [];
+	const defer = (d: () => void) => void defered.push(d);
+
 	const minSubscribe = (s: MinimalSubscriber<T>, i?: Invalidator) => {
+		if (subs.size === 0) onStart?.({ defer });
 		subs.add(s);
 		if (i) invs.add(i);
 
@@ -32,6 +54,12 @@ export const mut: {
 		return () => {
 			subs.delete(s);
 			if (i) invs.delete(i);
+
+			if (subs.size === 0) {
+				for (const d of defered) d();
+				defered.length = 0;
+				onStop?.();
+			}
 		};
 	};
 	const { subscribe } = Signal.fromMinimal({
