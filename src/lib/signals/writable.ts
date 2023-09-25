@@ -21,6 +21,13 @@ export interface WritableSignalOptions {
 	 * Called when all subscribers unsubscribe.
 	 */
 	onStop?(): void;
+
+	/**
+	 * If set, a warning will be displayed when attempting
+	 * to call signal.get() on a signal that currently has
+	 * no subscribers.
+	 */
+	warnOnGetWithoutSubscribers?: string;
 }
 
 /**
@@ -34,15 +41,32 @@ export const mut: {
 	<T>(): WritableSignal<T | undefined>;
 } = <T>(
 	initialValue?: T,
-	{ onStart, onStop }: WritableSignalOptions = {},
+	{
+		onStart,
+		onStop,
+		warnOnGetWithoutSubscribers,
+	}: WritableSignalOptions = {},
 ) => {
 	let value: T = initialValue!;
-	const get = () => value;
 
 	const subs = new Set<MinimalSubscriber<T>>();
 	const invs = new Set<Invalidator>();
 	const defered: Array<() => void> = [];
 	const defer = (d: () => void) => void defered.push(d);
+
+	const get = () => {
+		if (subs.size === 0) {
+			if (warnOnGetWithoutSubscribers) {
+				console.warn(warnOnGetWithoutSubscribers);
+			}
+			onStart?.({ defer });
+			for (const d of defered) d();
+			defered.length = 0;
+			onStop?.();
+		}
+
+		return value;
+	};
 
 	const minSubscribe = (s: MinimalSubscriber<T>, i?: Invalidator) => {
 		if (subs.size === 0) onStart?.({ defer });

@@ -90,6 +90,8 @@ export function effect(
 		}
 	};
 
+	depsChanged();
+
 	return () => {
 		running = true; // prevent depsChanged from doing anything
 
