@@ -47,8 +47,9 @@ export const Signal = {
 		const flatMap = <S>(fn: (value: T) => S | MinimalSignal<S>) =>
 			FlatMappedSignal({ subscribe, get }, fn);
 
-		const scan = <U>(fn: (prev: U, curr: T) => U, initialValue?: U) =>
-			ScannedSignal({ subscribe, get }, fn, initialValue!);
+		// have to spread in order to preserve argument count
+		const scan: Signal<T>["scan"] = (...args: any) =>
+			(ScannedSignal as any)({ subscribe, get }, ...args);
 
 		const zip = (...signals: MinimalSignal<any>[]): Signal<any> =>
 			ZippedSignal({ subscribe, get }, ...signals);
@@ -112,6 +113,7 @@ export const Signal = {
 				if (i) invs.delete(i);
 				for (const d of deferred.get(s) ?? []) d();
 				deferred.delete(s);
+				if (subs.size === 0) stop();
 			};
 		};
 

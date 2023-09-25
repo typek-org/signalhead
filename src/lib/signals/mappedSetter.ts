@@ -1,5 +1,5 @@
 import type { MinimalWritableSignal } from "./types.js";
-import { WritableSignal } from "./writable.js";
+import { WritableSignal } from "./writable.ts";
 
 export const MappedSetterSignal = <T>(
 	signal: MinimalWritableSignal<T>,
