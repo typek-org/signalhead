@@ -1,15 +1,4 @@
-export type {
-	Invalidator,
-	MinimalSignal,
-	MinimalSubscriber,
-	MinimalWritableSignal,
-	SignalValue,
-	Subscriber,
-	SubscriberParams,
-	Unsubscriber,
-	Updater,
-	WriteonlySignal,
-} from "./types.ts";
+export type * from "./types.ts";
 
 export * from "./readable.ts";
 export * from "./writable.ts";
