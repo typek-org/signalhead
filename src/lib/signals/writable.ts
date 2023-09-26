@@ -1,6 +1,6 @@
 import type {
 	Updater,
-	WritableSignal as WritableSignal_,
+	IWritableSignal,
 	WriteonlySignal,
 	MinimalSubscriber,
 	Invalidator,
@@ -9,7 +9,7 @@ import type {
 import { Signal } from "./readable.ts";
 import { MappedSetterSignal } from "./mappedSetter.ts";
 
-export type WritableSignal<T> = WritableSignal_<T>;
+export type WritableSignal<T> = IWritableSignal<T>;
 
 export interface WritableSignalOptions {
 	/**

@@ -1,5 +1,6 @@
 import { MappedSignal } from "./map.ts";
-import type { MinimalSignal, Signal } from "./types.ts";
+import type { Signal } from "./readable.ts";
+import type { MinimalSignal } from "./types.ts";
 
 export const TappedSignal = <T>(
 	signal: MinimalSignal<T>,

@@ -9,14 +9,14 @@ import { ScannedSignal } from "./scan.ts";
 import type {
 	Subscriber,
 	MinimalSignal,
-	Signal as Signal_,
+	ISignal,
 	Unsubscriber,
 	Invalidator,
 	WriteonlySignal,
 } from "./types.ts";
 import { ZippedSignal } from "./zip.ts";
 
-export type Signal<T> = Signal_<T>;
+export type Signal<T> = ISignal<T>;
 export const Signal = {
 	get<T>(signal: MinimalSignal<T>): T {
 		if (signal.get) return signal.get()!;

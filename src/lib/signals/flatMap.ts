@@ -1,6 +1,7 @@
 import { MappedSignal } from "./map.ts";
 import { FlatSignal } from "./flat.ts";
-import type { MinimalSignal, Signal } from "./types.ts";
+import type { Signal } from "./readable.ts";
+import type { MinimalSignal } from "./types.ts";
 
 export const FlatMappedSignal = <S, T>(
 	signal: MinimalSignal<S>,
