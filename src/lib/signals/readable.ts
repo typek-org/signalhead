@@ -9,14 +9,45 @@ import { ScannedSignal } from "./scan.ts";
 import type {
 	Subscriber,
 	MinimalSignal,
-	ISignal,
 	Unsubscriber,
 	Invalidator,
 	WriteonlySignal,
+	SignalArrayValues,
 } from "./types.ts";
 import { ZippedSignal } from "./zip.ts";
 
-export type Signal<T> = ISignal<T>;
+export interface Signal<T> extends MinimalSignal<T> {
+	subscribe(
+		subscriber: Subscriber<T>,
+		invalidate?: Invalidator,
+	): Unsubscriber;
+
+	get(): T;
+	map<S>(fn: (value: T) => S): Signal<S>;
+	enumerate(): Signal<[number, T]>;
+	flat<D extends number = 1>(depth?: D): FlatSignal<Signal<T>, D>;
+	flatMap<S>(fn: (value: T) => S | Signal<S>): Signal<S>;
+	count(): Signal<number>;
+
+	scan(fn: (prev: T, curr: T) => T): Signal<T>;
+	scan(fn: (prev: T, curr: T) => T, initialValue: T): Signal<T>;
+	scan<U>(fn: (prev: U, curr: T) => U, initialValue: U): Signal<U>;
+
+	zip<U>(other: MinimalSignal<U>): Signal<[T, U]>;
+	zip<U, V>(
+		other1: MinimalSignal<U>,
+		other2: MinimalSignal<V>,
+	): Signal<[T, U, V]>;
+	zip<U extends MinimalSignal<any>[]>(
+		...signals: U
+	): Signal<SignalArrayValues<U>>;
+
+	tap(
+		fn: (value: T) => void,
+		options?: { keepAlive?: boolean },
+	): Signal<T>;
+}
+
 export const Signal = {
 	get<T>(signal: MinimalSignal<T>): T {
 		if (signal.get) return signal.get()!;

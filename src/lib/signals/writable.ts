@@ -1,6 +1,5 @@
 import type {
 	Updater,
-	IWritableSignal,
 	WriteonlySignal,
 	MinimalSubscriber,
 	Invalidator,
@@ -9,7 +8,28 @@ import type {
 import { Signal } from "./readable.ts";
 import { MappedSetterSignal } from "./mappedSetter.ts";
 
-export type WritableSignal<T> = IWritableSignal<T>;
+export interface WritableSignal<T>
+	extends Signal<T>,
+		Omit<MinimalWritableSignal<T>, "get" | "subscribe"> {
+	update(fn: Updater<T>): void;
+	toReadonly(): Signal<T>;
+	toWriteonly(): WriteonlySignal<T>;
+
+	/**
+	 * Creates a new WritableSignal whose `set` and `update` methods
+	 * are mapped using the provided callback `fn`. Use this functionality
+	 * to normalize the input or throw an error on invalid state.
+	 *
+	 * **FOOTGUN WARNING**: Only ever use this method to transform
+	 * the input into a logically equivalent form, or to reject invalid
+	 * input. If you wanted to use it for more general two-way data
+	 * binding, consider using an ordinary mapped readable signal
+	 * together with an imperative function (eg. _foo_ & _setFooState_).
+	 * That way there'd only be a single source of truth, which is always
+	 * preferable.
+	 */
+	withMappedSetter(fn: (value: T) => T): WritableSignal<T>;
+}
 
 export interface WritableSignalOptions {
 	/**
