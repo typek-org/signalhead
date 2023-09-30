@@ -7,6 +7,7 @@ import type {
 } from "./types.ts";
 import { Signal } from "./readable.ts";
 import { MappedSetterSignal } from "./mappedSetter.ts";
+import { SetterSideEffectSignal } from "./setterSideEffect.ts";
 
 export interface WritableSignal<T>
 	extends Signal<T>,
@@ -29,6 +30,19 @@ export interface WritableSignal<T>
 	 * preferable.
 	 */
 	withMappedSetter(fn: (value: T) => T): WritableSignal<T>;
+
+	/**
+	 * Creates a new WritableSignal whose `set` and `update` call
+	 * the provided function after successfully running. This is
+	 * different from adding a subscriber to the original signal,
+	 * because this way you can keep both the side-effect-free and
+	 * side-effect-full signal, for example keeping one for internal
+	 * bookkeeping, and returning the other one as a part of a public
+	 * API.
+	 */
+	withSetterSideEffect(
+		fn: (value: T, params: { oldValue: T | undefined }) => T,
+	): WritableSignal<T>;
 }
 
 export interface WritableSignalOptions {
@@ -142,6 +156,10 @@ export const WritableSignal = Object.assign(mut, {
 		const withMappedSetter = (fn: (value: T) => T) =>
 			MappedSetterSignal({ set, subscribe, get }, fn);
 
+		const withSetterSideEffect = (
+			fn: (value: T, params: { oldValue: T | undefined }) => T,
+		) => SetterSideEffectSignal({ set, subscribe, get }, fn);
+
 		return {
 			...Signal.fromSubscribeAndGet({ subscribe, get }),
 			set,
@@ -149,6 +167,7 @@ export const WritableSignal = Object.assign(mut, {
 			toReadonly,
 			toWriteonly,
 			withMappedSetter,
+			withSetterSideEffect,
 		};
 	},
 

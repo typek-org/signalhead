@@ -22,6 +22,11 @@ export interface Signal<T> extends MinimalSignal<T> {
 		invalidate?: Invalidator,
 	): Unsubscriber;
 
+	listen(
+		subscriber: Subscriber<T>,
+		invalidate?: Invalidator,
+	): Unsubscriber;
+
 	get(): T;
 	map<S>(fn: (value: T) => S): Signal<S>;
 	enumerate(): Signal<[number, T]>;
@@ -61,6 +66,18 @@ export const Signal = {
 		subscribe,
 		get,
 	}: Pick<Signal<T>, "subscribe" | "get">): Signal<T> {
+		const listen = (
+			subscriber: Subscriber<T>,
+			invalidate?: Invalidator,
+		) => {
+			let synchronousRun = true;
+			const unsub = subscribe((...args) => {
+				if (!synchronousRun) subscriber(...args);
+			}, invalidate);
+			synchronousRun = false;
+			return unsub;
+		};
+
 		const map = <S>(fn: (value: T) => S) =>
 			MappedSignal({ subscribe, get }, fn);
 
@@ -87,6 +104,7 @@ export const Signal = {
 
 		return {
 			subscribe,
+			listen,
 			get,
 			map,
 			enumerate,

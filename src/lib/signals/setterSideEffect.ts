@@ -1,15 +1,20 @@
+import { Signal } from "./readable.ts";
 import type { MinimalWritableSignal } from "./types.ts";
 import { WritableSignal } from "./writable.ts";
 
-export const MappedSetterSignal = <T>(
+export const SetterSideEffectSignal = <T>(
 	signal: MinimalWritableSignal<T>,
-	fn: (value: T) => T,
+	fn: (value: T, params: { oldValue: T | undefined }) => T,
 ): WritableSignal<T> => {
 	const { set, subscribe, get } = signal;
-	const mappedSet = (value: T) => set(fn(value));
+	const newSet = (value: T) => {
+		const oldValue = Signal.get(signal);
+		set(value);
+		fn(value, { oldValue });
+	};
 
 	return WritableSignal.fromMinimal({
-		set: mappedSet,
+		set: newSet,
 		subscribe,
 		get,
 	});
