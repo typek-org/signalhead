@@ -1,4 +1,10 @@
-import { MinimalSubscriber, Signal } from "../mod.ts";
+import {
+	MinimalSubscriber,
+	Signal,
+	Unsubscriber,
+	mut,
+} from "../mod.ts";
+import { MappedList } from "./map.ts";
 
 export type ListUpdate<T> =
 	| {
@@ -28,12 +34,12 @@ export type ListUpdateSubscriber<T> = MinimalSubscriber<
 export interface MinimalList<T> {
 	length: Signal<number>;
 	getAt(index: number): T | undefined;
-	listenToUpdates(sub: ListUpdateSubscriber<T>): void;
+	listenToUpdates(sub: ListUpdateSubscriber<T>): Unsubscriber;
 }
 
 export interface List<T> extends MinimalList<T> {
 	// at(index: number | Signal<number>): Signal<T | undefined>;
-	// toArray(): Signal<T[]>;
+	toArray(): Signal<T[]>;
 	iter(): Iterable<T>;
 
 	// every(fn: (value: T) => unknown): Signal<boolean>;
@@ -42,7 +48,7 @@ export interface List<T> extends MinimalList<T> {
 
 	// filter<S extends T>(fn: (value: T) => value is S): List<S>;
 	// filter(fn: (value: T) => unknown): List<T>;
-	// map<S>(fn: (value: T) => S): List<S>;
+	map<S>(fn: (value: T | undefined) => S | undefined): List<S>;
 
 	// findAny<S extends T>(fn: (v: T) => v is S): Signal<S | undefined>;
 	// findAny(fn: (value: T) => unknown): Signal<T | undefined>;
@@ -73,16 +79,30 @@ export const List = {
 	fromMinimal<T>(list: MinimalList<T>): List<T> {
 		const { length, getAt, listenToUpdates } = list;
 
-		const iter = function* () {
+		const iter = function* (): Iterable<T> {
 			for (let index = 0; index < length.get(); index++) {
 				yield getAt(index)!;
 			}
 		};
 
+		const toArray = () => {
+			const arr = mut([...iter()], {
+				onStart({ defer }) {
+					defer(listenToUpdates(() => arr.set([...iter()])));
+				},
+			});
+			return arr.toReadonly();
+		};
+
+		const map = <S>(fn: (value: T | undefined) => S | undefined) =>
+			MappedList({ length, getAt, listenToUpdates }, fn);
+
 		return {
 			length,
 			getAt,
 			iter,
+			toArray,
+			map,
 			listenToUpdates,
 		};
 	},

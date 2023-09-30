@@ -1,4 +1,4 @@
-import { WritableSignal, mut } from "../mod.ts";
+import { Unsubscriber, WritableSignal, mut } from "../mod.ts";
 import { ListUpdate, ListUpdateSubscriber } from "./list.ts";
 
 export interface WriteonlyList<T> {
@@ -24,7 +24,7 @@ export interface WriteonlyList<T> {
 
 	// reverse(): void;
 
-	listenToUpdates(sub: ListUpdateSubscriber<T>): void;
+	listenToUpdates(sub: ListUpdateSubscriber<T>): Unsubscriber;
 }
 
 export const WriteonlyList = <T>(len = 0): WriteonlyList<T> => {
