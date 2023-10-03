@@ -1,5 +1,6 @@
 import { Unsubscriber, WritableSignal, mut } from "../mod.ts";
-import { ListUpdate, ListUpdateSubscriber } from "./list.ts";
+import { ListUpdate, ListUpdateSubscriber } from "./readable.ts";
+import { MutListOptions } from "./writable.ts";
 
 export interface WriteonlyList<T> {
 	length: WritableSignal<number>;
@@ -27,14 +28,29 @@ export interface WriteonlyList<T> {
 	listenToUpdates(sub: ListUpdateSubscriber<T>): Unsubscriber;
 }
 
-export const WriteonlyList = <T>(len = 0): WriteonlyList<T> => {
+export const WriteonlyList = <T>(
+	len = 0,
+	{ onStart, onStop }: MutListOptions = {},
+): WriteonlyList<T> => {
 	const length$ = mut(len);
 
 	const subs = new Set<ListUpdateSubscriber<T>>();
+	const defered = new Set<Unsubscriber>();
+	const defer = (d: Unsubscriber): void => void defered.add(d);
 
 	const listenToUpdates = (sub: ListUpdateSubscriber<T>) => {
+		if (subs.size === 0) onStart?.({ defer });
+
 		subs.add(sub);
-		return () => void subs.delete(sub);
+		return () => {
+			subs.delete(sub);
+
+			if (subs.size === 0) {
+				for (const d of defered) d();
+				defered.clear();
+				onStop?.();
+			}
+		};
 	};
 
 	const resolveIndex = (index: number) => {
@@ -107,8 +123,9 @@ export const WriteonlyList = <T>(len = 0): WriteonlyList<T> => {
 
 	const unshift = (...items: T[]) => {
 		const updates: ListUpdate<T>[] = [];
+		items.reverse();
 
-		for (const value of items.toReversed()) {
+		for (const value of items) {
 			updates.push({ type: "insert", index: 0, value });
 		}
 
@@ -143,7 +160,7 @@ export const WriteonlyList = <T>(len = 0): WriteonlyList<T> => {
 			const updates: ListUpdate<T>[] = [];
 
 			if (diff < 0) {
-				for (let index = oldValue!; index >= value; index--) {
+				for (let index = oldValue! - 1; index >= value; index--) {
 					updates.push({ type: "delete", index });
 				}
 			} else {

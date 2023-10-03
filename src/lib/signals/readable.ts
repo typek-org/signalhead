@@ -122,19 +122,19 @@ export const Signal = {
 		let value: T | undefined;
 		const subs = new Set<Subscriber<T>>();
 		const invs = new Set<Invalidator>();
-		const deferred = new MapSet<Subscriber<T>, Unsubscriber>();
+		const defered = new MapSet<Subscriber<T>, Unsubscriber>();
 
 		const start = () => {
 			unsub = signal.subscribe(
 				(val) => {
-					for (const d of deferred.flatValues()) d();
-					deferred.clear();
+					for (const d of defered.flatValues()) d();
+					defered.clear();
 
 					const oldValue = value;
 					value = val;
 
 					for (const s of subs) {
-						const defer = (d: Unsubscriber) => deferred.add(s, d);
+						const defer = (d: Unsubscriber) => defered.add(s, d);
 						s(val, { oldValue, defer });
 					}
 				},
@@ -154,14 +154,14 @@ export const Signal = {
 			subs.add(s);
 			if (i) invs.add(i);
 
-			const defer = (d: Unsubscriber) => deferred.add(s, d);
+			const defer = (d: Unsubscriber) => defered.add(s, d);
 			s(value!, { oldValue: value, defer });
 
 			return () => {
 				subs.delete(s);
 				if (i) invs.delete(i);
-				for (const d of deferred.get(s) ?? []) d();
-				deferred.delete(s);
+				for (const d of defered.get(s) ?? []) d();
+				defered.delete(s);
 				if (subs.size === 0) stop();
 			};
 		};

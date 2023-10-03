@@ -1,3 +1,9 @@
+export function range(length: number): Iterable<number>;
+export function range(
+	start: number,
+	endExclusive: number,
+	step?: number,
+): Iterable<number>;
 export function* range(a: number, b?: number, step: number = 1) {
 	const [start, end] = b === undefined ? [0, a] : [a, b];
 

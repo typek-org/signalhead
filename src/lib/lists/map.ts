@@ -4,7 +4,7 @@ import {
 	ListUpdate,
 	ListUpdateSubscriber,
 	MinimalList,
-} from "./list.ts";
+} from "./readable.ts";
 
 export const MappedList = <T, U>(
 	list: MinimalList<T>,

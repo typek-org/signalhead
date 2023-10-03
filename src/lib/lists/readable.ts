@@ -1,10 +1,13 @@
 import {
+	MinimalSignal,
 	MinimalSubscriber,
 	Signal,
 	Unsubscriber,
 	mut,
+	range,
 } from "../mod.ts";
 import { MappedList } from "./map.ts";
+import { MutList } from "./writable.ts";
 
 export type ListUpdate<T> =
 	| {
@@ -75,7 +78,29 @@ export interface List<T> extends MinimalList<T> {
 	// with(index: number | Signal<number>, value: T | Signal<T>): List<T>;
 }
 
-export const List = {
+const createReadableList = <T>(
+	...items: Array<T | MinimalSignal<T>>
+): List<T> => {
+	const list = MutList(
+		items.map((s) => (Signal.isReadable(s) ? Signal.get(s) : s)),
+		{
+			onStart({ defer }) {
+				for (const index of range(items.length)) {
+					const item = items[index];
+					if (!Signal.isReadable(item)) continue;
+					defer(
+						item.subscribe((value) => {
+							list.setAt(index, value);
+						}),
+					);
+				}
+			},
+		},
+	);
+	return list;
+};
+
+export const List = Object.assign(createReadableList, {
 	fromMinimal<T>(list: MinimalList<T>): List<T> {
 		const { length, getAt, listenToUpdates } = list;
 
@@ -106,4 +131,4 @@ export const List = {
 			listenToUpdates,
 		};
 	},
-};
+});
