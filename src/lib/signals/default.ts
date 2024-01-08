@@ -8,10 +8,7 @@ export interface SignalWithDefault<T> extends Signal<T> {
 }
 
 export interface WritableSignalWithDefault<T>
-	extends Omit<
-			WritableSignal<T>,
-			"withMappedSetter" | "withSetterSideEffect"
-		>,
+	extends WritableSignal<T>,
 		SignalWithDefault<T> {
 	default: WritableSignal<T>;
 
@@ -47,6 +44,12 @@ export const WritableSignalWithDefault = <T>(
 
 	const resetToDefault = () => writable.set(undefined);
 
+	const minimalWritable: MinimalWritableSignal<T> = {
+		subscribe: combined.subscribe,
+		get: combined.get,
+		set: writable.set,
+	};
+
 	return {
 		...writable,
 		...combined,
@@ -58,5 +61,11 @@ export const WritableSignalWithDefault = <T>(
 		},
 
 		resetToDefault,
+
+		withMappedSetter:
+			WritableSignal.fromMinimal(minimalWritable).withMappedSetter,
+		withSetterSideEffect:
+			WritableSignal.fromMinimal(minimalWritable)
+				.withSetterSideEffect,
 	};
 };
