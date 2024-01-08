@@ -15,6 +15,7 @@ import type {
 	SignalArrayValues,
 } from "./types.ts";
 import { ZippedSignal } from "./zip.ts";
+import { SignalWithDefault } from "./default.ts";
 
 export interface Signal<T> extends MinimalSignal<T> {
 	subscribe(
@@ -51,6 +52,11 @@ export interface Signal<T> extends MinimalSignal<T> {
 		fn: (value: T) => void,
 		options?: { keepAlive?: boolean },
 	): Signal<T>;
+
+	withDefault(
+		d: MinimalSignal<NonNullable<T>>,
+	): SignalWithDefault<NonNullable<T>>;
+	withDefault(d: MinimalSignal<T>): SignalWithDefault<T>;
 }
 
 export const Signal = {
@@ -102,6 +108,9 @@ export const Signal = {
 		const zip = (...signals: MinimalSignal<any>[]): Signal<any> =>
 			ZippedSignal({ subscribe, get }, ...signals);
 
+		const withDefault = (d: MinimalSignal<any>) =>
+			SignalWithDefault({ subscribe, get }, d);
+
 		return {
 			subscribe,
 			listen,
@@ -113,6 +122,7 @@ export const Signal = {
 			count,
 			tap,
 			scan,
+			withDefault,
 			zip,
 		};
 	},

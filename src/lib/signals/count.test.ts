@@ -1,7 +1,7 @@
 import { CountedSignal } from "./count.ts";
 import { mut } from "./writable.ts";
 
-describe("tap", () => {
+describe("count", () => {
 	test("basic", () => {
 		for (const method of [true, false]) {
 			const a = mut("hello");
