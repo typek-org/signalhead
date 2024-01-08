@@ -19,6 +19,8 @@ export interface WritableSignalWithDefault<T>
 
 	set(value: T | undefined): void;
 	update(fn: (value: T) => T | undefined): void;
+
+	resetToDefault(): void;
 }
 
 export const SignalWithDefault = <T>(
@@ -43,6 +45,8 @@ export const WritableSignalWithDefault = <T>(
 	const combined = SignalWithDefault(optional, defaultValue);
 	const toReadonly = () => combined;
 
+	const resetToDefault = () => writable.set(undefined);
+
 	return {
 		...writable,
 		...combined,
@@ -52,5 +56,7 @@ export const WritableSignalWithDefault = <T>(
 		update(fn) {
 			optional.set(fn(Signal.get(combined)));
 		},
+
+		resetToDefault,
 	};
 };

@@ -57,7 +57,7 @@ describe("default", () => {
 		expect(f).toBeCalledTimes(2);
 		expect(f).toHaveBeenCalledWith(123);
 
-		s.set(undefined);
+		s.resetToDefault();
 		expect(f).toBeCalledTimes(3);
 		expect(f).toHaveBeenCalledWith(42);
 
