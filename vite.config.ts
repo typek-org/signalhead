@@ -7,8 +7,9 @@ export default defineConfig({
 		lib: {
 			entry: resolve(__dirname, "src/lib/mod.ts"),
 			name: "@mod.js/signals",
+			formats: ["es", "cjs"],
 			fileName: (format) =>
-				`signals.${format === "umd" ? "umd.c" : ""}js`,
+				`signals.${format === "es" ? "m" : "c"}js`,
 		},
 	},
 	plugins: [dts({ rollupTypes: true })],

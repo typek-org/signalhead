@@ -1,13 +1,24 @@
 {
   "name": "@mod.js/signals",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "type": "module",
   "files": [
     "dist"
   ],
-  "main": "./dist/signals.umd.cjs",
-  "module": "./dist/signals.js",
+  "main": "./dist/signals.mjs",
   "types": "./dist/signals.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "default": "./dist/signals.mjs",
+        "types": "./dist/signals.d.ts"
+      },
+      "require": {
+        "default": "./dist/signals.cjs",
+        "types": "./dist/signals.d.ts"
+      }
+    }
+  },
   "scripts": {
     "dev": "vite",
     "test": "jest --coverage",
