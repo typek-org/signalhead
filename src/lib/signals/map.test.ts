@@ -40,4 +40,26 @@ describe("map", () => {
 			expect(f).toBeCalledTimes(2);
 		}
 	});
+
+	test("get in the middle of updating gives the correct value", () => {
+		const a = mut("hey");
+		const b = a.map((s) => s.toUpperCase());
+
+		const f = jest.fn<void, [string, string]>();
+		const g = jest.fn<void, [string, string, string]>();
+
+		a.subscribe((s) => f(s, a.get()));
+		b.subscribe((s) => g(s, b.get(), a.get().toUpperCase()));
+
+		expect(f).toBeCalledTimes(1);
+		expect(f).toHaveBeenLastCalledWith("hey", "hey");
+		expect(g).toBeCalledTimes(1);
+		expect(g).toHaveBeenLastCalledWith("HEY", "HEY", "HEY");
+
+		a.set("bye");
+		expect(f).toBeCalledTimes(2);
+		expect(f).toHaveBeenLastCalledWith("bye", "bye");
+		expect(g).toBeCalledTimes(2);
+		expect(g).toHaveBeenLastCalledWith("BYE", "BYE", "BYE");
+	});
 });
