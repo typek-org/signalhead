@@ -38,3 +38,15 @@ export interface WriteonlySignal<T> {
 export interface MinimalWritableSignal<T>
 	extends MinimalSignal<T>,
 		WriteonlySignal<T> {}
+
+export interface StartStop {
+	/**
+	 * Called when a subscriber is added to a previously subscriber-less signal.
+	 */
+	onStart?(props: { defer: (destructor: () => void) => void }): void;
+
+	/**
+	 * Called when all subscribers unsubscribe.
+	 */
+	onStop?(): void;
+}

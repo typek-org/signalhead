@@ -1,4 +1,4 @@
-import { Unsubscriber, WritableSignal } from "../mod.ts";
+import { StartStop, Unsubscriber, WritableSignal } from "../mod.ts";
 import { List, ListUpdateSubscriber } from "./readable.ts";
 import { WriteonlyList } from "./writeonly.ts";
 
@@ -15,17 +15,7 @@ export interface MutList<T> extends WriteonlyList<T>, List<T> {
 	// sortNumerically(fn?: (v: T) => number): this;
 }
 
-export interface MutListOptions {
-	/**
-	 * Called when a subscriber is added to a previously subscriber-less signal.
-	 */
-	onStart?(props: { defer: (destructor: () => void) => void }): void;
-
-	/**
-	 * Called when all subscribers unsubscribe.
-	 */
-	onStop?(): void;
-}
+export interface MutListOptions extends StartStop {}
 
 export const MutList = <T>(
 	items: Iterable<T> = [],

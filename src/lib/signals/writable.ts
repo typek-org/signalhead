@@ -4,6 +4,7 @@ import type {
 	MinimalSubscriber,
 	Invalidator,
 	MinimalWritableSignal,
+	StartStop,
 } from "./types.ts";
 import { Signal } from "./readable.ts";
 import { MappedSetterSignal } from "./mappedSetter.ts";
@@ -45,17 +46,7 @@ export interface WritableSignal<T>
 	): WritableSignal<T>;
 }
 
-export interface WritableSignalOptions {
-	/**
-	 * Called when a subscriber is added to a previously subscriber-less signal.
-	 */
-	onStart?(props: { defer: (destructor: () => void) => void }): void;
-
-	/**
-	 * Called when all subscribers unsubscribe.
-	 */
-	onStop?(): void;
-
+export interface WritableSignalOptions extends StartStop {
 	/**
 	 * If set, a warning will be displayed when attempting
 	 * to call signal.get() on a signal that currently has
