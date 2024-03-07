@@ -7,7 +7,7 @@ export interface FlockRegistry<T> extends Flock<T> {
 }
 
 export const FlockRegistry = <T>(
-	opts: MutFlockOptions,
+	opts: MutFlockOptions = {},
 ): FlockRegistry<T> => {
 	let live = false;
 	const multiset = new Map<T, number>();
