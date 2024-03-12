@@ -18,6 +18,18 @@ export interface WritableSignal<T>
 	toWriteonly(): WriteonlySignal<T>;
 
 	/**
+	 * **FOOTGUN WARNING:** You probably don't need this function. It is
+	 * only useful if you're defining your own custom reactive primitives.
+	 * Use it only if you understand exactly what it does.
+	 *
+	 * Invalidates all dependencies of this signal (ie. signals that are
+	 * derived from this one). Invalidating the signal once any of your
+	 * dependencies become invalid prevents glitching. The signal will
+	 * become valid once its `set` method is called.
+	 */
+	invalidate(): void;
+
+	/**
 	 * Creates a new WritableSignal whose `set` and `update` methods
 	 * are mapped using the provided callback `fn`. Use this functionality
 	 * to normalize the input or throw an error on invalid state.
@@ -122,21 +134,27 @@ export const mut: {
 		subs.forEach((s) => s(value));
 	};
 
-	return WritableSignal.fromSetAndSubscribeAndGet({
+	const invalidate = () => {
+		invs.forEach((i) => i());
+	};
+
+	return WritableSignal.fromSetAndInvalidateAndSubscribeAndGet({
 		set,
+		invalidate,
 		subscribe,
 		get,
 	});
 };
 
 export const WritableSignal = Object.assign(mut, {
-	fromSetAndSubscribeAndGet<T>({
+	fromSetAndInvalidateAndSubscribeAndGet<T>({
 		set,
+		invalidate,
 		subscribe,
 		get,
 	}: Pick<
 		WritableSignal<T>,
-		"set" | "subscribe" | "get"
+		"set" | "subscribe" | "get" | "invalidate"
 	>): WritableSignal<T> {
 		const update = (fn: Updater<T>) => set(fn(get()));
 
@@ -145,16 +163,18 @@ export const WritableSignal = Object.assign(mut, {
 			Signal.fromSubscribeAndGet({ subscribe, get });
 
 		const withMappedSetter = (fn: (value: T) => T) =>
-			MappedSetterSignal({ set, subscribe, get }, fn);
+			MappedSetterSignal({ set, subscribe, get, invalidate }, fn);
 
 		const withSetterSideEffect = (
 			fn: (value: T, params: { oldValue: T | undefined }) => T,
-		) => SetterSideEffectSignal({ set, subscribe, get }, fn);
+		) =>
+			SetterSideEffectSignal({ set, subscribe, get, invalidate }, fn);
 
 		return {
 			...Signal.fromSubscribeAndGet({ subscribe, get }),
 			set,
 			update,
+			invalidate,
 			toReadonly,
 			toWriteonly,
 			withMappedSetter,
@@ -165,12 +185,13 @@ export const WritableSignal = Object.assign(mut, {
 	fromMinimal<T>(
 		signal: MinimalWritableSignal<T>,
 	): WritableSignal<T> {
-		const { set } = signal;
+		const { set, invalidate } = signal;
 		const { subscribe, get } = Signal.fromMinimal(signal);
-		return WritableSignal.fromSetAndSubscribeAndGet({
+		return WritableSignal.fromSetAndInvalidateAndSubscribeAndGet({
 			set,
 			subscribe,
 			get,
+			invalidate: invalidate ?? (() => {}),
 		});
 	},
 });

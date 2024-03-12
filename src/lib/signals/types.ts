@@ -37,7 +37,9 @@ export interface WriteonlySignal<T> {
 
 export interface MinimalWritableSignal<T>
 	extends MinimalSignal<T>,
-		WriteonlySignal<T> {}
+		WriteonlySignal<T> {
+	invalidate?(): void;
+}
 
 export interface StartStop {
 	/**
