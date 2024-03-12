@@ -1,4 +1,8 @@
-import type { MinimalSignal, Unsubscriber } from "../signals/mod.ts";
+import type {
+	Invalidator,
+	MinimalSignal,
+	Unsubscriber,
+} from "../signals/mod.ts";
 import { Signal } from "../signals/mod.ts";
 
 export interface EffectParams {
@@ -34,6 +38,7 @@ export interface EffectParams {
  */
 export function effect(
 	f: ($: <T>(s: MinimalSignal<T>) => T, params: EffectParams) => void,
+	invalidator?: Invalidator,
 ): Unsubscriber {
 	const deps = new Map<MinimalSignal<any>, Unsubscriber>();
 	const dirty = new Set<MinimalSignal<any>>();
@@ -53,7 +58,10 @@ export function effect(
 						dirty.delete(s);
 						if (dirty.size === 0) depsChanged();
 					},
-					() => dirty.add(s),
+					() => {
+						if (dirty.size === 0) invalidator?.();
+						dirty.add(s);
+					},
 				),
 			);
 		}
