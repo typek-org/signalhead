@@ -31,7 +31,12 @@ export function derived<T>(
 ): Signal<T> {
 	const signal = mut<T>(undefined!, {
 		onStart({ defer }) {
-			defer(effect(($, params) => signal.set(f($, params))));
+			defer(
+				effect(
+					($, params) => signal.set(f($, params)),
+					() => signal.invalidate(),
+				),
+			);
 		},
 	});
 
