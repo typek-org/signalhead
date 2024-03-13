@@ -1,9 +1,5 @@
-import { effect } from "./effect.ts";
-import {
-	mut,
-	type MinimalSignal,
-	type Signal,
-} from "../signals/mod.ts";
+import { mutDerived } from "./mutDerived.ts";
+import type { MinimalSignal, Signal } from "../signals/mod.ts";
 
 export interface DerivedParams<T> {
 	defer(destructor: () => void): void;
@@ -33,20 +29,5 @@ export function derived<T>(
 		params: DerivedParams<T>,
 	) => T,
 ): Signal<T> {
-	let value: T | undefined;
-	const signal = mut<T>(undefined!, {
-		onStart({ defer }) {
-			defer(
-				effect(
-					($, params) => {
-						value = f($, { ...params, prev: value });
-						signal.set(value);
-					},
-					() => signal.invalidate(),
-				),
-			);
-		},
-	});
-
-	return signal.toReadonly();
+	return mutDerived(f).toReadonly();
 }
