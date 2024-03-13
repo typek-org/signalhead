@@ -5,8 +5,9 @@ import {
 	type Signal,
 } from "../signals/mod.ts";
 
-export interface DerivedParams {
+export interface DerivedParams<T> {
 	defer(destructor: () => void): void;
+	prev: T | undefined;
 }
 
 /**
@@ -27,13 +28,20 @@ export interface DerivedParams {
  * // gcd = 4
  */
 export function derived<T>(
-	f: ($: <U>(s: MinimalSignal<U>) => U, params: DerivedParams) => T,
+	f: (
+		$: <U>(s: MinimalSignal<U>) => U,
+		params: DerivedParams<T>,
+	) => T,
 ): Signal<T> {
+	let value: T | undefined;
 	const signal = mut<T>(undefined!, {
 		onStart({ defer }) {
 			defer(
 				effect(
-					($, params) => signal.set(f($, params)),
+					($, params) => {
+						value = f($, { ...params, prev: value });
+						signal.set(value);
+					},
 					() => signal.invalidate(),
 				),
 			);
