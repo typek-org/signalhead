@@ -7,6 +7,8 @@ export interface WriteonlyFlock<T> {
 	delete(value: T): void;
 	clear(): void;
 
+	update(updates: FlockUpdate<T>[]): void;
+
 	listenToUpdates(sub: FlockUpdateSubscriber<T>): Unsubscriber;
 }
 
@@ -33,20 +35,14 @@ export const WriteonlyFlock = <T>({
 		};
 	};
 
-	const add = (value: T) => {
-		const updates: FlockUpdate<T>[] = [{ type: "add", value }];
+	const update = (updates: FlockUpdate<T>[]) => {
+		if (updates.length === 0) return;
 		for (const s of subs) s(updates);
 	};
 
-	const delete_ = (value: T) => {
-		const updates: FlockUpdate<T>[] = [{ type: "delete", value }];
-		for (const s of subs) s(updates);
-	};
+	const add = (value: T) => update([{ type: "add", value }]);
+	const delete_ = (value: T) => update([{ type: "delete", value }]);
+	const clear = () => update([{ type: "clear" }]);
 
-	const clear = () => {
-		const updates: FlockUpdate<T>[] = [{ type: "clear" }];
-		for (const s of subs) s(updates);
-	};
-
-	return { add, delete: delete_, clear, listenToUpdates };
+	return { add, delete: delete_, clear, update, listenToUpdates };
 };

@@ -1,6 +1,6 @@
-import { StartStop, Unsubscriber, mut } from "../mod";
-import { Flock, FlockUpdateSubscriber } from "./readable";
-import { WriteonlyFlock } from "./writeonly";
+import { StartStop, Unsubscriber, mut } from "../mod.ts";
+import { Flock, FlockUpdateSubscriber } from "./readable.ts";
+import { WriteonlyFlock } from "./writeonly.ts";
 
 export interface MutFlockOptions extends StartStop {}
 
@@ -51,6 +51,7 @@ export const MutFlock = <T>(
 				if (set.size !== size.get()) {
 					size.set(set.size);
 				}
+				for (const s of subs) s(updates);
 			}),
 		);
 		opts.onStart?.({ defer });

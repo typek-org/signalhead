@@ -1,6 +1,6 @@
-import { Signal, Subscriber, Unsubscriber } from "../mod";
-import { Flock } from "./readable";
-import { MutFlock, MutFlockOptions } from "./writable";
+import { Signal, Subscriber, Unsubscriber } from "../mod.ts";
+import { Flock, FlockUpdate } from "./readable.ts";
+import { MutFlock, MutFlockOptions } from "./writable.ts";
 
 export interface FlockRegistry<T> extends Flock<T> {
 	register(s: Signal<T>): Unsubscriber;
@@ -12,22 +12,23 @@ export const FlockRegistry = <T>(
 	let live = false;
 	const multiset = new Map<T, number>();
 
-	const add = (v: T) => {
-		const currCount = multiset.get(v) ?? 0;
-		multiset.set(v, currCount + 1);
-		if (currCount === 0) wflock.add(v);
+	const createAddUpdates = (value: T): FlockUpdate<T>[] => {
+		const currCount = multiset.get(value) ?? 0;
+		multiset.set(value, currCount + 1);
+		if (currCount === 0) return [{ type: "add", value }];
+		return [];
 	};
-	const del = (v: T) => {
-		const currCount = multiset.get(v) ?? 0;
+	const createDeleteUpdates = (value: T): FlockUpdate<T>[] => {
+		const currCount = multiset.get(value) ?? 0;
 		switch (currCount) {
 			case 0:
-				return;
+				return [];
 			case 1:
-				multiset.delete(v);
-				wflock.delete(v);
-				return;
+				multiset.delete(value);
+				return [{ type: "delete", value }];
 			default:
-				multiset.set(v, currCount - 1);
+				multiset.set(value, currCount - 1);
+				return [];
 		}
 	};
 
@@ -35,15 +36,25 @@ export const FlockRegistry = <T>(
 	const defered = new Set<Unsubscriber>();
 	const defer = (d: Unsubscriber): void => void defered.add(d);
 
-	const sub: Subscriber<T> = (currValue, { oldValue }) => {
-		add(currValue);
-		del(oldValue!);
+	const createSub = (): Subscriber<T> => {
+		let firstRun = true;
+		return (currValue, { oldValue }) => {
+			if (firstRun) {
+				wflock.update(createAddUpdates(currValue));
+				firstRun = false;
+			}
+			if (currValue === oldValue) return;
+			wflock.update([
+				...createAddUpdates(currValue),
+				...createDeleteUpdates(oldValue!),
+			]);
+		};
 	};
 
 	const onStart = () => {
 		live = true;
 		for (const s of signals) {
-			defer(s.subscribe(sub));
+			defer(s.subscribe(createSub()));
 		}
 		opts.onStart?.({ defer });
 	};
@@ -56,9 +67,12 @@ export const FlockRegistry = <T>(
 
 	const register = (s: Signal<T>) => {
 		signals.add(s);
-		if (live) defer(s.subscribe(sub));
+		if (live) defer(s.subscribe(createSub()));
 
-		return () => signals.delete(s);
+		return () => {
+			wflock.update(createDeleteUpdates(s.get()));
+			signals.delete(s);
+		};
 	};
 
 	const wflock = MutFlock<T>([], { onStart, onStop });
