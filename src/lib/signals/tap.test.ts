@@ -1,3 +1,4 @@
+import { fn } from "../utils/testUtils.ts";
 import { TappedSignal } from "./tap.ts";
 import { mut } from "./writable.ts";
 
@@ -6,28 +7,24 @@ describe("tap", () => {
 		for (const method of [true, false]) {
 			const a = mut("hello");
 
-			const f = jest.fn<void, [string]>();
+			const f = fn<void, [string]>();
 			const b = method ? a.tap(f) : TappedSignal(a, f);
 
-			expect(f).not.toBeCalled();
+			f.assertNotCalled();
 
-			const g = jest.fn<void, [string]>();
+			const g = fn<void, [string]>();
 			const u = b.subscribe((x) => g(x));
-			expect(f).toBeCalledTimes(1);
-			expect(f).lastCalledWith("hello");
-			expect(g).toBeCalledTimes(1);
-			expect(g).lastCalledWith("hello");
+			f.assertCalledOnce(["hello"]);
+			g.assertCalledOnce(["hello"]);
 
 			a.set("world");
-			expect(f).toBeCalledTimes(2);
-			expect(f).lastCalledWith("world");
-			expect(g).toBeCalledTimes(2);
-			expect(g).lastCalledWith("world");
+			f.assertCalledOnce(["world"]);
+			g.assertCalledOnce(["world"]);
 
 			u();
 			a.set("sike");
-			expect(f).toBeCalledTimes(2);
-			expect(g).toBeCalledTimes(2);
+			f.assertNotCalled();
+			g.assertNotCalled();
 		}
 	});
 });

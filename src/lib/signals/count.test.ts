@@ -1,3 +1,4 @@
+import { fn } from "../utils/testUtils.ts";
 import { CountedSignal } from "./count.ts";
 import { mut } from "./writable.ts";
 
@@ -7,24 +8,21 @@ describe("count", () => {
 			const a = mut("hello");
 			const b = method ? a.count() : CountedSignal(a);
 
-			const f = jest.fn<void, [number]>();
+			const f = fn<void, [number]>();
 			const u = b.subscribe((x) => f(x));
-			expect(f).toBeCalledTimes(1);
-			expect(f).lastCalledWith(0);
+			f.assertCalledOnce([0]);
 
 			a.set("world");
-			expect(f).toBeCalledTimes(2);
-			expect(f).lastCalledWith(1);
+			f.assertCalledOnce([1]);
 
 			expect(b.get()).toEqual(1);
 
 			a.set("end of transmission");
-			expect(f).toBeCalledTimes(3);
-			expect(f).lastCalledWith(2);
+			f.assertCalledOnce([2]);
 
 			u();
 			a.set("beep boop");
-			expect(f).toBeCalledTimes(3);
+			f.assertNotCalled();
 			expect(b.get()).toEqual(3);
 		}
 	});

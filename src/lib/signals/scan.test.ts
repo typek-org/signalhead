@@ -1,3 +1,4 @@
+import { fn } from "../utils/testUtils.ts";
 import { ScannedSignal } from "./scan.ts";
 import { mut } from "./writable.ts";
 
@@ -23,33 +24,28 @@ describe("scan", () => {
 					? ScannedSignal(n, (a, b) => a * b, 1)
 					: ScannedSignal(n, (a, b) => a * b);
 
-				const f = jest.fn<void, [number]>();
+				const f = fn<void, [number]>();
 				const u1 = sum.subscribe((x) => f(x));
-				expect(f).toBeCalledTimes(1);
-				expect(f).lastCalledWith(1);
+				f.assertCalledOnce([1]);
 
-				const g = jest.fn<void, [number]>();
+				const g = fn<void, [number]>();
 				const u2 = prod.subscribe((x) => g(x));
-				expect(f).toBeCalledTimes(1);
-				expect(f).lastCalledWith(1);
+				f.assertNotCalled();
+				g.assertCalledOnce([1]);
 
 				n.set(3);
-				expect(f).toBeCalledTimes(2);
-				expect(f).lastCalledWith(4);
-				expect(g).toBeCalledTimes(2);
-				expect(g).lastCalledWith(3);
+				f.assertCalledOnce([4]);
+				g.assertCalledOnce([3]);
 
 				n.set(8);
-				expect(f).toBeCalledTimes(3);
-				expect(f).lastCalledWith(12);
-				expect(g).toBeCalledTimes(3);
-				expect(g).lastCalledWith(24);
+				f.assertCalledOnce([12]);
+				g.assertCalledOnce([24]);
 
 				u1();
 				u2();
 				n.set(10);
-				expect(f).toBeCalledTimes(3);
-				expect(g).toBeCalledTimes(3);
+				f.assertNotCalled();
+				g.assertNotCalled();
 			}
 		}
 	});

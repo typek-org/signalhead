@@ -1,4 +1,5 @@
 import { effect, mut } from "../mod.ts";
+import { fn } from "../utils/testUtils.ts";
 
 describe("effect", () => {
 	test("basic", () => {
@@ -6,7 +7,7 @@ describe("effect", () => {
 		const greeting = mut("Hello");
 		const name = mut("world");
 
-		const sendMessage = jest.fn<void, [string]>();
+		const sendMessage = fn<void, [string]>();
 
 		const u = effect(($) => {
 			let m = $(greeting);
@@ -19,36 +20,30 @@ describe("effect", () => {
 			sendMessage(m);
 		});
 
-		expect(sendMessage).toBeCalledTimes(1);
-		expect(sendMessage).lastCalledWith("Hello!");
+		sendMessage.assertCalledOnce(["Hello!"]);
 
 		showName.set(true);
-		expect(sendMessage).toBeCalledTimes(2);
-		expect(sendMessage).lastCalledWith("Hello, world!");
+		sendMessage.assertCalledOnce(["Hello, world!"]);
 
 		name.set("Gordon");
-		expect(sendMessage).toBeCalledTimes(3);
-		expect(sendMessage).lastCalledWith("Hello, Gordon!");
+		sendMessage.assertCalledOnce(["Hello, Gordon!"]);
 
 		greeting.set("Greetings");
-		expect(sendMessage).toBeCalledTimes(4);
-		expect(sendMessage).lastCalledWith("Greetings, Gordon!");
+		sendMessage.assertCalledOnce(["Greetings, Gordon!"]);
 
 		showName.set(false);
-		expect(sendMessage).toBeCalledTimes(5);
-		expect(sendMessage).lastCalledWith("Greetings!");
+		sendMessage.assertCalledOnce(["Greetings!"]);
 
 		name.set("Freeman");
-		expect(sendMessage).toBeCalledTimes(5);
+		sendMessage.assertNotCalled();
 
 		greeting.set("Bye");
-		expect(sendMessage).toBeCalledTimes(6);
-		expect(sendMessage).lastCalledWith("Bye!");
+		sendMessage.assertCalledOnce(["Bye!"]);
 
 		u();
 		greeting.set("Are you still here");
 		name.set("John?");
 		showName.set(true);
-		expect(sendMessage).toBeCalledTimes(6);
+		sendMessage.assertNotCalled();
 	});
 });

@@ -1,26 +1,23 @@
+import { fn } from "../utils/testUtils.ts";
 import { FlockUpdate, MutFlock } from "./mod.ts";
 
 describe("writable flock", () => {
 	test("basic", () => {
 		const s = MutFlock([1, 2, 3]);
 
-		const f = jest.fn<void, [Set<number>]>();
+		const f = fn<void, [Set<number>]>();
 		const u = s.toSet().subscribe((x) => f(x));
 
-		expect(f).toBeCalledTimes(1);
-		expect(f).lastCalledWith(new Set([1, 2, 3]));
+		f.assertCalledOnce([new Set([1, 2, 3])]);
 
 		s.add(0);
-		expect(f).toBeCalledTimes(2);
-		expect(f).lastCalledWith(new Set([0, 1, 2, 3]));
+		f.assertCalledOnce([new Set([0, 1, 2, 3])]);
 
 		s.delete(2);
-		expect(f).toBeCalledTimes(3);
-		expect(f).lastCalledWith(new Set([0, 1, 3]));
+		f.assertCalledOnce([new Set([0, 1, 3])]);
 
 		s.clear();
-		expect(f).toBeCalledTimes(4);
-		expect(f).lastCalledWith(new Set([]));
+		f.assertCalledOnce([new Set([])]);
 
 		u();
 	});
@@ -28,30 +25,26 @@ describe("writable flock", () => {
 	test("updates", () => {
 		const s = MutFlock([1, 2, 3]);
 
-		const f = jest.fn<void, [FlockUpdate<number>[]]>();
+		const f = fn<void, [FlockUpdate<number>[]]>();
 		const u = s.listenToUpdates((x) => f(x));
 
-		expect(f).not.toBeCalled();
+		f.assertNotCalled();
 
 		s.add(0);
-		expect(f).toBeCalledTimes(1);
-		expect(f).lastCalledWith([{ type: "add", value: 0 }]);
+		f.assertCalledOnce([[{ type: "add", value: 0 }]]);
 
 		s.add(42);
-		expect(f).toBeCalledTimes(2);
-		expect(f).lastCalledWith([{ type: "add", value: 42 }]);
+		f.assertCalledOnce([[{ type: "add", value: 42 }]]);
 
 		s.delete(42);
-		expect(f).toBeCalledTimes(3);
-		expect(f).lastCalledWith([{ type: "delete", value: 42 }]);
+		f.assertCalledOnce([[{ type: "delete", value: 42 }]]);
 
 		s.clear();
-		expect(f).toBeCalledTimes(4);
-		expect(f).lastCalledWith([{ type: "clear" }]);
+		f.assertCalledOnce([[{ type: "clear" }]]);
 
 		u();
 
 		s.add(2);
-		expect(f).toBeCalledTimes(4);
+		f.assertNotCalled();
 	});
 });

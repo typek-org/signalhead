@@ -1,4 +1,5 @@
 import { derived, mut } from "../mod.ts";
+import { fn } from "../utils/testUtils.ts";
 
 describe("derived", () => {
 	test("basic", () => {
@@ -11,22 +12,19 @@ describe("derived", () => {
 			return a;
 		});
 
-		const f = jest.fn<void, [number]>();
+		const f = fn<void, [number]>();
 		const u = gcd.subscribe((x) => f(x));
 
-		expect(f).toBeCalledTimes(1);
-		expect(f).lastCalledWith(2);
-
+		f.assertCalledOnce([2]);
 		expect(gcd.get()).toBe(2);
 
 		num1.set(12);
-		expect(f).toBeCalledTimes(2);
-		expect(f).lastCalledWith(4);
+		f.assertCalledOnce([4]);
 
 		u();
 		num1.set(36);
 		num2.set(24);
 		expect(gcd.get()).toBe(12);
-		expect(f).toBeCalledTimes(2);
+		f.assertNotCalled();
 	});
 });

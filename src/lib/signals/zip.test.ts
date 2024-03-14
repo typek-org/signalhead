@@ -1,5 +1,6 @@
 import { ZippedSignal } from "./zip.ts";
 import { mut } from "./writable.ts";
+import { fn } from "../utils/testUtils.ts";
 
 describe("zip", () => {
 	test("basic get & subscribe", () => {
@@ -44,9 +45,9 @@ describe("zip", () => {
 		const b = mut("world");
 		const c = a.zip(b);
 
-		const f = jest.fn<void, [string, string]>();
-		const g = jest.fn<void, [string, string]>();
-		const h = jest.fn<
+		const f = fn<void, [string, string]>();
+		const g = fn<void, [string, string]>();
+		const h = fn<
 			void,
 			[[string, string], [string, string], [string, string]]
 		>();
@@ -55,37 +56,30 @@ describe("zip", () => {
 		b.subscribe((s) => g(s, b.get()));
 		c.subscribe((s) => h(s, c.get(), [a.get(), b.get()]));
 
-		expect(f).toBeCalledTimes(1);
-		expect(f).toHaveBeenLastCalledWith("hello", "hello");
-		expect(g).toBeCalledTimes(1);
-		expect(g).toHaveBeenLastCalledWith("world", "world");
-		expect(h).toBeCalledTimes(1);
-		expect(h).toHaveBeenLastCalledWith(
+		f.assertCalledOnce(["hello", "hello"]);
+		g.assertCalledOnce(["world", "world"]);
+		h.assertCalledOnce([
 			["hello", "world"],
 			["hello", "world"],
 			["hello", "world"],
-		);
+		]);
 
 		b.set("Frank");
-		expect(f).toBeCalledTimes(1);
-		expect(g).toBeCalledTimes(2);
-		expect(g).toHaveBeenLastCalledWith("Frank", "Frank");
-		expect(h).toBeCalledTimes(2);
-		expect(h).toHaveBeenLastCalledWith(
+		f.assertNotCalled();
+		g.assertCalledOnce(["Frank", "Frank"]);
+		h.assertCalledOnce([
 			["hello", "Frank"],
 			["hello", "Frank"],
 			["hello", "Frank"],
-		);
+		]);
 
 		a.set("bye");
-		expect(f).toBeCalledTimes(2);
-		expect(f).toHaveBeenLastCalledWith("bye", "bye");
-		expect(g).toBeCalledTimes(2);
-		expect(h).toBeCalledTimes(3);
-		expect(h).toHaveBeenLastCalledWith(
+		f.assertCalledOnce(["bye", "bye"]);
+		g.assertNotCalled();
+		h.assertCalledOnce([
 			["bye", "Frank"],
 			["bye", "Frank"],
 			["bye", "Frank"],
-		);
+		]);
 	});
 });

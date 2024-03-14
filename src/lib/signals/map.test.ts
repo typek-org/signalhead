@@ -1,3 +1,4 @@
+import { fn } from "../utils/testUtils.ts";
 import { MappedSignal } from "./map.ts";
 import { mut } from "./writable.ts";
 
@@ -24,20 +25,18 @@ describe("map", () => {
 
 			expect(comma.get()).toBe("Hello, world!");
 
-			const f = jest.fn<void, [string]>();
+			const f = fn<void, [string]>();
 			const u = comma.subscribe((x) => f(x));
-			expect(f).toBeCalledTimes(1);
-			expect(f).lastCalledWith("Hello, world!");
+			f.assertCalledOnce(["Hello, world!"]);
 
 			orig.set("sup kidz");
-			expect(f).toBeCalledTimes(2);
-			expect(f).lastCalledWith("Sup, kidz!");
+			f.assertCalledOnce(["Sup, kidz!"]);
 			expect(comma.get()).toBe("Sup, kidz!");
 
 			u();
 			orig.set("shh silence");
 			expect(comma.get()).toBe("Shh, silence!");
-			expect(f).toBeCalledTimes(2);
+			f.assertNotCalled();
 		}
 	});
 
@@ -45,21 +44,17 @@ describe("map", () => {
 		const a = mut("hey");
 		const b = a.map((s) => s.toUpperCase());
 
-		const f = jest.fn<void, [string, string]>();
-		const g = jest.fn<void, [string, string, string]>();
+		const f = fn<void, [string, string]>();
+		const g = fn<void, [string, string, string]>();
 
 		a.subscribe((s) => f(s, a.get()));
 		b.subscribe((s) => g(s, b.get(), a.get().toUpperCase()));
 
-		expect(f).toBeCalledTimes(1);
-		expect(f).toHaveBeenLastCalledWith("hey", "hey");
-		expect(g).toBeCalledTimes(1);
-		expect(g).toHaveBeenLastCalledWith("HEY", "HEY", "HEY");
+		f.assertCalledOnce(["hey", "hey"]);
+		g.assertCalledOnce(["HEY", "HEY", "HEY"]);
 
 		a.set("bye");
-		expect(f).toBeCalledTimes(2);
-		expect(f).toHaveBeenLastCalledWith("bye", "bye");
-		expect(g).toBeCalledTimes(2);
-		expect(g).toHaveBeenLastCalledWith("BYE", "BYE", "BYE");
+		f.assertCalledOnce(["bye", "bye"]);
+		g.assertCalledOnce(["BYE", "BYE", "BYE"]);
 	});
 });
