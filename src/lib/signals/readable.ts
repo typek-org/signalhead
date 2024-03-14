@@ -14,6 +14,7 @@ import type {
 	WriteonlySignal,
 	SignalArrayValues,
 } from "./types.ts";
+import { SignalWithHistory } from "./withHistory.ts";
 import { ZippedSignal } from "./zip.ts";
 
 export interface Signal<T> extends MinimalSignal<T> {
@@ -51,6 +52,9 @@ export interface Signal<T> extends MinimalSignal<T> {
 		fn: (value: T) => void,
 		options?: { keepAlive?: boolean },
 	): Signal<T>;
+
+	withHistory(): SignalWithHistory<T, 2>;
+	withHistory<N extends number>(howMany: N): SignalWithHistory<T, N>;
 }
 
 export const Signal = {
@@ -99,6 +103,9 @@ export const Signal = {
 		const scan: Signal<T>["scan"] = (...args: any) =>
 			(ScannedSignal as any)({ subscribe, get }, ...args);
 
+		const withHistory = (n = 2): Signal<any> =>
+			SignalWithHistory({ subscribe, get }, n);
+
 		const zip = (...signals: MinimalSignal<any>[]): Signal<any> =>
 			ZippedSignal({ subscribe, get }, ...signals);
 
@@ -113,6 +120,7 @@ export const Signal = {
 			count,
 			tap,
 			scan,
+			withHistory,
 			zip,
 		};
 	},
