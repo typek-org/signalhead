@@ -65,7 +65,7 @@ export interface WritableSignal<T>
 	 * API.
 	 */
 	withSetterSideEffect(
-		fn: (value: T, params: { oldValue: T | undefined }) => T,
+		fn: (value: T, params: { prev: T | undefined }) => T,
 	): WritableSignal<T>;
 }
 
@@ -201,7 +201,7 @@ export const WritableSignal = Object.assign(mut, {
 			);
 
 		const withSetterSideEffect = (
-			fn: (value: T, params: { oldValue: T | undefined }) => T,
+			fn: (value: T, params: { prev: T | undefined }) => T,
 		) =>
 			SetterSideEffectSignal(
 				{ set, subscribe, get, invalidate, validate },

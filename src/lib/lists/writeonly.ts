@@ -155,16 +155,16 @@ export const WriteonlyList = <T>(
 	};
 
 	const publicLength = length$.withSetterSideEffect(
-		(value, { oldValue }) => {
-			const diff = value - oldValue!;
+		(value, { prev }) => {
+			const diff = value - prev!;
 			const updates: ListUpdate<T>[] = [];
 
 			if (diff < 0) {
-				for (let index = oldValue! - 1; index >= value; index--) {
+				for (let index = prev! - 1; index >= value; index--) {
 					updates.push({ type: "delete", index });
 				}
 			} else {
-				for (let index = oldValue!; index < value; index++) {
+				for (let index = prev!; index < value; index++) {
 					updates.push({ type: "insert", index, value: undefined });
 				}
 			}

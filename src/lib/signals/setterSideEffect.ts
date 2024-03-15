@@ -4,12 +4,12 @@ import { WritableSignal } from "./writable.ts";
 
 export const SetterSideEffectSignal = <T>(
 	signal: MinimalWritableSignal<T>,
-	fn: (value: T, params: { oldValue: T | undefined }) => T,
+	fn: (value: T, params: { prev: T | undefined }) => T,
 ): WritableSignal<T> => {
 	const set = (value: T) => {
-		const oldValue = Signal.get(signal);
+		const prev = Signal.get(signal);
 		signal.set(value);
-		fn(value, { oldValue });
+		fn(value, { prev });
 	};
 
 	return WritableSignal.fromMinimal({

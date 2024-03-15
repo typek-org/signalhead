@@ -15,7 +15,7 @@ export type SignalArrayValues<S extends MinimalSignal<any>[]> =
 		: [];
 
 export interface SubscriberParams<T> {
-	oldValue: T | undefined;
+	prev: T | undefined;
 	defer(destructor: () => void): void;
 }
 export type Subscriber<T> = (

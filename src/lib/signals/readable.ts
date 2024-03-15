@@ -149,12 +149,12 @@ export const Signal = {
 					for (const d of defered.flatValues()) d();
 					defered.clear();
 
-					const oldValue = value;
+					const prev = value;
 					value = v;
 
 					for (const s of subs) {
 						const defer = (d: Unsubscriber) => defered.add(s, d);
-						s(v, { oldValue, defer });
+						s(v, { prev, defer });
 					}
 				},
 				() => {
@@ -182,7 +182,7 @@ export const Signal = {
 			if (v) vals.add(v);
 
 			const defer = (d: Unsubscriber) => defered.add(s, d);
-			s(value!, { oldValue: value, defer });
+			s(value!, { prev: value, defer });
 
 			return () => {
 				subs.delete(s);

@@ -38,15 +38,15 @@ export const FlockRegistry = <T>(
 
 	const createSub = (): Subscriber<T> => {
 		let firstRun = true;
-		return (currValue, { oldValue }) => {
+		return (currValue, { prev }) => {
 			if (firstRun) {
 				wflock.update(createAddUpdates(currValue));
 				firstRun = false;
 			}
-			if (currValue === oldValue) return;
+			if (currValue === prev) return;
 			wflock.update([
 				...createAddUpdates(currValue),
-				...createDeleteUpdates(oldValue!),
+				...createDeleteUpdates(prev!),
 			]);
 		};
 	};
