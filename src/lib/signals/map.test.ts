@@ -57,4 +57,38 @@ describe("map", () => {
 		f.assertCalledOnce(["bye", "bye"]);
 		g.assertCalledOnce(["BYE", "BYE", "BYE"]);
 	});
+
+	test("invalitation and revalidation", () => {
+		const a = mut(2);
+		const b = a.map((x) => 2 * x);
+
+		const f = fn<void, [number]>();
+		const g = fn<void, []>();
+		const h = fn<void, []>();
+
+		b.subscribe((x) => f(x), g, h);
+		f.assertCalledOnce([4]);
+		g.assertNotCalled();
+		h.assertNotCalled();
+
+		a.invalidate();
+		f.assertNotCalled();
+		g.assertCalledOnce([]);
+		h.assertNotCalled();
+
+		a.set(1);
+		f.assertCalledOnce([2]);
+		g.assertNotCalled();
+		h.assertNotCalled();
+
+		a.invalidate();
+		f.assertNotCalled();
+		g.assertCalledOnce([]);
+		h.assertNotCalled();
+
+		a.validate();
+		f.assertNotCalled();
+		g.assertNotCalled();
+		h.assertCalledOnce();
+	});
 });

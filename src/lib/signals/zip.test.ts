@@ -82,4 +82,52 @@ describe("zip", () => {
 			["bye", "Frank"],
 		]);
 	});
+
+	test("invalidation and revalidation", () => {
+		const a = mut("foo");
+		const b = mut("bar");
+
+		let isValid = true;
+		const c = a.zip(b);
+
+		const subscriber = fn<void, [[string, string]]>(
+			() => (isValid = true),
+		);
+		const invalidator = () => {
+			isValid = false;
+		};
+		const validator = () => {
+			isValid = true;
+		};
+
+		c.subscribe((x) => subscriber(x), invalidator, validator);
+		subscriber.assertCalledOnce([["foo", "bar"]]);
+		expect(isValid).toBe(true);
+
+		a.invalidate();
+		b.set("qux");
+		subscriber.assertNotCalled();
+		expect(isValid).toBe(false);
+		expect(c.get()).toStrictEqual(["foo", "bar"]);
+
+		a.validate();
+		subscriber.assertCalledOnce([["foo", "qux"]]);
+		expect(isValid).toBe(true);
+		expect(c.get()).toStrictEqual(["foo", "qux"]);
+
+		b.invalidate();
+		expect(isValid).toBe(false);
+		a.invalidate();
+		expect(isValid).toBe(false);
+		b.validate();
+		expect(isValid).toBe(false);
+		a.validate();
+		expect(isValid).toBe(true);
+		subscriber.assertNotCalled();
+
+		a.invalidate();
+		a.set("corge");
+		expect(isValid).toBe(true);
+		subscriber.assertCalledOnce([["corge", "qux"]]);
+	});
 });

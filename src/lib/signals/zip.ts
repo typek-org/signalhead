@@ -1,11 +1,12 @@
 import { range } from "../utils/collections.ts";
 import { Signal } from "./readable.ts";
-import {
+import type {
 	Invalidator,
 	SignalArrayValues,
-	type MinimalSignal,
-	type MinimalSubscriber,
-	type Unsubscriber,
+	MinimalSignal,
+	MinimalSubscriber,
+	Unsubscriber,
+	Validator,
 } from "./types.ts";
 
 export const ZippedSignal: {
@@ -21,7 +22,9 @@ export const ZippedSignal: {
 } = (...signals: MinimalSignal<any>[]): Signal<any> => {
 	const subs = new Set<MinimalSubscriber<any[]>>();
 	const invs = new Set<Invalidator>();
+	const vals = new Set<Validator>();
 
+	let changedWhileDirty = false;
 	const dirty: boolean[] = [];
 	const unsubs: Unsubscriber[] = [];
 	const values: any[] = [];
@@ -33,12 +36,26 @@ export const ZippedSignal: {
 					values[i] = v;
 					dirty[i] = false;
 					if (dirty.every((d) => !d)) {
+						changedWhileDirty = false;
 						subs.forEach((s) => s([...values]));
+					} else {
+						changedWhileDirty = true;
 					}
 				},
 				() => {
 					dirty[i] = true;
 					invs.forEach((i) => i());
+				},
+				() => {
+					dirty[i] = false;
+					if (dirty.every((d) => !d)) {
+						if (changedWhileDirty) {
+							subs.forEach((s) => s([...values]));
+						} else {
+							vals.forEach((v) => v());
+						}
+						changedWhileDirty = false;
+					}
 				},
 			);
 		}
@@ -52,17 +69,20 @@ export const ZippedSignal: {
 	const subscribe = (
 		s: MinimalSubscriber<any[]>,
 		i?: Invalidator,
+		v?: Validator,
 	) => {
 		if (subs.size === 0) start();
 
 		subs.add(s);
 		if (i) invs.add(i);
+		if (v) vals.add(v);
 
 		s([...values]);
 
 		return () => {
 			subs.delete(s);
 			if (i) invs.delete(i);
+			if (v) vals.delete(v);
 			if (subs.size === 0) stop();
 		};
 	};
@@ -70,8 +90,7 @@ export const ZippedSignal: {
 	const get = () => {
 		if (subs.size === 0) {
 			for (const i of range(signals.length)) {
-				if (signals[i].get) values[i] = signals[i].get!();
-				else signals[i].subscribe((v) => (values[i] = v))();
+				values[i] = Signal.get(signals[i]);
 			}
 		}
 		return [...values];

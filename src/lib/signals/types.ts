@@ -1,6 +1,7 @@
 export type MinimalSubscriber<T> = (value: T) => void;
 export type Unsubscriber = () => void;
 export type Invalidator = () => void;
+export type Validator = () => void;
 export type Updater<T> = (value: T) => T;
 
 export type SignalValue<S extends MinimalSignal<any>> =
@@ -26,6 +27,7 @@ export interface MinimalSignal<T> {
 	subscribe(
 		subscriber: MinimalSubscriber<T>,
 		invalidate?: Invalidator,
+		validate?: Validator,
 	): Unsubscriber;
 
 	get?(): T;
@@ -39,6 +41,7 @@ export interface MinimalWritableSignal<T>
 	extends MinimalSignal<T>,
 		WriteonlySignal<T> {
 	invalidate?(): void;
+	validate?(): void;
 }
 
 export interface StartStop {

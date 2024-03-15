@@ -6,17 +6,14 @@ export const SetterSideEffectSignal = <T>(
 	signal: MinimalWritableSignal<T>,
 	fn: (value: T, params: { oldValue: T | undefined }) => T,
 ): WritableSignal<T> => {
-	const { set, subscribe, get, invalidate } = signal;
-	const newSet = (value: T) => {
+	const set = (value: T) => {
 		const oldValue = Signal.get(signal);
-		set(value);
+		signal.set(value);
 		fn(value, { oldValue });
 	};
 
 	return WritableSignal.fromMinimal({
-		set: newSet,
-		invalidate,
-		subscribe,
-		get,
+		...signal,
+		set,
 	});
 };

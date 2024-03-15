@@ -1,10 +1,11 @@
 import { cons } from "./cons.ts";
 import { Signal } from "./readable.ts";
-import type {
-	Invalidator,
-	MinimalSignal,
-	MinimalSubscriber,
-	Unsubscriber,
+import {
+	Validator,
+	type Invalidator,
+	type MinimalSignal,
+	type MinimalSubscriber,
+	type Unsubscriber,
 } from "./types.ts";
 
 export type FlatSignal<Signal, Depth extends number> = {
@@ -46,30 +47,81 @@ const ShallowFlatSignal = <T>(
 	let value: T;
 	let unsubOuter = () => {};
 	let unsubInner = () => {};
+	let outerValid = true;
+	let innerValid = true;
+	let changedWhileDirty = false;
+
+	const isValid = () => outerValid && innerValid;
 
 	const subs = new Set<MinimalSubscriber<T>>();
 	const invs = new Set<Invalidator>();
+	const vals = new Set<Validator>();
 
-	const set = (v: T) => {
-		value = v;
-		subs.forEach((s) => s(value));
+	const callSubs = () => subs.forEach((s) => s(value));
+	const callInvs = () => invs.forEach((i) => i());
+	const callVals = () => vals.forEach((v) => v());
+	const silentlyValidateAll = () => {
+		innerValid = true;
+		outerValid = true;
+		changedWhileDirty = false;
 	};
-	const invalidate = () => {
-		invs.forEach((i) => i());
+	const setOuter = (v: T) => {
+		silentlyValidateAll();
+		value = v;
+		callSubs();
+	};
+	const setInner = (v: T) => {
+		innerValid = true;
+		if (isValid()) {
+			value = v;
+			callSubs();
+		} else {
+			changedWhileDirty = true;
+			value = v;
+		}
+	};
+	const invalidateOuter = () => {
+		const shouldCallInvs = isValid();
+		outerValid = false;
+		if (shouldCallInvs) callInvs();
+	};
+	const invalidateInner = () => {
+		const runInvs = isValid();
+		innerValid = false;
+		if (runInvs) callInvs();
+	};
+	const validateOuter = () => {
+		outerValid = true;
+
+		if (isValid()) {
+			if (changedWhileDirty) setOuter(value);
+			else callVals();
+		}
+	};
+	const validateInner = () => {
+		innerValid = true;
+		if (isValid()) callVals();
 	};
 
 	const start = () => {
-		unsubOuter = signal.subscribe((v) => {
-			unsubInner();
-			if (Signal.isReadable(v)) {
-				unsubInner = v.subscribe((w) => {
-					set(w);
-				}, invalidate);
-			} else {
-				unsubInner = () => {};
-				set(v);
-			}
-		}, invalidate);
+		unsubOuter = signal.subscribe(
+			(v) => {
+				unsubInner();
+				if (Signal.isReadable(v)) {
+					silentlyValidateAll();
+					unsubInner = v.subscribe(
+						setInner,
+						invalidateInner,
+						validateInner,
+					);
+				} else {
+					unsubInner = () => {};
+					setOuter(v);
+				}
+			},
+			invalidateOuter,
+			validateOuter,
+		);
 	};
 
 	const stop = () => {
@@ -80,15 +132,18 @@ const ShallowFlatSignal = <T>(
 	const subscribe = (
 		s: MinimalSubscriber<T>,
 		i?: Invalidator,
+		v?: Validator,
 	): Unsubscriber => {
 		if (subs.size === 0) start();
 		subs.add(s);
 		if (i) invs.add(i);
+		if (v) vals.add(v);
 		s(value);
 
 		return () => {
 			subs.delete(s);
 			if (i) invs.delete(i);
+			if (v) vals.delete(v);
 			if (subs.size === 0) stop();
 		};
 	};

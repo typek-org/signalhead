@@ -5,13 +5,10 @@ export const MappedSetterSignal = <T>(
 	signal: MinimalWritableSignal<T>,
 	fn: (value: T) => T,
 ): WritableSignal<T> => {
-	const { set, subscribe, get, invalidate } = signal;
-	const mappedSet = (value: T) => set(fn(value));
+	const set = (value: T) => signal.set(fn(value));
 
 	return WritableSignal.fromMinimal({
-		set: mappedSet,
-		invalidate,
-		subscribe,
-		get,
+		...signal,
+		set,
 	});
 };

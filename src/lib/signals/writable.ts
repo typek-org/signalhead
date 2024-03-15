@@ -1,10 +1,11 @@
-import type {
-	Updater,
-	WriteonlySignal,
-	MinimalSubscriber,
-	Invalidator,
-	MinimalWritableSignal,
-	StartStop,
+import {
+	type Updater,
+	type WriteonlySignal,
+	type MinimalSubscriber,
+	type Invalidator,
+	type MinimalWritableSignal,
+	type StartStop,
+	Validator,
 } from "./types.ts";
 import { Signal } from "./readable.ts";
 import { MappedSetterSignal } from "./mappedSetter.ts";
@@ -25,9 +26,19 @@ export interface WritableSignal<T>
 	 * Invalidates all dependencies of this signal (ie. signals that are
 	 * derived from this one). Invalidating the signal once any of your
 	 * dependencies become invalid prevents glitching. The signal will
-	 * become valid once its `set` method is called.
+	 * become valid once either its `set` method its `validate` method
+	 * is called.
 	 */
 	invalidate(): void;
+
+	/**
+	 * **FOOTGUN WARNING:** You probably don't need this function. It is
+	 * only useful if you're defining your own custom reactive primitives.
+	 * Use it only if you understand exactly what it does.
+	 *
+	 * Re-validates this signal's dependencies without pushing a new value.
+	 */
+	validate(): void;
 
 	/**
 	 * Creates a new WritableSignal whose `set` and `update` methods
@@ -85,9 +96,11 @@ export const mut: {
 	}: WritableSignalOptions = {},
 ) => {
 	let value: T = initialValue!;
+	let isValid = true;
 
 	const subs = new Set<MinimalSubscriber<T>>();
 	const invs = new Set<Invalidator>();
+	const vals = new Set<Validator>();
 	const defered: Array<() => void> = [];
 	const defer = (d: () => void) => void defered.push(d);
 
@@ -105,16 +118,22 @@ export const mut: {
 		return value;
 	};
 
-	const minSubscribe = (s: MinimalSubscriber<T>, i?: Invalidator) => {
+	const minSubscribe = (
+		s: MinimalSubscriber<T>,
+		i?: Invalidator,
+		v?: Validator,
+	) => {
 		if (subs.size === 0) onStart?.({ defer });
 		subs.add(s);
 		if (i) invs.add(i);
+		if (v) vals.add(v);
 
 		s(value);
 
 		return () => {
 			subs.delete(s);
 			if (i) invs.delete(i);
+			if (v) vals.delete(v);
 
 			if (subs.size === 0) {
 				for (const d of defered) d();
@@ -129,32 +148,45 @@ export const mut: {
 	});
 
 	const set = (v: T) => {
+		invalidate();
 		value = v;
-		invs.forEach((i) => i());
+		isValid = true;
 		subs.forEach((s) => s(value));
 	};
 
 	const invalidate = () => {
-		invs.forEach((i) => i());
+		if (isValid) {
+			isValid = false;
+			invs.forEach((i) => i());
+		}
 	};
 
-	return WritableSignal.fromSetAndInvalidateAndSubscribeAndGet({
+	const validate = () => {
+		if (!isValid) {
+			isValid = true;
+			vals.forEach((v) => v());
+		}
+	};
+
+	return WritableSignal.fromSetAndSubscribeAndGet({
 		set,
-		invalidate,
 		subscribe,
+		invalidate,
+		validate,
 		get,
 	});
 };
 
 export const WritableSignal = Object.assign(mut, {
-	fromSetAndInvalidateAndSubscribeAndGet<T>({
+	fromSetAndSubscribeAndGet<T>({
 		set,
 		invalidate,
+		validate,
 		subscribe,
 		get,
 	}: Pick<
 		WritableSignal<T>,
-		"set" | "subscribe" | "get" | "invalidate"
+		"set" | "subscribe" | "get" | "invalidate" | "validate"
 	>): WritableSignal<T> {
 		const update = (fn: Updater<T>) => set(fn(get()));
 
@@ -163,18 +195,25 @@ export const WritableSignal = Object.assign(mut, {
 			Signal.fromSubscribeAndGet({ subscribe, get });
 
 		const withMappedSetter = (fn: (value: T) => T) =>
-			MappedSetterSignal({ set, subscribe, get, invalidate }, fn);
+			MappedSetterSignal(
+				{ set, subscribe, get, invalidate, validate },
+				fn,
+			);
 
 		const withSetterSideEffect = (
 			fn: (value: T, params: { oldValue: T | undefined }) => T,
 		) =>
-			SetterSideEffectSignal({ set, subscribe, get, invalidate }, fn);
+			SetterSideEffectSignal(
+				{ set, subscribe, get, invalidate, validate },
+				fn,
+			);
 
 		return {
 			...Signal.fromSubscribeAndGet({ subscribe, get }),
 			set,
 			update,
 			invalidate,
+			validate,
 			toReadonly,
 			toWriteonly,
 			withMappedSetter,
@@ -185,13 +224,14 @@ export const WritableSignal = Object.assign(mut, {
 	fromMinimal<T>(
 		signal: MinimalWritableSignal<T>,
 	): WritableSignal<T> {
-		const { set, invalidate } = signal;
+		const { set, invalidate, validate } = signal;
 		const { subscribe, get } = Signal.fromMinimal(signal);
-		return WritableSignal.fromSetAndInvalidateAndSubscribeAndGet({
+		return WritableSignal.fromSetAndSubscribeAndGet({
 			set,
 			subscribe,
 			get,
 			invalidate: invalidate ?? (() => {}),
+			validate: validate ?? (() => set(get())),
 		});
 	},
 });

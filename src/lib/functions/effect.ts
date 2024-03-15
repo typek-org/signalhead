@@ -2,6 +2,7 @@ import type {
 	Invalidator,
 	MinimalSignal,
 	Unsubscriber,
+	Validator,
 } from "../signals/mod.ts";
 import { Signal } from "../signals/mod.ts";
 
@@ -34,16 +35,17 @@ export interface EffectParams {
  *
  * name.set('Jane'); // Jane Doe is 25 years old
  * age.set(69); // Jane Doe is 69 years old
- *
  */
 export function effect(
 	f: ($: <T>(s: MinimalSignal<T>) => T, params: EffectParams) => void,
 	invalidator?: Invalidator,
+	validator?: Validator,
 ): Unsubscriber {
 	const deps = new Map<MinimalSignal<any>, Unsubscriber>();
 	const dirty = new Set<MinimalSignal<any>>();
 	const usedNow = new Set<MinimalSignal<any>>();
 	const defered: Array<() => void> = [];
+	let changedWhileDirty = false;
 
 	// subscribe to the signal (if not yet subscribed)
 	// and return its value
@@ -56,11 +58,27 @@ export function effect(
 				s.subscribe(
 					() => {
 						dirty.delete(s);
-						if (dirty.size === 0) depsChanged();
+						if (dirty.size === 0) {
+							changedWhileDirty = false;
+							depsChanged();
+						} else {
+							changedWhileDirty = true;
+						}
 					},
 					() => {
 						if (dirty.size === 0) invalidator?.();
 						dirty.add(s);
+					},
+					() => {
+						dirty.delete(s);
+						if (dirty.size === 0) {
+							if (changedWhileDirty) {
+								changedWhileDirty = false;
+								depsChanged();
+							} else {
+								validator?.();
+							}
+						}
 					},
 				),
 			);

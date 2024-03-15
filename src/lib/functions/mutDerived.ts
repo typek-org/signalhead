@@ -54,6 +54,7 @@ export function mutDerived<T>(
 						signal.set(value);
 					},
 					() => signal.invalidate(),
+					() => signal.validate(),
 				),
 			);
 		},

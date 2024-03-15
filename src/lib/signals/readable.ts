@@ -13,6 +13,7 @@ import type {
 	Invalidator,
 	WriteonlySignal,
 	SignalArrayValues,
+	Validator,
 } from "./types.ts";
 import { SignalWithHistory } from "./withHistory.ts";
 import { ZippedSignal } from "./zip.ts";
@@ -21,17 +22,21 @@ export interface Signal<T> extends MinimalSignal<T> {
 	subscribe(
 		subscriber: Subscriber<T>,
 		invalidate?: Invalidator,
+		validate?: Validator,
 	): Unsubscriber;
 
 	listen(
 		subscriber: Subscriber<T>,
 		invalidate?: Invalidator,
+		validate?: Validator,
 	): Unsubscriber;
 
 	get(): T;
 	map<S>(fn: (value: T) => S): Signal<S>;
 	enumerate(): Signal<[number, T]>;
-	flat<D extends number = 1>(depth?: D): FlatSignal<Signal<T>, D>;
+	flat<D extends number = 1>(
+		depth?: D,
+	): Signal<FlatSignal<Signal<T>, D>>;
 	flatMap<S>(fn: (value: T) => S | Signal<S>): Signal<S>;
 	count(): Signal<number>;
 
@@ -73,11 +78,16 @@ export const Signal = {
 		const listen = (
 			subscriber: Subscriber<T>,
 			invalidate?: Invalidator,
+			validate?: Validator,
 		) => {
 			let synchronousRun = true;
-			const unsub = subscribe((...args) => {
-				if (!synchronousRun) subscriber(...args);
-			}, invalidate);
+			const unsub = subscribe(
+				(...args) => {
+					if (!synchronousRun) subscriber(...args);
+				},
+				invalidate,
+				validate,
+			);
 			synchronousRun = false;
 			return unsub;
 		};
@@ -130,24 +140,28 @@ export const Signal = {
 		let value: T | undefined;
 		const subs = new Set<Subscriber<T>>();
 		const invs = new Set<Invalidator>();
+		const vals = new Set<Validator>();
 		const defered = new MapSet<Subscriber<T>, Unsubscriber>();
 
 		const start = () => {
 			unsub = signal.subscribe(
-				(val) => {
+				(v) => {
 					for (const d of defered.flatValues()) d();
 					defered.clear();
 
 					const oldValue = value;
-					value = val;
+					value = v;
 
 					for (const s of subs) {
 						const defer = (d: Unsubscriber) => defered.add(s, d);
-						s(val, { oldValue, defer });
+						s(v, { oldValue, defer });
 					}
 				},
 				() => {
-					invs.forEach((i) => i());
+					invs.forEach((f) => f());
+				},
+				() => {
+					vals.forEach((f) => f());
 				},
 			);
 		};
@@ -156,11 +170,16 @@ export const Signal = {
 			unsub = () => {};
 		};
 
-		const subscribe = (s: Subscriber<T>, i?: Invalidator) => {
+		const subscribe = (
+			s: Subscriber<T>,
+			i?: Invalidator,
+			v?: Validator,
+		) => {
 			if (subs.size === 0) start();
 
 			subs.add(s);
 			if (i) invs.add(i);
+			if (v) vals.add(v);
 
 			const defer = (d: Unsubscriber) => defered.add(s, d);
 			s(value!, { oldValue: value, defer });
@@ -168,6 +187,7 @@ export const Signal = {
 			return () => {
 				subs.delete(s);
 				if (i) invs.delete(i);
+				if (v) vals.delete(v);
 				for (const d of defered.get(s) ?? []) d();
 				defered.delete(s);
 				if (subs.size === 0) stop();
