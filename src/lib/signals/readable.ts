@@ -18,6 +18,9 @@ import type {
 } from "./types.ts";
 import { SignalWithHistory } from "./withHistory.ts";
 import { ZippedSignal } from "./zip.ts";
+import { FilteredSignal } from "./filter.ts";
+import { SkippedSignal } from "./skip.ts";
+import { SignalWithSkippedEqual } from "./skipEqual.ts";
 
 export interface Signal<T> extends MinimalSignal<T> {
 	subscribe(
@@ -35,6 +38,15 @@ export interface Signal<T> extends MinimalSignal<T> {
 	get(): T;
 	map<S>(fn: (value: T, params: SubscriberParams<T>) => S): Signal<S>;
 	enumerate(): Signal<[number, T]>;
+
+	filter(
+		fn: (value: T, params: SubscriberParams<T>) => boolean,
+	): Signal<T | undefined>;
+	filter(
+		fn: (value: T, params: SubscriberParams<T>) => boolean,
+		initialValue: T,
+	): Signal<T>;
+
 	flat<D extends number = 1>(
 		depth?: D,
 	): Signal<FlatSignal<Signal<T>, D>>;
@@ -46,6 +58,15 @@ export interface Signal<T> extends MinimalSignal<T> {
 	scan(fn: (prev: T, curr: T) => T): Signal<T>;
 	scan(fn: (prev: T, curr: T) => T, initialValue: T): Signal<T>;
 	scan<U>(fn: (prev: U, curr: T) => U, initialValue: U): Signal<U>;
+
+	skip(
+		fn: (value: T, params: SubscriberParams<T>) => boolean,
+	): Signal<T | undefined>;
+	skip(
+		fn: (value: T, params: SubscriberParams<T>) => boolean,
+		initialValue: T,
+	): Signal<T>;
+	skipEqual(): Signal<T>;
 
 	zip<U>(other: MinimalSignal<U>): Signal<[T, U]>;
 	zip<U, V>(
@@ -107,6 +128,11 @@ export const Signal = {
 			options?: { keepAlive?: boolean },
 		) => TappedSignal({ subscribe, get }, listener, options);
 
+		const filter = (
+			fn: (v: T, params: SubscriberParams<T>) => boolean,
+			initialValue?: T,
+		) => FilteredSignal({ subscribe, get }, fn, initialValue!);
+
 		const flat = <D extends number>(depth?: D): any =>
 			FlatSignal({ subscribe, get }, depth);
 
@@ -121,6 +147,14 @@ export const Signal = {
 		const scan: Signal<T>["scan"] = (...args: any) =>
 			(ScannedSignal as any)({ subscribe, get }, ...args);
 
+		const skip = (
+			fn: (v: T, params: SubscriberParams<T>) => boolean,
+			initialValue?: T,
+		) => SkippedSignal({ subscribe, get }, fn, initialValue!);
+
+		const skipEqual = () =>
+			SignalWithSkippedEqual({ subscribe, get });
+
 		const withHistory = (n = 2): Signal<any> =>
 			SignalWithHistory({ subscribe, get }, n);
 
@@ -133,10 +167,13 @@ export const Signal = {
 			get,
 			map,
 			enumerate,
+			filter,
 			flat,
 			flatMap,
 			count,
 			tap,
+			skip,
+			skipEqual,
 			scan,
 			withHistory,
 			zip,
