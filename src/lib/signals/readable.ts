@@ -14,6 +14,7 @@ import type {
 	WriteonlySignal,
 	SignalArrayValues,
 	Validator,
+	SubscriberParams,
 } from "./types.ts";
 import { SignalWithHistory } from "./withHistory.ts";
 import { ZippedSignal } from "./zip.ts";
@@ -32,12 +33,14 @@ export interface Signal<T> extends MinimalSignal<T> {
 	): Unsubscriber;
 
 	get(): T;
-	map<S>(fn: (value: T) => S): Signal<S>;
+	map<S>(fn: (value: T, params: SubscriberParams<T>) => S): Signal<S>;
 	enumerate(): Signal<[number, T]>;
 	flat<D extends number = 1>(
 		depth?: D,
 	): Signal<FlatSignal<Signal<T>, D>>;
-	flatMap<S>(fn: (value: T) => S | Signal<S>): Signal<S>;
+	flatMap<S>(
+		fn: (value: T, params: SubscriberParams<T>) => S | Signal<S>,
+	): Signal<S>;
 	count(): Signal<number>;
 
 	scan(fn: (prev: T, curr: T) => T): Signal<T>;
@@ -92,8 +95,9 @@ export const Signal = {
 			return unsub;
 		};
 
-		const map = <S>(fn: (value: T) => S) =>
-			MappedSignal({ subscribe, get }, fn);
+		const map = <S>(
+			fn: (value: T, params: SubscriberParams<T>) => S,
+		) => MappedSignal({ subscribe, get }, fn);
 
 		const enumerate = () => EnumeratedSignal({ subscribe, get });
 		const count = () => CountedSignal({ subscribe, get });
@@ -106,8 +110,12 @@ export const Signal = {
 		const flat = <D extends number>(depth?: D): any =>
 			FlatSignal({ subscribe, get }, depth);
 
-		const flatMap = <S>(fn: (value: T) => S | MinimalSignal<S>) =>
-			FlatMappedSignal({ subscribe, get }, fn);
+		const flatMap = <S>(
+			fn: (
+				value: T,
+				params: SubscriberParams<T>,
+			) => S | MinimalSignal<S>,
+		) => FlatMappedSignal({ subscribe, get }, fn);
 
 		// have to spread in order to preserve argument count
 		const scan: Signal<T>["scan"] = (...args: any) =>
@@ -138,6 +146,7 @@ export const Signal = {
 	fromMinimal<T>(signal: MinimalSignal<T>): Signal<T> {
 		let unsub: Unsubscriber = () => {};
 		let value: T | undefined;
+		let cold = true;
 		const subs = new Set<Subscriber<T>>();
 		const invs = new Set<Invalidator>();
 		const vals = new Set<Validator>();
@@ -154,8 +163,15 @@ export const Signal = {
 
 					for (const s of subs) {
 						const defer = (d: Unsubscriber) => defered.add(s, d);
-						s(v, { prev, defer });
+						s(v, {
+							prev,
+							defer,
+							isFirstRun: false,
+							isColdStart: cold,
+						});
 					}
+
+					cold = false;
 				},
 				() => {
 					invs.forEach((f) => f());
@@ -166,6 +182,7 @@ export const Signal = {
 			);
 		};
 		const stop = () => {
+			cold = true;
 			unsub();
 			unsub = () => {};
 		};
@@ -175,14 +192,23 @@ export const Signal = {
 			i?: Invalidator,
 			v?: Validator,
 		) => {
-			if (subs.size === 0) start();
+			let isColdStart = false;
+			if (subs.size === 0) {
+				isColdStart = true;
+				start();
+			}
 
 			subs.add(s);
 			if (i) invs.add(i);
 			if (v) vals.add(v);
 
 			const defer = (d: Unsubscriber) => defered.add(s, d);
-			s(value!, { prev: value, defer });
+			s(value!, {
+				prev: value,
+				defer,
+				isFirstRun: true,
+				isColdStart,
+			});
 
 			return () => {
 				subs.delete(s);

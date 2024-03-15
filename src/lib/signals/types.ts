@@ -15,8 +15,36 @@ export type SignalArrayValues<S extends MinimalSignal<any>[]> =
 		: [];
 
 export interface SubscriberParams<T> {
+	/**
+	 * The previous value of this signal. On the subscriber's
+	 * first run, it's identical to the current value, because
+	 * signals do not cache their previous values.
+	 *
+	 * If you need to cache the previous value, consider using
+	 * `signal.withHistory()`.
+	 */
 	prev: T | undefined;
+
+	/**
+	 * Mark a cleanup function to be called before this subscriber
+	 * is called again, or once it is unsubscribed.
+	 */
 	defer(destructor: () => void): void;
+
+	/**
+	 * Subscribers are called immediately during subscription –
+	 * on this call, `isFirstRun` will be `true`. On all subsequent
+	 * calls of this subscriber, `isFirstRun` will be `false`.
+	 */
+	isFirstRun: boolean;
+
+	/**
+	 * Some signals perform special tasks once they get their first
+	 * subscriber – ie. stop being _cold_ and become _hot_. The
+	 * `isColdStart` will be `true` on the first run of the first
+	 * subscriber added, and `false` on all subsequent calls.
+	 */
+	isColdStart: boolean;
 }
 export type Subscriber<T> = (
 	value: T,

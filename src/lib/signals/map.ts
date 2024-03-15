@@ -4,11 +4,13 @@ import {
 	type Invalidator,
 	type MinimalSignal,
 	type MinimalSubscriber,
+	SubscriberParams,
+	Unsubscriber,
 } from "./types.ts";
 
 export const MappedSignal = <S, T>(
 	signal: MinimalSignal<S>,
-	fn: (value: S) => T,
+	fn: (value: S, params: SubscriberParams<S>) => T,
 ): Signal<T> => {
 	const subs = new Set<MinimalSubscriber<T>>();
 	const invs = new Set<Invalidator>();
@@ -17,9 +19,9 @@ export const MappedSignal = <S, T>(
 	let value: T;
 
 	const start = () => {
-		unsub = signal.subscribe(
-			(v) => {
-				value = fn(v);
+		unsub = Signal.fromMinimal(signal).subscribe(
+			(v, params) => {
+				value = fn(v, params);
 				subs.forEach((s) => s(value));
 			},
 			() => invs.forEach((i) => i()),
@@ -54,7 +56,24 @@ export const MappedSignal = <S, T>(
 
 	const get = () => {
 		if (subs.size === 0) {
-			if (signal.get) return fn(signal.get()!);
+			if (signal.get) {
+				const value = signal.get()!;
+
+				const defered = new Set<Unsubscriber>();
+				const defer = (u: Unsubscriber) => defered.add(u);
+
+				const mapped = fn(value, {
+					prev: value,
+					defer,
+					isFirstRun: true,
+					isColdStart: true,
+				});
+
+				defered.forEach((u) => u());
+
+				return mapped;
+			}
+
 			start();
 			stop();
 		}
