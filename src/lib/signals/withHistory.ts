@@ -42,7 +42,7 @@ export const SignalWithHistory = <T, N extends number = 2>(
 		);
 	}
 
-	let values = [] as TupleOf<T, N>;
+	let values: T[] = [];
 	const signalWithHistory = mut<TupleOf<T, N>>(undefined!, {
 		warnOnGetWithoutSubscribers:
 			"Attempting to get the value of a SignalWithHistory which does not have " +
@@ -61,7 +61,7 @@ export const SignalWithHistory = <T, N extends number = 2>(
 				signal.subscribe((v) => {
 					values.unshift(v);
 					values.pop();
-					signalWithHistory.set([...values] as typeof values);
+					signalWithHistory.set([...values] as TupleOf<T, N>);
 				}),
 			);
 		},
