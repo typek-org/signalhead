@@ -35,7 +35,10 @@ describe("awaited", () => {
 			a.set(p3);
 			f.assertCalledOnce([{ status: "pending", lastValue: 69 }]);
 
-			await p3.catch().then(() => delay(0));
+			await p3.then(
+				() => {},
+				() => delay(0),
+			);
 
 			f.assertCalledOnce([
 				{

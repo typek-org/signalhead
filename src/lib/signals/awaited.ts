@@ -37,23 +37,24 @@ export const AwaitedSignal = <T>(
 						const promise = (async (): Promise<V> =>
 							await promiseOrValue)();
 
-						// Fulfilled
-						promise.catch().then((value) => {
-							if (!shouldUpdate) return;
+						promise.catch().then(
+							// Fulfilled
+							(value) => {
+								if (!shouldUpdate) return;
 
-							lastValue = value;
-							awaited.set({ status: "fulfilled", value });
-						});
-
-						// Rejected
-						promise.catch((reason) => {
-							if (!shouldUpdate) return;
-							awaited.set({
-								status: "rejected",
-								reason,
-								lastValue,
-							});
-						});
+								lastValue = value;
+								awaited.set({ status: "fulfilled", value });
+							},
+							// Rejected
+							(reason) => {
+								if (!shouldUpdate) return;
+								awaited.set({
+									status: "rejected",
+									reason,
+									lastValue,
+								});
+							},
+						);
 					}),
 				);
 			},
