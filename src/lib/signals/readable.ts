@@ -21,6 +21,7 @@ import { ZippedSignal } from "./zip.ts";
 import { FilteredSignal } from "./filter.ts";
 import { SkippedSignal } from "./skip.ts";
 import { SignalWithSkippedEqual } from "./skipEqual.ts";
+import { AwaitedSignal } from "./awaited.ts";
 
 export interface Signal<T> extends MinimalSignal<T> {
 	subscribe(
@@ -36,6 +37,9 @@ export interface Signal<T> extends MinimalSignal<T> {
 	): Unsubscriber;
 
 	get(): T;
+
+	awaited(): AwaitedSignal<Awaited<T>>;
+
 	map<S>(fn: (value: T, params: SubscriberParams<T>) => S): Signal<S>;
 	enumerate(): Signal<[number, T]>;
 
@@ -116,6 +120,8 @@ export const Signal = {
 			return unsub;
 		};
 
+		const awaited = () => AwaitedSignal({ subscribe, get });
+
 		const map = <S>(
 			fn: (value: T, params: SubscriberParams<T>) => S,
 		) => MappedSignal({ subscribe, get }, fn);
@@ -165,6 +171,7 @@ export const Signal = {
 			subscribe,
 			listen,
 			get,
+			awaited,
 			map,
 			enumerate,
 			filter,
