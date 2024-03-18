@@ -1,5 +1,10 @@
 import { fn } from "../utils/testUtils";
-import { AwaitedSignal, AwaitedSignalResult } from "./awaited";
+import {
+	AwaitedSignal,
+	AwaitedSignalResult,
+	CurrentlyFulfilledAwaitedSignal,
+	LastFulfilledAwaitedSignal,
+} from "./awaited";
 import { mut } from "./writable";
 
 const delay = (ms: number = 0) =>
@@ -19,25 +24,25 @@ describe("awaited", () => {
 				{ status: "pending", lastValue: undefined },
 			]);
 
-			await p1.then(() => delay());
+			await p1.then(delay);
 			f.assertCalledOnce([{ status: "fulfilled", value: 42 }]);
 
 			const p2 = delay(200).then(() => 69);
 			a.set(p2);
 			f.assertCalledOnce([{ status: "pending", lastValue: 42 }]);
 
-			await p2.then(() => delay());
+			await p2.then(delay);
 			f.assertCalledOnce([{ status: "fulfilled", value: 69 }]);
 
-			const p3 = delay(100).then(
-				() => new Promise<number>((_, rej) => rej(new Error("fail"))),
-			);
+			const p3 = delay(100).then(() => {
+				throw new Error("fail");
+			});
 			a.set(p3);
 			f.assertCalledOnce([{ status: "pending", lastValue: 69 }]);
 
 			await p3.then(
 				() => {},
-				() => delay(0),
+				() => delay(),
 			);
 
 			f.assertCalledOnce([
@@ -64,10 +69,28 @@ describe("awaited", () => {
 		a.set(p2);
 		f.assertNotCalled();
 
-		await p2.then(() => delay());
+		await p2.then(delay);
 		f.assertCalledOnce([{ status: "fulfilled", value: -12 }]);
 
-		await p1.then(() => delay());
+		await p1.then(delay);
+		f.assertNotCalled();
+
+		const p3 = delay(200).then(() => {
+			throw new Error("fail");
+		});
+		a.set(p3);
+		f.assertCalledOnce([{ status: "pending", lastValue: -12 }]);
+
+		const p4 = delay(100).then(() => 3);
+		a.set(p4);
+
+		await p4.then(delay);
+		f.assertCalledOnce([{ status: "fulfilled", value: 3 }]);
+
+		await p3.then(
+			() => {},
+			() => delay(),
+		);
 		f.assertNotCalled();
 	});
 
@@ -89,7 +112,7 @@ describe("awaited", () => {
 		h.assertNotCalled();
 		f.assertCalledOnce([{ status: "pending", lastValue: undefined }]);
 
-		await p1.then(() => delay());
+		await p1.then(delay);
 		h.assertCalledOnce();
 		f.assertCalledOnce();
 		expect(isValid).toBe(true);
@@ -101,5 +124,89 @@ describe("awaited", () => {
 		a.validate();
 		expect(isValid).toBe(true);
 		f.assertNotCalled();
+	});
+
+	describe("last fulfilled", () => {
+		test("basic", async () => {
+			for (const method of [true, false]) {
+				const f = fn<void, [number | undefined]>();
+
+				const p1 = delay(100).then(() => 42);
+				const a = mut(p1);
+				const b = method
+					? a.awaited().lastFulfilled()
+					: LastFulfilledAwaitedSignal(a);
+
+				b.subscribe((x) => f(x));
+				f.assertCalledOnce([undefined]);
+
+				await p1.then(delay);
+				f.assertCalledOnce([42]);
+
+				const p2 = delay(200).then(() => 69);
+				a.set(p2);
+				f.assertNotCalled();
+				expect(b.get()).toBe(42);
+
+				await p2.then(delay);
+				f.assertCalledOnce([69]);
+
+				const p3 = delay(100).then(() => {
+					throw new Error("fail");
+				});
+				a.set(p3);
+				f.assertNotCalled();
+				expect(b.get()).toBe(69);
+
+				await p3.then(
+					() => {},
+					() => delay(),
+				);
+
+				f.assertNotCalled();
+				expect(b.get()).toBe(69);
+			}
+		});
+	});
+
+	describe("currently fulfilled", () => {
+		test("basic", async () => {
+			for (const method of [true, false]) {
+				const f = fn<void, [number | undefined]>();
+
+				const p1 = delay(100).then(() => 42);
+				const a = mut(p1);
+				const b = method
+					? a.awaited().currentlyFulfilled()
+					: CurrentlyFulfilledAwaitedSignal(a);
+
+				b.subscribe((x) => f(x));
+				f.assertCalledOnce([undefined]);
+
+				await p1.then(delay);
+				f.assertCalledOnce([42]);
+
+				const p2 = delay(200).then(() => 69);
+				a.set(p2);
+				f.assertCalledOnce([undefined]);
+
+				await p2.then(delay);
+				f.assertCalledOnce([69]);
+
+				const p3 = delay(100).then(() => {
+					throw new Error("fail");
+				});
+				a.set(p3);
+				f.assertCalledOnce([undefined]);
+
+				await p3.then(
+					() => {},
+					() => delay(),
+				);
+
+				f.assertNotCalled();
+				expect(b.get()).toBe(undefined);
+			}
+		});
 	});
 });
