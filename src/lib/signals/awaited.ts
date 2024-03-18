@@ -18,44 +18,60 @@ export const AwaitedSignal = <T>(
 ): AwaitedSignal<Awaited<T>> => {
 	type V = Awaited<T>;
 	let lastValue: V | undefined;
+	let currAwaitedValue: AwaitedSignalResult<V>;
 
 	const awaited = mut<AwaitedSignalResult<V>>(
 		{ status: "pending", lastValue },
 		{
 			onStart({ defer }) {
 				defer(
-					signal.subscribe((promiseOrValue) => {
-						awaited.set({
-							status: "pending",
-							lastValue,
-						});
-
-						// if a new promise is pushed during the asynchronous gap, do nothing
-						let shouldUpdate = true;
-						defer(() => (shouldUpdate = false));
-
-						const promise = (async (): Promise<V> =>
-							await promiseOrValue)();
-
-						promise.catch().then(
-							// Fulfilled
-							(value) => {
-								if (!shouldUpdate) return;
-
-								lastValue = value;
-								awaited.set({ status: "fulfilled", value });
-							},
-							// Rejected
-							(reason) => {
-								if (!shouldUpdate) return;
-								awaited.set({
-									status: "rejected",
-									reason,
+					Signal.fromMinimal(signal).subscribe(
+						(promiseOrValue, { defer }) => {
+							// only set to pending if not already pending
+							if (
+								!currAwaitedValue ||
+								currAwaitedValue.status !== "pending" ||
+								currAwaitedValue.lastValue !== lastValue
+							) {
+								currAwaitedValue = {
+									status: "pending",
 									lastValue,
-								});
-							},
-						);
-					}),
+								};
+								awaited.set(currAwaitedValue);
+							}
+
+							// if a new promise is pushed during the asynchronous gap, do nothing
+							let shouldUpdate = true;
+							defer(() => (shouldUpdate = false));
+
+							const promise = (async (): Promise<V> =>
+								await promiseOrValue)();
+
+							promise.catch().then(
+								// Fulfilled
+								(value) => {
+									if (!shouldUpdate) return;
+
+									lastValue = value;
+
+									lastValue = value;
+									currAwaitedValue = { status: "fulfilled", value };
+									awaited.set(currAwaitedValue);
+								},
+								// Rejected
+								(reason) => {
+									if (!shouldUpdate) return;
+
+									currAwaitedValue = {
+										status: "rejected",
+										reason,
+										lastValue,
+									};
+									awaited.set(currAwaitedValue);
+								},
+							);
+						},
+					),
 				);
 			},
 		},
