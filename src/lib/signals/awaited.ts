@@ -38,6 +38,8 @@ export const AwaitedSignal = <T>(
 									lastValue,
 								};
 								awaited.set(currAwaitedValue);
+							} else {
+								awaited.validate();
 							}
 
 							// if a new promise is pushed during the asynchronous gap, do nothing
@@ -70,6 +72,12 @@ export const AwaitedSignal = <T>(
 									awaited.set(currAwaitedValue);
 								},
 							);
+						},
+						() => {
+							awaited.invalidate();
+						},
+						() => {
+							awaited.validate();
 						},
 					),
 				);

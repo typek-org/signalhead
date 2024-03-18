@@ -70,4 +70,36 @@ describe("awaited", () => {
 		await p1.then(() => delay());
 		f.assertNotCalled();
 	});
+
+	test("invalidation", async () => {
+		const p1 = delay(100).then(() => 1);
+		const a = mut(p1);
+		const b = a.awaited();
+
+		let isValid = true;
+		const f = fn<void, [undefined | AwaitedSignalResult<number>]>(
+			() => (isValid = true),
+		);
+		const h = fn<void, []>(() => (isValid = false));
+		b.subscribe(
+			(x) => f(x),
+			() => h(),
+			() => (isValid = true),
+		);
+		h.assertNotCalled();
+		f.assertCalledOnce([{ status: "pending", lastValue: undefined }]);
+
+		await p1.then(() => delay());
+		h.assertCalledOnce();
+		f.assertCalledOnce();
+		expect(isValid).toBe(true);
+
+		a.invalidate();
+		h.assertCalledOnce();
+		expect(isValid).toBe(false);
+
+		a.validate();
+		expect(isValid).toBe(true);
+		f.assertNotCalled();
+	});
 });
