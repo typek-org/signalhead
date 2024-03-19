@@ -1,5 +1,23 @@
 import { format } from "pretty-format";
 
+export type Equal<X, Y> =
+	(<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2
+		? true
+		: false;
+
+export const expectType = <T>() => ({
+	// @ts-expect-error unused params
+	toExtend<U>(...args: T extends U ? [] : [never]) {},
+	// @ts-expect-error unused type argument
+	toBeExtendedBy<U extends T>() {},
+	// @ts-expect-error unused params
+	toBe<U>(...args: Equal<T, U> extends true ? [] : [never]) {},
+});
+
+export const expectTypes = <X, Y>(): Equal<X, Y> extends true
+	? { toBeEqual(): void }
+	: {} => ({ toBeEqual() {} });
+
 export interface Fn<ReturnValue, Args extends any[]>
 	extends jest.Mock<ReturnValue, Args, any> {
 	assertCalledOnce(args?: Args, ret?: ReturnValue): void;
