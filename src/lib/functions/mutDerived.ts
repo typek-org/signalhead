@@ -47,16 +47,14 @@ export function mutDerived<T>(
 	let value: T | undefined;
 	const signal = mut<T>(undefined!, {
 		onStart({ defer }) {
-			defer(
-				effect(
-					($, params) => {
-						value = f($, { ...params, prev: value });
-						signal.set(value);
-					},
-					() => signal.invalidate(),
-					() => signal.validate(),
-				),
-			);
+			effect(
+				($, params) => {
+					value = f($, { ...params, prev: value });
+					signal.set(value);
+				},
+				() => signal.invalidate(),
+				() => signal.validate(),
+			).pipe(defer);
 		},
 	});
 

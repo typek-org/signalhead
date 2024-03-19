@@ -1,8 +1,12 @@
-import { fn } from "../utils/testUtils.ts";
-import { ListUpdate } from "./readable.ts";
+import { expectType, fn } from "../utils/testUtils.ts";
+import { List, ListUpdate } from "./readable.ts";
 import { MutList } from "./writable.ts";
 
 describe("MutList", () => {
+	test("types", <T>() => {
+		expectType<MutList<T>>().toExtend<List<T>>();
+	});
+
 	test("basic", () => {
 		const list = MutList([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 		const listener = fn<void, [sub: ListUpdate<number>[]]>();

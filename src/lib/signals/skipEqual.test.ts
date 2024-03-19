@@ -1,5 +1,5 @@
-import { fn } from "../utils/testUtils";
-import { mut } from "./writable";
+import { fn } from "../utils/testUtils.ts";
+import { mut } from "./writable.ts";
 
 describe("skipEqual", () => {
 	test("basic", () => {

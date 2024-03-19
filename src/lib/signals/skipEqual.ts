@@ -1,5 +1,5 @@
-import { SkippedSignal } from "./skip";
-import { MinimalSignal } from "./types";
+import { SkippedSignal } from "./skip.ts";
+import { MinimalSignal } from "./types.ts";
 
 export const SignalWithSkippedEqual = <T>(
 	signal: MinimalSignal<T>,

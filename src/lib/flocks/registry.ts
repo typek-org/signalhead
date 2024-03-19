@@ -1,8 +1,16 @@
-import { Signal, Subscriber, Unsubscriber } from "../mod.ts";
+import {
+	PipeOf,
+	Signal,
+	Subscriber,
+	Unsubscriber,
+	pipableOf,
+} from "../mod.ts";
 import { Flock, FlockUpdate } from "./readable.ts";
 import { MutFlock, MutFlockOptions } from "./writable.ts";
 
-export interface FlockRegistry<T> extends Flock<T> {
+export interface FlockRegistry<T>
+	extends Omit<Flock<T>, "pipe">,
+		PipeOf<FlockRegistry<T>> {
 	register(s: Signal<T>): Unsubscriber;
 }
 
@@ -77,8 +85,8 @@ export const FlockRegistry = <T>(
 
 	const wflock = MutFlock<T>([], { onStart, onStop });
 
-	return {
+	return pipableOf({
 		...wflock.toReadonly(),
 		register,
-	};
+	});
 };

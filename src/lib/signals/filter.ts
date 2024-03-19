@@ -1,4 +1,4 @@
-import { Signal } from "./readable";
+import { Signal } from "./readable.ts";
 import type {
 	Invalidator,
 	MinimalSignal,

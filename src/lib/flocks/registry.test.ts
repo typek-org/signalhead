@@ -1,8 +1,12 @@
 import { mut } from "../mod.ts";
-import { fn } from "../utils/testUtils.ts";
-import { FlockRegistry } from "./mod.ts";
+import { expectType, fn } from "../utils/testUtils.ts";
+import { Flock, FlockRegistry } from "./mod.ts";
 
 describe("flock", () => {
+	test("types", <T>() => {
+		expectType<FlockRegistry<T>>().toExtend<Flock<T>>();
+	});
+
 	test("basic", () => {
 		const s = FlockRegistry<string>();
 

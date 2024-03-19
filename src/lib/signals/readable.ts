@@ -22,19 +22,22 @@ import { FilteredSignal } from "./filter.ts";
 import { SkippedSignal } from "./skip.ts";
 import { SignalWithSkippedEqual } from "./skipEqual.ts";
 import { AwaitedSignal } from "./awaited.ts";
+import { Pipable, PipeOf, pipableOf } from "../mod.ts";
 
-export interface Signal<T> extends MinimalSignal<T> {
+export interface Signal<T>
+	extends MinimalSignal<T>,
+		PipeOf<Signal<T>> {
 	subscribe(
 		subscriber: Subscriber<T>,
 		invalidate?: Invalidator,
 		validate?: Validator,
-	): Unsubscriber;
+	): Pipable<Unsubscriber>;
 
 	listen(
 		subscriber: Subscriber<T>,
 		invalidate?: Invalidator,
 		validate?: Validator,
-	): Unsubscriber;
+	): Pipable<Unsubscriber>;
 
 	get(): T;
 
@@ -90,6 +93,13 @@ export interface Signal<T> extends MinimalSignal<T> {
 	withHistory<N extends number>(howMany: N): SignalWithHistory<T, N>;
 }
 
+export interface SignalSubscribeAndGet<T> {
+	subscribe(
+		...args: Parameters<Signal<T>["subscribe"]>
+	): Unsubscriber;
+	get: Signal<T>["get"];
+}
+
 export const Signal = {
 	get<T>(signal: MinimalSignal<T>): T {
 		if (signal.get) return signal.get()!;
@@ -100,9 +110,13 @@ export const Signal = {
 	},
 
 	fromSubscribeAndGet<T>({
-		subscribe,
+		subscribe: unpipableSubscribe,
 		get,
-	}: Pick<Signal<T>, "subscribe" | "get">): Signal<T> {
+	}: SignalSubscribeAndGet<T>): Signal<T> {
+		const subscribe = (
+			...args: Parameters<typeof unpipableSubscribe>
+		) => pipableOf(unpipableSubscribe(...args));
+
 		const listen = (
 			subscriber: Subscriber<T>,
 			invalidate?: Invalidator,
@@ -167,7 +181,7 @@ export const Signal = {
 		const zip = (...signals: MinimalSignal<any>[]): Signal<any> =>
 			ZippedSignal({ subscribe, get }, ...signals);
 
-		return {
+		return pipableOf({
 			subscribe,
 			listen,
 			get,
@@ -184,7 +198,7 @@ export const Signal = {
 			scan,
 			withHistory,
 			zip,
-		};
+		});
 	},
 
 	fromMinimal<T>(signal: MinimalSignal<T>): Signal<T> {

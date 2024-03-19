@@ -1,16 +1,23 @@
-import { fn } from "../utils/testUtils";
+import { expectType, fn } from "../utils/testUtils.ts";
 import {
 	AwaitedSignal,
 	AwaitedSignalResult,
 	CurrentlyFulfilledAwaitedSignal,
 	LastFulfilledAwaitedSignal,
-} from "./awaited";
-import { mut } from "./writable";
+} from "./awaited.ts";
+import { Signal } from "./readable.ts";
+import { mut } from "./writable.ts";
 
 const delay = (ms: number = 0) =>
 	new Promise<void>((res) => setTimeout(res, ms));
 
 describe("awaited", () => {
+	test("types", <T>() => {
+		expectType<AwaitedSignal<T>>().toExtend<
+			Signal<AwaitedSignalResult<T>>
+		>();
+	});
+
 	test("basic", async () => {
 		for (const method of [true, false]) {
 			const f = fn<void, [undefined | AwaitedSignalResult<number>]>();

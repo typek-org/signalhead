@@ -1,8 +1,17 @@
-import { StartStop, Unsubscriber, WritableSignal } from "../mod.ts";
+import {
+	PipeOf,
+	StartStop,
+	Unsubscriber,
+	WritableSignal,
+	pipableOf,
+} from "../mod.ts";
 import { List, ListUpdateSubscriber } from "./readable.ts";
 import { WriteonlyList } from "./writeonly.ts";
 
-export interface MutList<T> extends WriteonlyList<T>, List<T> {
+export interface MutList<T>
+	extends WriteonlyList<T>,
+		Omit<List<T>, "pipe">,
+		PipeOf<MutList<T>> {
 	length: WritableSignal<number>;
 	toReadonly(): List<T>;
 	toWriteonly(): WriteonlyList<T>;
@@ -100,7 +109,7 @@ export const MutList = <T>(
 	const rlist = List.fromMinimal({ getAt, listenToUpdates, length });
 	const toReadonly = () => rlist;
 
-	const self: MutList<T> = {
+	return pipableOf({
 		...rlist,
 		...wlist,
 		length,
@@ -110,7 +119,5 @@ export const MutList = <T>(
 		pop,
 		shift,
 		popAt,
-	};
-
-	return self;
+	});
 };

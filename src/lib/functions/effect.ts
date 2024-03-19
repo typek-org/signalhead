@@ -1,3 +1,4 @@
+import { Pipable, pipableOf } from "../mod.ts";
 import type {
 	Invalidator,
 	MinimalSignal,
@@ -40,7 +41,7 @@ export function effect(
 	f: ($: <T>(s: MinimalSignal<T>) => T, params: EffectParams) => void,
 	invalidator?: Invalidator,
 	validator?: Validator,
-): Unsubscriber {
+): Pipable<Unsubscriber> {
 	const deps = new Map<MinimalSignal<any>, Unsubscriber>();
 	const dirty = new Set<MinimalSignal<any>>();
 	const usedNow = new Set<MinimalSignal<any>>();
@@ -118,7 +119,7 @@ export function effect(
 
 	depsChanged();
 
-	return () => {
+	return pipableOf(() => {
 		running = true; // prevent depsChanged from doing anything
 
 		for (const d of defered) d();
@@ -128,5 +129,5 @@ export function effect(
 		dirty.clear();
 		usedNow.clear();
 		defered.length = 0;
-	};
+	});
 }

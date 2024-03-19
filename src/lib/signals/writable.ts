@@ -10,10 +10,12 @@ import {
 import { Signal } from "./readable.ts";
 import { MappedSetterSignal } from "./mappedSetter.ts";
 import { SetterSideEffectSignal } from "./setterSideEffect.ts";
+import { PipeOf, pipableOf } from "../mod.ts";
 
 export interface WritableSignal<T>
-	extends Signal<T>,
-		Omit<MinimalWritableSignal<T>, "get" | "subscribe"> {
+	extends Omit<Signal<T>, "pipe">,
+		Omit<MinimalWritableSignal<T>, "get" | "subscribe">,
+		PipeOf<WritableSignal<T>> {
 	update(fn: Updater<T>): void;
 	toReadonly(): Signal<T>;
 	toWriteonly(): WriteonlySignal<T>;
@@ -208,7 +210,7 @@ export const WritableSignal = Object.assign(mut, {
 				fn,
 			);
 
-		return {
+		return pipableOf({
 			...Signal.fromSubscribeAndGet({ subscribe, get }),
 			set,
 			update,
@@ -218,7 +220,7 @@ export const WritableSignal = Object.assign(mut, {
 			toWriteonly,
 			withMappedSetter,
 			withSetterSideEffect,
-		};
+		});
 	},
 
 	fromMinimal<T>(

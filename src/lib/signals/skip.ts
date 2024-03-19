@@ -1,5 +1,5 @@
-import { FilteredSignal } from "./filter";
-import { MinimalSignal, SubscriberParams } from "./types";
+import { FilteredSignal } from "./filter.ts";
+import { MinimalSignal, SubscriberParams } from "./types.ts";
 
 export const SkippedSignal: typeof FilteredSignal = <T>(
 	signal: MinimalSignal<T>,

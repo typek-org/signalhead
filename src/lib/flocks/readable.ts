@@ -1,4 +1,11 @@
-import { MinimalSubscriber, Signal, Unsubscriber, mut } from "../mod";
+import {
+	MinimalSubscriber,
+	PipeOf,
+	Signal,
+	Unsubscriber,
+	mut,
+	pipableOf,
+} from "../mod.ts";
 
 export type FlockUpdate<T> =
 	| {
@@ -24,7 +31,7 @@ export interface MinimalFlock<T> {
 	iter(): Iterable<T>;
 }
 
-export interface Flock<T> extends MinimalFlock<T> {
+export interface Flock<T> extends MinimalFlock<T>, PipeOf<Flock<T>> {
 	toSet(): Signal<Set<T>>;
 }
 
@@ -44,7 +51,7 @@ export const Flock = Object.assign(
 				});
 				return set.toReadonly();
 			};
-			return { ...flock, toSet };
+			return pipableOf({ ...flock, toSet });
 		},
 	},
 );

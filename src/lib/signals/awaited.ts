@@ -1,6 +1,7 @@
-import { Signal } from "./readable";
-import { MinimalSignal } from "./types";
-import { mut } from "./writable";
+import { PipeOf, pipableOf } from "../mod.ts";
+import { Signal } from "./readable.ts";
+import { MinimalSignal } from "./types.ts";
+import { mut } from "./writable.ts";
 
 export type AwaitedSignalResult<T> =
 	| { status: "pending"; lastValue: T | undefined }
@@ -8,7 +9,8 @@ export type AwaitedSignalResult<T> =
 	| { status: "rejected"; reason: any; lastValue: T | undefined };
 
 export interface AwaitedSignal<V>
-	extends Signal<AwaitedSignalResult<V>> {
+	extends Omit<Signal<AwaitedSignalResult<V>>, "pipe">,
+		PipeOf<AwaitedSignal<V>> {
 	lastFulfilled(): Signal<V | undefined>;
 	currentlyFulfilled(): Signal<V | undefined>;
 }
@@ -85,7 +87,7 @@ export const AwaitedSignal = <T>(
 		},
 	);
 
-	return {
+	const result: Omit<AwaitedSignal<V>, "pipe"> = {
 		...awaited,
 		lastFulfilled() {
 			return LastFulfilledAwaitedSignal(signal);
@@ -94,6 +96,8 @@ export const AwaitedSignal = <T>(
 			return CurrentlyFulfilledAwaitedSignal(signal);
 		},
 	};
+
+	return pipableOf(result);
 };
 
 export const LastFulfilledAwaitedSignal = <T>(

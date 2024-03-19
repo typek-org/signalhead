@@ -1,9 +1,11 @@
 import {
 	MinimalSignal,
 	MinimalSubscriber,
+	PipeOf,
 	Signal,
 	Unsubscriber,
 	mut,
+	pipableOf,
 	range,
 } from "../mod.ts";
 import { MappedList } from "./map.ts";
@@ -40,7 +42,7 @@ export interface MinimalList<T> {
 	listenToUpdates(sub: ListUpdateSubscriber<T>): Unsubscriber;
 }
 
-export interface List<T> extends MinimalList<T> {
+export interface List<T> extends MinimalList<T>, PipeOf<List<T>> {
 	// at(index: number | Signal<number>): Signal<T | undefined>;
 	toArray(): Signal<T[]>;
 	iter(): Iterable<T>;
@@ -122,13 +124,13 @@ export const List = Object.assign(createReadableList, {
 		const map = <S>(fn: (value: T | undefined) => S | undefined) =>
 			MappedList({ length, getAt, listenToUpdates }, fn);
 
-		return {
+		return pipableOf({
 			length,
 			getAt,
 			iter,
 			toArray,
 			map,
 			listenToUpdates,
-		};
+		});
 	},
 });

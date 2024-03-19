@@ -67,7 +67,7 @@ export function pipe(value: any, ...fns: AnyFn[]): any {
 	return fns.reduce((v, f) => f(v), value);
 }
 
-export interface Pipable<A> {
+export interface PipeOf<A> {
 	pipe<B>(f: (v: A) => B): B;
 	pipe<B, C>(f: (v: A) => B, g: (v: B) => C): C;
 	pipe<B, C, D>(f: (v: A) => B, g: (v: B) => C, h: (v: C) => D): D;
@@ -100,6 +100,8 @@ export interface Pipable<A> {
 		...fns: PipeArgs<F> extends F ? F : PipeArgs<F>
 	): LastFnReturnType<F, ReturnType<FirstFn>>;
 }
+
+export type Pipable<T> = T & PipeOf<Pipable<T>>;
 
 export function pipableOf<T extends object>(obj: T): Pipable<T> {
 	return Object.assign(obj, {
