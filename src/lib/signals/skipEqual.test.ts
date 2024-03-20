@@ -17,6 +17,35 @@ describe("skipEqual", () => {
 		f.assertNotCalled();
 	});
 
+	test("faux offscreen canvas", () => {
+		const createCanvas = (id: number) => ({
+			id,
+			transfered: false,
+			transferControlToOffscreen() {
+				if (this.transfered) {
+					throw new Error(
+						"Cannot transfer control from a canvas for more than one time.",
+					);
+				}
+				this.transfered = true;
+				return { offscreenId: id };
+			},
+		});
+
+		const c1 = createCanvas(1);
+		const c = mut(c1);
+		const o = c
+			.skipEqual()
+			.map((canvas) => canvas.transferControlToOffscreen());
+
+		const f = fn<void, [any]>();
+		o.subscribe((x) => f(x));
+		f.assertCalledOnce([{ offscreenId: 1 }]);
+
+		c.set(c1);
+		f.assertNotCalled();
+	});
+
 	test("validation & invalidation", () => {
 		const a = mut(4);
 		const b = a.skipEqual();

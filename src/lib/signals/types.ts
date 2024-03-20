@@ -1,3 +1,5 @@
+import type { Defer } from "../mod";
+
 export type MinimalSubscriber<T> = (value: T) => void;
 export type Unsubscriber = () => void;
 export type Invalidator = () => void;
@@ -29,7 +31,7 @@ export interface SubscriberParams<T> {
 	 * Mark a cleanup function to be called before this subscriber
 	 * is called again, or once it is unsubscribed.
 	 */
-	defer(destructor: () => void): void;
+	defer: Defer;
 
 	/**
 	 * Subscribers are called immediately during subscription –
@@ -76,7 +78,7 @@ export interface StartStop {
 	/**
 	 * Called when a subscriber is added to a previously subscriber-less signal.
 	 */
-	onStart?(props: { defer: (destructor: () => void) => void }): void;
+	onStart?(props: { defer: Defer }): void;
 
 	/**
 	 * Called when all subscribers unsubscribe.

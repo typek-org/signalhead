@@ -1,4 +1,11 @@
-import { Unsubscriber, WritableSignal, mut } from "../mod.ts";
+import {
+	Pipable,
+	Unsubscriber,
+	WritableSignal,
+	mut,
+	pipableOf,
+} from "../mod.ts";
+import { Defer } from "../utils/defer.ts";
 import { ListUpdate, ListUpdateSubscriber } from "./readable.ts";
 import { MutListOptions } from "./writable.ts";
 
@@ -25,7 +32,9 @@ export interface WriteonlyList<T> {
 
 	// reverse(): void;
 
-	listenToUpdates(sub: ListUpdateSubscriber<T>): Unsubscriber;
+	listenToUpdates(
+		sub: ListUpdateSubscriber<T>,
+	): Pipable<Unsubscriber>;
 }
 
 export const WriteonlyList = <T>(
@@ -35,22 +44,20 @@ export const WriteonlyList = <T>(
 	const length$ = mut(len);
 
 	const subs = new Set<ListUpdateSubscriber<T>>();
-	const defered = new Set<Unsubscriber>();
-	const defer = (d: Unsubscriber): void => void defered.add(d);
+	const { defer, cleanup } = Defer.create();
 
 	const listenToUpdates = (sub: ListUpdateSubscriber<T>) => {
 		if (subs.size === 0) onStart?.({ defer });
 
 		subs.add(sub);
-		return () => {
+		return pipableOf(() => {
 			subs.delete(sub);
 
 			if (subs.size === 0) {
-				for (const d of defered) d();
-				defered.clear();
+				cleanup();
 				onStop?.();
 			}
-		};
+		});
 	};
 
 	const resolveIndex = (index: number) => {

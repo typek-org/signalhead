@@ -1,6 +1,7 @@
 import {
 	MinimalSignal,
 	MinimalSubscriber,
+	Pipable,
 	PipeOf,
 	Signal,
 	Unsubscriber,
@@ -43,6 +44,10 @@ export interface MinimalList<T> {
 }
 
 export interface List<T> extends MinimalList<T>, PipeOf<List<T>> {
+	listenToUpdates(
+		sub: ListUpdateSubscriber<T>,
+	): Pipable<Unsubscriber>;
+
 	// at(index: number | Signal<number>): Signal<T | undefined>;
 	toArray(): Signal<T[]>;
 	iter(): Iterable<T>;
@@ -104,7 +109,10 @@ const createReadableList = <T>(
 
 export const List = Object.assign(createReadableList, {
 	fromMinimal<T>(list: MinimalList<T>): List<T> {
-		const { length, getAt, listenToUpdates } = list;
+		const { length, getAt, listenToUpdates: _listen } = list;
+
+		const listenToUpdates = (...args: Parameters<typeof _listen>) =>
+			pipableOf(_listen(...args));
 
 		const iter = function* (): Iterable<T> {
 			for (let index = 0; index < length.get(); index++) {

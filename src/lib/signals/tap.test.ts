@@ -8,7 +8,9 @@ describe("tap", () => {
 			const a = mut("hello");
 
 			const f = fn<void, [string]>();
-			const b = method ? a.tap(f) : TappedSignal(a, f);
+			const b = method
+				? a.tap((x) => f(x))
+				: TappedSignal(a, (x) => f(x));
 
 			f.assertNotCalled();
 

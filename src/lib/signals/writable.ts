@@ -11,6 +11,7 @@ import { Signal } from "./readable.ts";
 import { MappedSetterSignal } from "./mappedSetter.ts";
 import { SetterSideEffectSignal } from "./setterSideEffect.ts";
 import { PipeOf, pipableOf } from "../mod.ts";
+import { Defer } from "../utils/defer.ts";
 
 export interface WritableSignal<T>
 	extends Omit<Signal<T>, "pipe">,
@@ -103,8 +104,7 @@ export const mut: {
 	const subs = new Set<MinimalSubscriber<T>>();
 	const invs = new Set<Invalidator>();
 	const vals = new Set<Validator>();
-	const defered: Array<() => void> = [];
-	const defer = (d: () => void) => void defered.push(d);
+	const { defer, cleanup } = Defer.create();
 
 	const get = () => {
 		if (subs.size === 0) {
@@ -112,8 +112,7 @@ export const mut: {
 				console.warn(warnOnGetWithoutSubscribers);
 			}
 			onStart?.({ defer });
-			for (const d of defered) d();
-			defered.length = 0;
+			cleanup();
 			onStop?.();
 		}
 
@@ -138,8 +137,7 @@ export const mut: {
 			if (v) vals.delete(v);
 
 			if (subs.size === 0) {
-				for (const d of defered) d();
-				defered.length = 0;
+				cleanup();
 				onStop?.();
 			}
 		};

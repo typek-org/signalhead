@@ -1,3 +1,4 @@
+import { Defer } from "../utils/defer.ts";
 import { Signal } from "./readable.ts";
 import {
 	Validator,
@@ -5,7 +6,6 @@ import {
 	type MinimalSignal,
 	type MinimalSubscriber,
 	SubscriberParams,
-	Unsubscriber,
 } from "./types.ts";
 
 export const MappedSignal = <S, T>(
@@ -59,8 +59,7 @@ export const MappedSignal = <S, T>(
 			if (signal.get) {
 				const value = signal.get()!;
 
-				const defered = new Set<Unsubscriber>();
-				const defer = (u: Unsubscriber) => defered.add(u);
+				const { defer, cleanup } = Defer.create();
 
 				const mapped = fn(value, {
 					prev: value,
@@ -69,7 +68,7 @@ export const MappedSignal = <S, T>(
 					isColdStart: true,
 				});
 
-				defered.forEach((u) => u());
+				cleanup();
 
 				return mapped;
 			}

@@ -23,6 +23,7 @@ import { SkippedSignal } from "./skip.ts";
 import { SignalWithSkippedEqual } from "./skipEqual.ts";
 import { AwaitedSignal } from "./awaited.ts";
 import { Pipable, PipeOf, pipableOf } from "../mod.ts";
+import { Defer } from "../utils/defer.ts";
 
 export interface Signal<T>
 	extends MinimalSignal<T>,
@@ -85,7 +86,7 @@ export interface Signal<T>
 	): Signal<SignalArrayValues<U>>;
 
 	tap(
-		fn: (value: T) => void,
+		fn: (value: T, params: SubscriberParams<T>) => void,
 		options?: { keepAlive?: boolean },
 	): Signal<T>;
 
@@ -144,7 +145,7 @@ export const Signal = {
 		const count = () => CountedSignal({ subscribe, get });
 
 		const tap = (
-			listener: (value: T) => void,
+			listener: (value: T, params: SubscriberParams<T>) => void,
 			options?: { keepAlive?: boolean },
 		) => TappedSignal({ subscribe, get }, listener, options);
 
@@ -220,7 +221,10 @@ export const Signal = {
 					value = v;
 
 					for (const s of subs) {
-						const defer = (d: Unsubscriber) => defered.add(s, d);
+						const defer = Defer.from((d: Unsubscriber) =>
+							defered.add(s, d),
+						);
+
 						s(v, {
 							prev,
 							defer,
@@ -260,7 +264,7 @@ export const Signal = {
 			if (i) invs.add(i);
 			if (v) vals.add(v);
 
-			const defer = (d: Unsubscriber) => defered.add(s, d);
+			const defer = Defer.from((d) => defered.add(s, d));
 			s(value!, {
 				prev: value,
 				defer,

@@ -1,10 +1,10 @@
 import {
 	PipeOf,
 	StartStop,
-	Unsubscriber,
 	WritableSignal,
 	pipableOf,
 } from "../mod.ts";
+import { Defer } from "../utils/defer.ts";
 import { List, ListUpdateSubscriber } from "./readable.ts";
 import { WriteonlyList } from "./writeonly.ts";
 
@@ -35,16 +35,15 @@ export const MutList = <T>(
 	const length = wlist.length;
 
 	const subs = new Set<ListUpdateSubscriber<T>>();
-	const defered = new Set<Unsubscriber>();
-	const defer = (d: Unsubscriber): void => void defered.add(d);
+	const { defer, cleanup } = Defer.create();
 
 	const listenToUpdates = (sub: ListUpdateSubscriber<T>) => {
 		if (subs.size === 0) start();
 		subs.add(sub);
-		return () => {
+		return pipableOf(() => {
 			subs.delete(sub);
 			if (subs.size === 0) stop();
-		};
+		});
 	};
 
 	const start = () => {
@@ -84,8 +83,7 @@ export const MutList = <T>(
 	};
 
 	const stop = () => {
-		for (const d of defered) d();
-		defered.clear();
+		cleanup();
 		opts.onStop?.();
 	};
 

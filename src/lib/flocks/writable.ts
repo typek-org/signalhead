@@ -1,10 +1,5 @@
-import {
-	PipeOf,
-	StartStop,
-	Unsubscriber,
-	mut,
-	pipableOf,
-} from "../mod.ts";
+import { PipeOf, StartStop, mut, pipableOf } from "../mod.ts";
+import { Defer } from "../utils/defer.ts";
 import { Flock, FlockUpdateSubscriber } from "./readable.ts";
 import { WriteonlyFlock } from "./writeonly.ts";
 
@@ -27,8 +22,7 @@ export const MutFlock = <T>(
 	const size = mut(0);
 
 	const subs = new Set<FlockUpdateSubscriber<T>>();
-	const defered = new Set<Unsubscriber>();
-	const defer = (d: Unsubscriber): void => void defered.add(d);
+	const { defer, cleanup } = Defer.create();
 
 	const listenToUpdates = (sub: FlockUpdateSubscriber<T>) => {
 		if (subs.size === 0) start();
@@ -67,8 +61,7 @@ export const MutFlock = <T>(
 	};
 
 	const stop = () => {
-		for (const d of defered) d();
-		defered.clear();
+		cleanup();
 		opts.onStop?.();
 	};
 

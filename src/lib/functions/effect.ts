@@ -6,9 +6,10 @@ import type {
 	Validator,
 } from "../signals/mod.ts";
 import { Signal } from "../signals/mod.ts";
+import { Defer } from "../utils/defer.ts";
 
 export interface EffectParams {
-	defer(destructor: () => void): void;
+	defer: Defer;
 }
 
 /**
@@ -45,7 +46,6 @@ export function effect(
 	const deps = new Map<MinimalSignal<any>, Unsubscriber>();
 	const dirty = new Set<MinimalSignal<any>>();
 	const usedNow = new Set<MinimalSignal<any>>();
-	const defered: Array<() => void> = [];
 	let changedWhileDirty = false;
 
 	// subscribe to the signal (if not yet subscribed)
@@ -89,7 +89,7 @@ export function effect(
 	};
 
 	// cleanup code to run before the next update
-	const defer = (d: () => void): void => void defered.push(d);
+	const { defer, cleanup } = Defer.create();
 
 	let running = false;
 	const depsChanged = () => {
@@ -99,8 +99,7 @@ export function effect(
 		try {
 			// cleanup after previous run
 			usedNow.clear();
-			for (const d of defered) d();
-			defered.length = 0;
+			cleanup();
 
 			// run the effect
 			f($, { defer });
@@ -122,12 +121,11 @@ export function effect(
 	return pipableOf(() => {
 		running = true; // prevent depsChanged from doing anything
 
-		for (const d of defered) d();
+		cleanup();
 		for (const u of deps.values()) u();
 
 		deps.clear();
 		dirty.clear();
 		usedNow.clear();
-		defered.length = 0;
 	});
 }

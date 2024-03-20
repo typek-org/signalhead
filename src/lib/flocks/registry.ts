@@ -5,6 +5,7 @@ import {
 	Unsubscriber,
 	pipableOf,
 } from "../mod.ts";
+import { Defer } from "../utils/defer.ts";
 import { Flock, FlockUpdate } from "./readable.ts";
 import { MutFlock, MutFlockOptions } from "./writable.ts";
 
@@ -41,8 +42,7 @@ export const FlockRegistry = <T>(
 	};
 
 	const signals = new Set<Signal<T>>();
-	const defered = new Set<Unsubscriber>();
-	const defer = (d: Unsubscriber): void => void defered.add(d);
+	const { defer, cleanup } = Defer.create();
 
 	const createSub = (): Subscriber<T> => {
 		let firstRun = true;
@@ -69,7 +69,7 @@ export const FlockRegistry = <T>(
 
 	const onStop = () => {
 		live = false;
-		for (const d of defered) d();
+		cleanup();
 		opts.onStop?.();
 	};
 

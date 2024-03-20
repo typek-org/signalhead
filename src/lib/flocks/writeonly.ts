@@ -1,6 +1,7 @@
-import { Unsubscriber } from "../mod";
-import { FlockUpdate, FlockUpdateSubscriber } from "./readable";
-import { MutFlockOptions } from "./writable";
+import { Unsubscriber } from "../mod.ts";
+import { Defer } from "../utils/defer.ts";
+import { FlockUpdate, FlockUpdateSubscriber } from "./readable.ts";
+import { MutFlockOptions } from "./writable.ts";
 
 export interface WriteonlyFlock<T> {
 	add(value: T): void;
@@ -17,8 +18,7 @@ export const WriteonlyFlock = <T>({
 	onStop,
 }: MutFlockOptions = {}): WriteonlyFlock<T> => {
 	const subs = new Set<FlockUpdateSubscriber<T>>();
-	const deferred = new Set<Unsubscriber>();
-	const defer = (d: Unsubscriber): void => void deferred.add(d);
+	const { defer, cleanup } = Defer.create();
 
 	const listenToUpdates = (sub: FlockUpdateSubscriber<T>) => {
 		if (subs.size === 0) onStart?.({ defer });
@@ -28,8 +28,7 @@ export const WriteonlyFlock = <T>({
 			subs.delete(sub);
 
 			if (subs.size === 0) {
-				for (const d of deferred) d();
-				deferred.clear();
+				cleanup();
 				onStop?.();
 			}
 		};
