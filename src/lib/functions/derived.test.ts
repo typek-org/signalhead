@@ -1,4 +1,4 @@
-import { derived, mut } from "../mod.ts";
+import { Signal, derived, mut } from "../mod.ts";
 import { fn } from "../utils/testUtils.ts";
 
 describe("derived", () => {
@@ -26,5 +26,51 @@ describe("derived", () => {
 		num2.set(24);
 		expect(gcd.get()).toBe(12);
 		f.assertNotCalled();
+	});
+
+	test("nested", () => {
+		const condition = mut(true);
+		const a = mut(42);
+
+		const addTwo = (s: Signal<number>) => derived(($) => $(s) + 2);
+
+		const b = derived(($) => {
+			if ($(condition)) return 69;
+			else return $(addTwo(a)) - 2;
+		});
+
+		expect(b.get()).toBe(69);
+		condition.set(false);
+		expect(b.get()).toBe(42);
+		condition.set(true);
+
+		const f = fn<void, [number]>();
+		b.subscribe((x) => f(x));
+		f.assertCalledOnce([69]);
+
+		condition.set(false);
+		f.assertCalledOnce([42]);
+	});
+
+	test("nested function call", () => {
+		const a = mut<number>(69);
+		let loopCounter = 0;
+
+		const b = (s: Signal<number>) => derived(($) => $(s));
+
+		const c = (s: Signal<number>) =>
+			derived(($) => {
+				if (loopCounter++ > 100) throw "Stuck in a loop :c";
+				return $(b(s));
+			});
+
+		const d = c(a);
+
+		const f = fn<void, [number]>();
+		d.subscribe((x) => f(x));
+		f.assertCalledOnce([69]);
+
+		a.set(42);
+		f.assertCalledOnce([42]);
 	});
 });
