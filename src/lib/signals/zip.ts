@@ -37,7 +37,7 @@ export const ZippedSignal: {
 					dirty[i] = false;
 					if (dirty.every((d) => !d)) {
 						changedWhileDirty = false;
-						subs.forEach((s) => s([...values]));
+						for (const s of [...subs]) s([...values]);
 					} else {
 						changedWhileDirty = true;
 					}
@@ -50,7 +50,7 @@ export const ZippedSignal: {
 					dirty[i] = false;
 					if (dirty.every((d) => !d)) {
 						if (changedWhileDirty) {
-							subs.forEach((s) => s([...values]));
+							for (const s of [...subs]) s([...values]);
 						} else {
 							vals.forEach((v) => v());
 						}
@@ -61,7 +61,7 @@ export const ZippedSignal: {
 		}
 	};
 	const stop = () => {
-		unsubs.forEach((u) => u());
+		for (const u of unsubs) u();
 		unsubs.length = 0;
 		dirty.length = 0;
 	};

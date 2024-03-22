@@ -54,7 +54,7 @@ export const MutFlock = <T>(
 				if (set.size !== size.get()) {
 					size.set(set.size);
 				}
-				for (const s of subs) s(updates);
+				for (const s of [...subs]) s(updates);
 			}),
 		);
 		opts.onStart?.({ defer });

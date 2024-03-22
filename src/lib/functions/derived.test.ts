@@ -54,23 +54,22 @@ describe("derived", () => {
 
 	test("nested function call", () => {
 		const a = mut<number>(69);
+		const b = (s: Signal<number>) => derived(($) => 1000 + $(s));
+
 		let loopCounter = 0;
-
-		const b = (s: Signal<number>) => derived(($) => $(s));
-
 		const c = (s: Signal<number>) =>
 			derived(($) => {
-				if (loopCounter++ > 100) throw "Stuck in a loop :c";
-				return $(b(s));
+				if (loopCounter++ > 10) throw "Stuck in a loop :c";
+				return 1000 + $(b(s));
 			});
 
 		const d = c(a);
 
 		const f = fn<void, [number]>();
 		d.subscribe((x) => f(x));
-		f.assertCalledOnce([69]);
+		f.assertCalledOnce([2069]);
 
 		a.set(42);
-		f.assertCalledOnce([42]);
+		f.assertCalledOnce([2042]);
 	});
 });

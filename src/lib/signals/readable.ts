@@ -220,7 +220,7 @@ export const Signal = {
 					const prev = value;
 					value = v;
 
-					for (const s of subs) {
+					for (const s of [...subs]) {
 						const defer = Defer.from((d: Unsubscriber) =>
 							defered.add(s, d),
 						);

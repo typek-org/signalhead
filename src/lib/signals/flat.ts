@@ -15,7 +15,7 @@ export type FlatSignal<Signal, Depth extends number> = {
 				InnerSignal,
 				// prettier-ignore
 				[ -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 ][Depth]
-		  >
+			>
 		: Signal;
 }[Depth extends -1 ? "done" : "recur"];
 
@@ -57,7 +57,9 @@ const ShallowFlatSignal = <T>(
 	const invs = new Set<Invalidator>();
 	const vals = new Set<Validator>();
 
-	const callSubs = () => subs.forEach((s) => s(value));
+	const callSubs = () => {
+		for (const s of [...subs]) s(value);
+	};
 	const callInvs = () => invs.forEach((i) => i());
 	const callVals = () => vals.forEach((v) => v());
 	const silentlyValidateAll = () => {

@@ -48,7 +48,7 @@ export const FilteredSignal: {
 				if (fn(v, params)) {
 					value = v;
 					valid = true;
-					subs.forEach((s) => s(value));
+					for (const s of [...subs]) s(value);
 				} else {
 					validate();
 				}

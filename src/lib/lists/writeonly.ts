@@ -75,7 +75,7 @@ export const WriteonlyList = <T>(
 			{ type: "insert", index, value },
 		];
 		length$.update((len) => len + 1);
-		for (const s of subs) s(updates);
+		for (const s of [...subs]) s(updates);
 	};
 
 	const moveToIndex = (fromIndex: number, toIndex: number) => {
@@ -86,14 +86,14 @@ export const WriteonlyList = <T>(
 		const updates: ListUpdate<T>[] = [
 			{ type: "move", fromIndex, toIndex },
 		];
-		for (const s of subs) s(updates);
+		for (const s of [...subs]) s(updates);
 	};
 
 	const deleteAt = (index: number) => {
 		index = resolveIndex(index);
 		const updates: ListUpdate<T>[] = [{ type: "delete", index }];
 		length$.update((len) => len - 1);
-		for (const s of subs) s(updates);
+		for (const s of [...subs]) s(updates);
 	};
 
 	const setAt = (index: number, value: T) => {
@@ -110,7 +110,7 @@ export const WriteonlyList = <T>(
 			length$.set(index + 1);
 		}
 
-		for (const s of subs) s(updates);
+		for (const s of [...subs]) s(updates);
 	};
 
 	const push = (...items: T[]) => {
@@ -123,7 +123,7 @@ export const WriteonlyList = <T>(
 		}
 
 		length$.set(index);
-		for (const s of subs) s(updates);
+		for (const s of [...subs]) s(updates);
 
 		return length$.get();
 	};
@@ -137,7 +137,7 @@ export const WriteonlyList = <T>(
 		}
 
 		length$.update((len) => len + items.length);
-		for (const s of subs) s(updates);
+		for (const s of [...subs]) s(updates);
 
 		return length$.get();
 	};
@@ -158,7 +158,7 @@ export const WriteonlyList = <T>(
 			{ type: "move", fromIndex: lower, toIndex: higher },
 			{ type: "move", fromIndex: higher - 1, toIndex: lower },
 		];
-		for (const s of subs) s(updates);
+		for (const s of [...subs]) s(updates);
 	};
 
 	const publicLength = length$.withSetterSideEffect(
@@ -176,7 +176,7 @@ export const WriteonlyList = <T>(
 				}
 			}
 
-			for (const s of subs) s(updates);
+			for (const s of [...subs]) s(updates);
 
 			return value;
 		},

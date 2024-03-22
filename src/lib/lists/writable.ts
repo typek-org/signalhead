@@ -76,7 +76,7 @@ export const MutList = <T>(
 						}, reported: ${wlist.length.get()}`,
 					);
 
-				for (const s of subs) s(updates);
+				for (const s of [...subs]) s(updates);
 			}),
 		);
 		opts.onStart?.({ defer });

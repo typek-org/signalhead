@@ -5,7 +5,6 @@ import type {
 	Unsubscriber,
 	Validator,
 } from "../signals/mod.ts";
-import { Signal } from "../signals/mod.ts";
 import { Defer } from "../utils/defer.ts";
 
 export interface EffectParams {
@@ -44,6 +43,7 @@ export function effect(
 	validator?: Validator,
 ): Pipable<Unsubscriber> {
 	const deps = new Map<MinimalSignal<any>, Unsubscriber>();
+	const values = new Map<MinimalSignal<any>, any>();
 	const dirty = new Set<MinimalSignal<any>>();
 	const usedNow = new Set<MinimalSignal<any>>();
 	let changedWhileDirty = false;
@@ -54,38 +54,43 @@ export function effect(
 		usedNow.add(s);
 
 		if (!deps.has(s)) {
-			deps.set(
-				s,
-				s.subscribe(
-					() => {
-						dirty.delete(s);
-						if (dirty.size === 0) {
+			const unsub = s.subscribe(
+				(v) => {
+					values.set(s, v);
+					dirty.delete(s);
+					if (dirty.size === 0) {
+						changedWhileDirty = false;
+						depsChanged();
+					} else {
+						changedWhileDirty = true;
+					}
+				},
+				() => {
+					if (dirty.size === 0) invalidator?.();
+					dirty.add(s);
+				},
+				() => {
+					dirty.delete(s);
+					if (dirty.size === 0) {
+						if (changedWhileDirty) {
 							changedWhileDirty = false;
 							depsChanged();
 						} else {
-							changedWhileDirty = true;
+							validator?.();
 						}
-					},
-					() => {
-						if (dirty.size === 0) invalidator?.();
-						dirty.add(s);
-					},
-					() => {
-						dirty.delete(s);
-						if (dirty.size === 0) {
-							if (changedWhileDirty) {
-								changedWhileDirty = false;
-								depsChanged();
-							} else {
-								validator?.();
-							}
-						}
-					},
-				),
+					}
+				},
 			);
+
+			deps.set(s, () => {
+				unsub();
+				values.delete(s);
+				dirty.delete(s);
+				deps.delete(s);
+			});
 		}
 
-		return Signal.get(s);
+		return values.get(s);
 	};
 
 	// cleanup code to run before the next update
@@ -110,6 +115,8 @@ export function effect(
 
 				u();
 				deps.delete(s);
+				values.delete(s);
+				dirty.delete(s);
 			}
 		} finally {
 			running = false;

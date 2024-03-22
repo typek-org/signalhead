@@ -36,7 +36,7 @@ export const WriteonlyFlock = <T>({
 
 	const update = (updates: FlockUpdate<T>[]) => {
 		if (updates.length === 0) return;
-		for (const s of subs) s(updates);
+		for (const s of [...subs]) s(updates);
 	};
 
 	const add = (value: T) => update([{ type: "add", value }]);

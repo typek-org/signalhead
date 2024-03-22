@@ -22,7 +22,7 @@ export const MappedSignal = <S, T>(
 		unsub = Signal.fromMinimal(signal).subscribe(
 			(v, params) => {
 				value = fn(v, params);
-				subs.forEach((s) => s(value));
+				for (const s of [...subs]) s(value);
 			},
 			() => invs.forEach((i) => i()),
 			() => vals.forEach((v) => v()),

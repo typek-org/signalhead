@@ -151,7 +151,7 @@ export const mut: {
 		invalidate();
 		value = v;
 		isValid = true;
-		subs.forEach((s) => s(value));
+		for (const s of [...subs]) s(value);
 	};
 
 	const invalidate = () => {
