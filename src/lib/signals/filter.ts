@@ -7,6 +7,11 @@ import type {
 	Validator,
 } from "./types.ts";
 
+/**
+ * Given a signal and a filtering function, produces a new signal
+ * that updates if the source signal updates and the callback returns
+ * `true` for the new value.
+ */
 export const FilteredSignal: {
 	<T>(
 		signal: MinimalSignal<T>,

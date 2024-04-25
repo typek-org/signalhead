@@ -8,6 +8,25 @@ import {
 	SubscriberParams,
 } from "./types.ts";
 
+/**
+ * Given a source signal and a transformation function, returns a new
+ * signal that updates whenever the source signal updates. This signal's
+ * value is computed from the source using the transformation funciton.
+ *
+ * As all signals, mapped signals are lazy – therefore no subscription
+ * to the source signal is made until it is needed. Because of this,
+ * the transformation function won't be unless somebody subscribes to the
+ * mapped signal or tries to `.get()` its value.
+ *
+ * @example
+ * const num = mut(1);
+ * const doubleNum = MappedSignal(num, n => 2 * n);
+ * doubleNum.subscribe(x => console.log(x)); // logs 2
+ * num.set(2); // logs 4
+ *
+ * @see {Signal#map}
+ * @see {derived}
+ */
 export const MappedSignal = <S, T>(
 	signal: MinimalSignal<S>,
 	fn: (value: S, params: SubscriberParams<S>) => T,

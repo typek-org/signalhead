@@ -14,11 +14,11 @@ export type SignalWithHistory<T, N extends number> = Signal<
  * `slice::windows` method.
  *
  * As all signals are lazy, SignalWithHistory will not subscribe to
- * it's dependency immediately, but only once it has any subscribers
+ * its dependency immediately, but only once it has any subscribers
  * itself – and will unsubscribe from its dependency once all its
  * subscribers unsubscribe. This means that historic values are not
- * tracked while there are no subscribers – if you need them, add a
- * dummy subscriber. (Don't forget to unsubscribe it eventually.)
+ * tracked while there are no subscribers – if you need them, use
+ * `s.withHistory().keepAlive(d)` with a suitable abort signal.
  *
  * @example
  * const a = mut(42);
@@ -31,6 +31,8 @@ export type SignalWithHistory<T, N extends number> = Signal<
  * a.set(-12); // b: [-12, 69, 69]
  * a.set(420); // b: [420, -12, 69]
  * a.set(3); // b: [3, 420, -12]
+ *
+ * @see {Readable#keepAlive}
  */
 export const SignalWithHistory = <T, N extends number = 2>(
 	signal: MinimalSignal<T>,

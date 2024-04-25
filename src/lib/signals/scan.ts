@@ -2,6 +2,17 @@ import { MappedSignal } from "./map.ts";
 import type { Signal } from "./readable.ts";
 import type { MinimalSignal } from "./types.ts";
 
+/**
+ * Given a signal and an aggregator function, produces a new
+ * signal whose value will be computed from the source signal's
+ * new value and this signal's previous value.
+ *
+ * As all signals are lazy, a scanned signal will not track its
+ * source until it has a subscriber. If you want to avoid loosing
+ * values, use `s.scan(...).keepAlive(d)` with a proper abort signal.
+ *
+ * @see {Signal#keepAlive}
+ */
 export const ScannedSignal: {
 	<T>(
 		signal: MinimalSignal<T>,

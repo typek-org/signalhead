@@ -1,6 +1,10 @@
 import { SkippedSignal } from "./skip.ts";
 import { MinimalSignal } from "./types.ts";
 
+/**
+ * Produces a new signal whose value only updates if it
+ * is not strictly equal to the old value.
+ */
 export const SignalWithSkippedEqual = <T>(
 	signal: MinimalSignal<T>,
 ) => {

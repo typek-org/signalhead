@@ -9,6 +9,11 @@ import type {
 	Validator,
 } from "./types.ts";
 
+/**
+ * Given several signals, returns a new signal whose value is a tuple of the source
+ * signals' values. Updates every time one of the source signals updates. If multiple
+ * signals are updated at once, the zipped signal only updates once.
+ */
 export const ZippedSignal: {
 	<S, T>(a: MinimalSignal<S>, b: MinimalSignal<T>): Signal<[S, T]>;
 	<S, T, U>(
