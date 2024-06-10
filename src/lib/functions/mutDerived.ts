@@ -56,10 +56,10 @@ export function mutDerived<T>(
 				() => signal.validate(),
 			).pipe(defer);
 		},
-	}).withSetterSideEffect((newValue: T) => {
+	});
+
+	return signal.withSetterSideEffect((newValue: T) => {
 		value = newValue;
 		return newValue;
 	});
-
-	return signal;
 }
