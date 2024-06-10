@@ -9,7 +9,7 @@ import {
 } from "./types.ts";
 import { Signal } from "./readable.ts";
 import { MappedSetterSignal } from "./mappedSetter.ts";
-import { setterSideEffectSignal } from "./setterSideEffect.ts";
+import { SetterSideEffectSignal } from "./setterSideEffect.ts";
 import { PipeOf, pipableOf } from "../mod.ts";
 import { Defer } from "../utils/defer.ts";
 
@@ -203,7 +203,7 @@ export const WritableSignal = Object.assign(mut, {
 		const withSetterSideEffect = (
 			fn: (value: T, params: { prev: T | undefined }) => T,
 		) =>
-			setterSideEffectSignal(
+			SetterSideEffectSignal(
 				{ set, subscribe, get, invalidate, validate },
 				fn,
 			);
