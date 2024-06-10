@@ -5,6 +5,7 @@ import {
 	type MinimalSignal,
 	type WritableSignal,
 } from "../signals/mod.ts";
+import { setterSideEffectSignal } from "../signals/setterSideEffect.ts";
 
 /**
  * Sometimes you need a writable signal whose value automatically
@@ -56,10 +57,10 @@ export function mutDerived<T>(
 				() => signal.validate(),
 			).pipe(defer);
 		},
-	}).withSetterSideEffect((newValue: T) => {
+	});
+
+	return setterSideEffectSignal(signal, (newValue: T) => {
 		value = newValue;
 		return newValue;
 	});
-
-	return signal;
 }

@@ -2,7 +2,7 @@ import { Signal } from "./readable.ts";
 import type { MinimalWritableSignal } from "./types.ts";
 import { WritableSignal } from "./writable.ts";
 
-export const SetterSideEffectSignal = <T>(
+export const setterSideEffectSignal = <T>(
 	signal: MinimalWritableSignal<T>,
 	fn: (value: T, params: { prev: T | undefined }) => T,
 ): WritableSignal<T> => {
