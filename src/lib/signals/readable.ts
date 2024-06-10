@@ -177,7 +177,7 @@ export interface Signal<T>
 	): Signal<[T, U, V]>;
 	zip<U extends MinimalSignal<any>[]>(
 		...signals: U
-	): Signal<SignalArrayValues<U>>;
+	): Signal<[T, ...SignalArrayValues<U>]>;
 
 	/**
 	 * Ensures a signal is kept alive even if it has no subscribers, until
