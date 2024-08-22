@@ -1,6 +1,6 @@
 {
   "name": "@mod.js/signals",
-  "version": "0.0.34",
+  "version": "0.0.35-rc1",
   "type": "module",
   "files": [
     "dist"
