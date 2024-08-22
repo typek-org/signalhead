@@ -1,25 +1,25 @@
 import { Unsubscriber } from "../mod.ts";
 import {
-	List,
-	ListUpdate,
-	ListUpdateSubscriber,
-	MinimalList,
+	Pack,
+	PackUpdate,
+	PackUpdateSubscriber,
+	MinimalPack,
 } from "./readable.ts";
 
-export const MappedList = <T, U>(
-	list: MinimalList<T>,
+export const MappedPack = <T, U>(
+	pack: MinimalPack<T>,
 	fn: (value: T | undefined) => U | undefined,
-): List<U> => {
-	const { length } = list;
+): Pack<U> => {
+	const { length } = pack;
 
-	const getAt = (index: number) => fn(list.getAt(index));
+	const getAt = (index: number) => fn(pack.getAt(index));
 
 	const listenToUpdates = (
-		sub: ListUpdateSubscriber<U>,
+		sub: PackUpdateSubscriber<U>,
 	): Unsubscriber => {
-		return list.listenToUpdates((updates) =>
+		return pack.listenToUpdates((updates) =>
 			sub(
-				updates.map((update: ListUpdate<T>): ListUpdate<U> => {
+				updates.map((update: PackUpdate<T>): PackUpdate<U> => {
 					switch (update.type) {
 						case "insert":
 							return {
@@ -42,7 +42,7 @@ export const MappedList = <T, U>(
 		);
 	};
 
-	return List.fromMinimal({
+	return Pack.fromMinimal({
 		length,
 		getAt,
 		listenToUpdates,

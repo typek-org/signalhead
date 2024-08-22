@@ -6,10 +6,10 @@ import {
 	pipableOf,
 } from "../mod.ts";
 import { Defer } from "../utils/defer.ts";
-import { ListUpdate, ListUpdateSubscriber } from "./readable.ts";
-import { MutListOptions } from "./writable.ts";
+import { PackUpdate, PackUpdateSubscriber } from "./readable.ts";
+import { MutPackOptions } from "./writable.ts";
 
-export interface WriteonlyList<T> {
+export interface WriteonlyPack<T> {
 	length: WritableSignal<number>;
 	setAt(index: number, value: T): void;
 
@@ -33,20 +33,20 @@ export interface WriteonlyList<T> {
 	// reverse(): void;
 
 	listenToUpdates(
-		sub: ListUpdateSubscriber<T>,
+		sub: PackUpdateSubscriber<T>,
 	): Pipable<Unsubscriber>;
 }
 
-export const WriteonlyList = <T>(
+export const WriteonlyPack = <T>(
 	len = 0,
-	{ onStart, onStop }: MutListOptions = {},
-): WriteonlyList<T> => {
+	{ onStart, onStop }: MutPackOptions = {},
+): WriteonlyPack<T> => {
 	const length$ = mut(len);
 
-	const subs = new Set<ListUpdateSubscriber<T>>();
+	const subs = new Set<PackUpdateSubscriber<T>>();
 	const { defer, cleanup } = Defer.create();
 
-	const listenToUpdates = (sub: ListUpdateSubscriber<T>) => {
+	const listenToUpdates = (sub: PackUpdateSubscriber<T>) => {
 		if (subs.size === 0) onStart?.({ defer });
 
 		subs.add(sub);
@@ -71,7 +71,7 @@ export const WriteonlyList = <T>(
 
 	const insertAt = (index: number, value: T) => {
 		index = resolveIndex(index);
-		const updates: ListUpdate<T>[] = [
+		const updates: PackUpdate<T>[] = [
 			{ type: "insert", index, value },
 		];
 		length$.update((len) => len + 1);
@@ -83,7 +83,7 @@ export const WriteonlyList = <T>(
 		toIndex = resolveIndex(toIndex);
 		if (fromIndex === toIndex) return;
 
-		const updates: ListUpdate<T>[] = [
+		const updates: PackUpdate<T>[] = [
 			{ type: "move", fromIndex, toIndex },
 		];
 		for (const s of [...subs]) s(updates);
@@ -91,13 +91,13 @@ export const WriteonlyList = <T>(
 
 	const deleteAt = (index: number) => {
 		index = resolveIndex(index);
-		const updates: ListUpdate<T>[] = [{ type: "delete", index }];
+		const updates: PackUpdate<T>[] = [{ type: "delete", index }];
 		length$.update((len) => len - 1);
 		for (const s of [...subs]) s(updates);
 	};
 
 	const setAt = (index: number, value: T) => {
-		const updates: ListUpdate<T>[] = [];
+		const updates: PackUpdate<T>[] = [];
 
 		if (index < length$.get()) {
 			updates.push({ type: "modify", index, value });
@@ -115,7 +115,7 @@ export const WriteonlyList = <T>(
 
 	const push = (...items: T[]) => {
 		let index = length$.get();
-		const updates: ListUpdate<T>[] = [];
+		const updates: PackUpdate<T>[] = [];
 
 		for (const value of items) {
 			updates.push({ type: "insert", index, value });
@@ -129,7 +129,7 @@ export const WriteonlyList = <T>(
 	};
 
 	const unshift = (...items: T[]) => {
-		const updates: ListUpdate<T>[] = [];
+		const updates: PackUpdate<T>[] = [];
 		items.reverse();
 
 		for (const value of items) {
@@ -154,7 +154,7 @@ export const WriteonlyList = <T>(
 		// [0, 1, 2, 4, 5, 6, 7, 3, 8] move 6 to index 3
 		// [0, 1, 2, 7, 4, 5, 6, 3, 8]
 
-		const updates: ListUpdate<T>[] = [
+		const updates: PackUpdate<T>[] = [
 			{ type: "move", fromIndex: lower, toIndex: higher },
 			{ type: "move", fromIndex: higher - 1, toIndex: lower },
 		];
@@ -164,7 +164,7 @@ export const WriteonlyList = <T>(
 	const publicLength = length$.withSetterSideEffect(
 		(value, { prev }) => {
 			const diff = value - prev!;
-			const updates: ListUpdate<T>[] = [];
+			const updates: PackUpdate<T>[] = [];
 
 			if (diff < 0) {
 				for (let index = prev! - 1; index >= value; index--) {

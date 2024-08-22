@@ -5,16 +5,16 @@ import {
 	pipableOf,
 } from "../mod.ts";
 import { Defer } from "../utils/defer.ts";
-import { List, ListUpdateSubscriber } from "./readable.ts";
-import { WriteonlyList } from "./writeonly.ts";
+import { Pack, PackUpdateSubscriber } from "./readable.ts";
+import { WriteonlyPack } from "./writeonly.ts";
 
-export interface MutList<T>
-	extends WriteonlyList<T>,
-		Omit<List<T>, "pipe">,
-		PipeOf<MutList<T>> {
+export interface MutPack<T>
+	extends WriteonlyPack<T>,
+		Omit<Pack<T>, "pipe">,
+		PipeOf<MutPack<T>> {
 	length: WritableSignal<number>;
-	toReadonly(): List<T>;
-	toWriteonly(): WriteonlyList<T>;
+	toReadonly(): Pack<T>;
+	toWriteonly(): WriteonlyPack<T>;
 
 	pop(): T | undefined;
 	shift(): T | undefined;
@@ -24,20 +24,20 @@ export interface MutList<T>
 	// sortNumerically(fn?: (v: T) => number): this;
 }
 
-export interface MutListOptions extends StartStop {}
+export interface MutPackOptions extends StartStop {}
 
-export const MutList = <T>(
+export const MutPack = <T>(
 	items: Iterable<T> = [],
-	opts: MutListOptions = {},
-): MutList<T> => {
+	opts: MutPackOptions = {},
+): MutPack<T> => {
 	const arr = [...items];
-	const wlist = WriteonlyList<T>(arr.length);
-	const length = wlist.length;
+	const wpack = WriteonlyPack<T>(arr.length);
+	const length = wpack.length;
 
-	const subs = new Set<ListUpdateSubscriber<T>>();
+	const subs = new Set<PackUpdateSubscriber<T>>();
 	const { defer, cleanup } = Defer.create();
 
-	const listenToUpdates = (sub: ListUpdateSubscriber<T>) => {
+	const listenToUpdates = (sub: PackUpdateSubscriber<T>) => {
 		if (subs.size === 0) start();
 		subs.add(sub);
 		return pipableOf(() => {
@@ -48,7 +48,7 @@ export const MutList = <T>(
 
 	const start = () => {
 		defer(
-			wlist.listenToUpdates((updates) => {
+			wpack.listenToUpdates((updates) => {
 				for (const u of updates) {
 					switch (u.type) {
 						case "modify":
@@ -69,11 +69,11 @@ export const MutList = <T>(
 							break;
 					}
 				}
-				if (arr.length !== wlist.length.get())
+				if (arr.length !== wpack.length.get())
 					console.error(
 						`Length mismatch. Real: ${
 							arr.length
-						}, reported: ${wlist.length.get()}`,
+						}, reported: ${wpack.length.get()}`,
 					);
 
 				for (const s of [...subs]) s(updates);
@@ -87,10 +87,10 @@ export const MutList = <T>(
 		opts.onStop?.();
 	};
 
-	const toWriteonly = () => wlist;
+	const toWriteonly = () => wpack;
 	const popAt = (index: number) => {
 		const item = arr.at(index);
-		wlist.deleteAt(index);
+		wpack.deleteAt(index);
 		return item;
 	};
 	const pop = () => popAt(-1);
@@ -104,12 +104,12 @@ export const MutList = <T>(
 		return arr.at(index);
 	};
 
-	const rlist = List.fromMinimal({ getAt, listenToUpdates, length });
-	const toReadonly = () => rlist;
+	const rpack = Pack.fromMinimal({ getAt, listenToUpdates, length });
+	const toReadonly = () => rpack;
 
 	return pipableOf({
-		...rlist,
-		...wlist,
+		...rpack,
+		...wpack,
 		length,
 		listenToUpdates,
 		toWriteonly,

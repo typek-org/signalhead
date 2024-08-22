@@ -9,10 +9,10 @@ import {
 	pipableOf,
 	range,
 } from "../mod.ts";
-import { MappedList } from "./map.ts";
-import { MutList } from "./writable.ts";
+import { MappedPack } from "./map.ts";
+import { MutPack } from "./writable.ts";
 
-export type ListUpdate<T> =
+export type PackUpdate<T> =
 	| {
 			type: "insert";
 			index: number;
@@ -33,19 +33,19 @@ export type ListUpdate<T> =
 			index: number;
 	  };
 
-export type ListUpdateSubscriber<T> = MinimalSubscriber<
-	Array<ListUpdate<T>>
+export type PackUpdateSubscriber<T> = MinimalSubscriber<
+	Array<PackUpdate<T>>
 >;
 
-export interface MinimalList<T> {
+export interface MinimalPack<T> {
 	length: Signal<number>;
 	getAt(index: number): T | undefined;
-	listenToUpdates(sub: ListUpdateSubscriber<T>): Unsubscriber;
+	listenToUpdates(sub: PackUpdateSubscriber<T>): Unsubscriber;
 }
 
-export interface List<T> extends MinimalList<T>, PipeOf<List<T>> {
+export interface Pack<T> extends MinimalPack<T>, PipeOf<Pack<T>> {
 	listenToUpdates(
-		sub: ListUpdateSubscriber<T>,
+		sub: PackUpdateSubscriber<T>,
 	): Pipable<Unsubscriber>;
 
 	// at(index: number | Signal<number>): Signal<T | undefined>;
@@ -56,9 +56,9 @@ export interface List<T> extends MinimalList<T>, PipeOf<List<T>> {
 	// some(fn: (value: T) => unknown): Signal<boolean>;
 	// includes(value: T): Signal<boolean>;
 
-	// filter<S extends T>(fn: (value: T) => value is S): List<S>;
-	// filter(fn: (value: T) => unknown): List<T>;
-	map<S>(fn: (value: T | undefined) => S | undefined): List<S>;
+	// filter<S extends T>(fn: (value: T) => value is S): Pack<S>;
+	// filter(fn: (value: T) => unknown): Pack<T>;
+	map<S>(fn: (value: T | undefined) => S | undefined): Pack<S>;
 
 	// findAny<S extends T>(fn: (v: T) => v is S): Signal<S | undefined>;
 	// findAny(fn: (value: T) => unknown): Signal<T | undefined>;
@@ -71,24 +71,24 @@ export interface List<T> extends MinimalList<T>, PipeOf<List<T>> {
 	// findFirstIndex(fn: (v: T) => unknown): Signal<number | undefined>;
 	// findLastIndex(fn: (v: T) => unknown): Signal<number | undefined>;
 
-	// reversed(): List<T>;
-	// sorted(fn: (a: T, b: T) => number): List<T>;
-	// sortedNumerically(fn?: (v: T) => number): List<T>;
+	// reversed(): Pack<T>;
+	// sorted(fn: (a: T, b: T) => number): Pack<T>;
+	// sortedNumerically(fn?: (v: T) => number): Pack<T>;
 	// spliced(
 	// 	start: number | Signal<number>,
 	// 	deleteCount: number | Signal<number>,
-	// 	items?: T[] | Signal<T[]> | List<T>,
-	// ): List<T>;
+	// 	items?: T[] | Signal<T[]> | Pack<T>,
+	// ): Pack<T>;
 
-	// slice(start?: number, end?: number): List<T>;
+	// slice(start?: number, end?: number): Pack<T>;
 
-	// with(index: number | Signal<number>, value: T | Signal<T>): List<T>;
+	// with(index: number | Signal<number>, value: T | Signal<T>): Pack<T>;
 }
 
-const createReadableList = <T>(
+const createReadablePack = <T>(
 	...items: Array<T | MinimalSignal<T>>
-): List<T> => {
-	const list = MutList(
+): Pack<T> => {
+	const pack = MutPack(
 		items.map((s) => (Signal.isReadable(s) ? Signal.get(s) : s)),
 		{
 			onStart({ defer }) {
@@ -97,19 +97,19 @@ const createReadableList = <T>(
 					if (!Signal.isReadable(item)) continue;
 					defer(
 						item.subscribe((value) => {
-							list.setAt(index, value);
+							pack.setAt(index, value);
 						}),
 					);
 				}
 			},
 		},
 	);
-	return list;
+	return pack;
 };
 
-export const List = Object.assign(createReadableList, {
-	fromMinimal<T>(list: MinimalList<T>): List<T> {
-		const { length, getAt, listenToUpdates: _listen } = list;
+export const Pack = Object.assign(createReadablePack, {
+	fromMinimal<T>(pack: MinimalPack<T>): Pack<T> {
+		const { length, getAt, listenToUpdates: _listen } = pack;
 
 		const listenToUpdates = (...args: Parameters<typeof _listen>) =>
 			pipableOf(_listen(...args));
@@ -130,7 +130,7 @@ export const List = Object.assign(createReadableList, {
 		};
 
 		const map = <S>(fn: (value: T | undefined) => S | undefined) =>
-			MappedList({ length, getAt, listenToUpdates }, fn);
+			MappedPack({ length, getAt, listenToUpdates }, fn);
 
 		return pipableOf({
 			length,
