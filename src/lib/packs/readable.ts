@@ -1,4 +1,6 @@
+import { todo } from "@typek/typek";
 import {
+	Defer,
 	MinimalSignal,
 	MinimalSubscriber,
 	Pipable,
@@ -37,6 +39,24 @@ export type PackUpdateSubscriber<T> = MinimalSubscriber<
 	Array<PackUpdate<T>>
 >;
 
+export interface ForEachItemParams<T> {
+	/**
+	 * A signal that updates every time the item changes its value.
+	 */
+	value: Signal<T | undefined>;
+
+	/**
+	 * A signal that updates every time the item changes its position
+	 */
+	index: Signal<number>;
+
+	/**
+	 * Mark a cleanup function to be called before this subscriber
+	 * is called again, or once it is unsubscribed.
+	 */
+	defer: Defer;
+}
+
 export interface MinimalPack<T> {
 	length: Signal<number>;
 	getAt(index: number): T | undefined;
@@ -51,6 +71,23 @@ export interface Pack<T> extends MinimalPack<T>, PipeOf<Pack<T>> {
 	// at(index: number | Signal<number>): Signal<T | undefined>;
 	toArray(): Signal<T[]>;
 	iter(): Iterable<T>;
+
+	/**
+	 * Runs the callback for every item in the pack, and then
+	 * for every item that is added to the pack. The callback
+	 * receives: `params.value` which is a signal that updates
+	 * every time the item changes its value, `params.index`
+	 * which is a signal that updates every time the item changes
+	 * its position in the pack, and `params.defer` which can
+	 * be used to perform cleanup once the item is removed from
+	 * the pack.
+	 *
+	 * The function itself returns an unsubscriber. By calling
+	 * this unsubscriber, you opt out from any further updates.
+	 */
+	forEach(
+		fn: (params: ForEachItemParams<T>) => Unsubscriber | undefined,
+	): Pipable<Unsubscriber>;
 
 	// every(fn: (value: T) => unknown): Signal<boolean>;
 	// some(fn: (value: T) => unknown): Signal<boolean>;
@@ -129,6 +166,54 @@ export const Pack = Object.assign(createReadablePack, {
 			return arr.toReadonly();
 		};
 
+		const forEach = (fn: (params: ForEachItemParams<T>) => void) => {
+			const items = Array.from({ length: length.get() }).map(
+				(_, i) => ({
+					value: mut(getAt(i)),
+					index: mut(i),
+					defered: new Set<Unsubscriber>(),
+				}),
+			);
+
+			for (const { value, index, defered } of items) {
+				fn({
+					value: value.toReadonly(),
+					index,
+					defer: Defer.from((f) => defered.add(f)),
+				});
+			}
+
+			return listenToUpdates((updates) => {
+				for (const update of updates) {
+					switch (update.type) {
+						case "modify":
+							items[update.index].value.set(update.value);
+							break;
+						case "move": {
+							const [a, b] = [update.fromIndex, update.toIndex];
+							items[a].index.set(b);
+							if (a < b) {
+								for (let i = a + 1; i <= b; i++) {
+									items[i].index.set(i - 1);
+								}
+							} else {
+								for (let i = b; i < a; i++) {
+									items[i].index.set(i + 1);
+								}
+							}
+							const [x] = items.splice(a, 1);
+							items.splice(b, 0, x);
+							break;
+						}
+						case "delete":
+							todo();
+						case "insert":
+							todo();
+					}
+				}
+			});
+		};
+
 		const map = <S>(fn: (value: T | undefined) => S | undefined) =>
 			MappedPack({ length, getAt, listenToUpdates }, fn);
 
@@ -137,6 +222,7 @@ export const Pack = Object.assign(createReadablePack, {
 			getAt,
 			iter,
 			toArray,
+			forEach,
 			map,
 			listenToUpdates,
 		});

@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@typek/typek':
+        specifier: npm:@jsr/typek__typek@^0.6.1
+        version: '@jsr/typek__typek@0.6.1'
     devDependencies:
       '@types/jest':
         specifier: ^29.5.12
@@ -448,6 +452,15 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
+
+  '@jsr/std__assert@1.0.2':
+    resolution: {integrity: sha512-xujHXXeT3zvMNZeCXiDyfiITaqP4rgH8wqHNUD0Iyr4c2R0Ea//zJ4pASA1utIEIxeVu1jpeSlHU4+pagscqgQ==, tarball: https://npm.jsr.io/~/11/@jsr/std__assert/1.0.2.tgz}
+
+  '@jsr/std__internal@1.0.1':
+    resolution: {integrity: sha512-ssI1kvluIero6cCfiWNmYItqCR8QpQB+STBJoe/xQVZ79SDpoqjK5VF2Eq/2M+Dz8WbqHVmrXRCaGN162x+Ebw==, tarball: https://npm.jsr.io/~/11/@jsr/std__internal/1.0.1.tgz}
+
+  '@jsr/typek__typek@0.6.1':
+    resolution: {integrity: sha512-CS92boyIoqK9G1UlIL+XpyPiMPUbimL/H0DFCWwql4TrEH6i/mtrFTprS0i0WPbZWvJemlJcRZIVO6MTSQQhtg==, tarball: https://npm.jsr.io/~/11/@jsr/typek__typek/0.6.1.tgz}
 
   '@microsoft/api-extractor-model@7.28.13':
     resolution: {integrity: sha512-39v/JyldX4MS9uzHcdfmjjfS6cYGAoXV+io8B5a338pkHiSt+gy2eXQ0Q7cGFJ7quSa1VqqlMdlPrB6sLR/cAw==}
@@ -2225,6 +2238,16 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.4.15
+
+  '@jsr/std__assert@1.0.2':
+    dependencies:
+      '@jsr/std__internal': 1.0.1
+
+  '@jsr/std__internal@1.0.1': {}
+
+  '@jsr/typek__typek@0.6.1':
+    dependencies:
+      '@jsr/std__assert': 1.0.2
 
   '@microsoft/api-extractor-model@7.28.13(@types/node@20.14.2)':
     dependencies:
