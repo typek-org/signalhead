@@ -60,6 +60,15 @@ export interface MinimalPack<T> {
 	listenToUpdates(sub: PackUpdateSubscriber<T>): Unsubscriber;
 }
 
+/**
+ * A reactive counterpart to `ReadonlyArray<T>`.
+ *
+ * **Unstable:** This API is experimental and subject
+ * to change in future versions. If you use it, please
+ * [provide feedback](https://github.com/m93a/signalhead/issues)!
+ * We're especially interested in your use cases, and
+ * what inconveniences you ran into while using it.
+ */
 export interface Pack<T> extends MinimalPack<T>, PipeOf<Pack<T>> {
 	listenToUpdates(
 		sub: PackUpdateSubscriber<T>,

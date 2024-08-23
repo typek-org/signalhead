@@ -6,6 +6,15 @@ import { WriteonlyFlock } from "./writeonly.ts";
 
 export interface MutFlockOptions extends StartStop {}
 
+/**
+ * A reactive counterpart to `Set<T>`.
+ *
+ * **Unstable:** This API is experimental and subject
+ * to change in future versions. If you use it, please
+ * [provide feedback](https://github.com/m93a/signalhead/issues)!
+ * We're especially interested in your use cases, and
+ * what inconveniences you ran into while using it.
+ */
 export interface MutFlock<T>
 	extends WriteonlyFlock<T>,
 		Omit<Flock<T>, "pipe">,

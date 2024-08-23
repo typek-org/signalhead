@@ -25,6 +25,7 @@ export interface EffectParams {
  * `s.get()` or `Signal.get(s)` instead of `$(s)`.
  *
  * @example
+ * ```ts
  * const name = mut('Josh');
  * const age = mut(25);
  *
@@ -36,6 +37,7 @@ export interface EffectParams {
  *
  * name.set('Jane'); // Jane Doe is 25 years old
  * age.set(69); // Jane Doe is 69 years old
+ * ```
  */
 export function effect(
 	f: ($: <T>(s: MinimalSignal<T>) => T, params: EffectParams) => void,

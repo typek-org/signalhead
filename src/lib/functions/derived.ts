@@ -12,6 +12,7 @@ export interface DerivedParams<T> {
  * form the values of multiple different signals.
  * @see effect
  * @example
+ * ```ts
  * const num1 = mut(10);
  * const num2 = mut(8);
  * const gcd = derived($ => {
@@ -23,6 +24,7 @@ export interface DerivedParams<T> {
  *
  * num1.set(12);
  * // gcd = 4
+ * ```
  */
 export function derived<T>(
 	f: (

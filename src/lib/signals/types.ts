@@ -16,6 +16,9 @@ export type SignalArrayValues<S extends MinimalSignal<any>[]> =
 		? [SignalValue<T>, ...SignalArrayValues<U>]
 		: [];
 
+/**
+ * @template T - The type of the underlying signal's value.
+ */
 export interface SubscriberParams<T> {
 	/**
 	 * The previous value of this signal. On the subscriber's

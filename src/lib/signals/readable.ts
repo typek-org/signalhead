@@ -30,14 +30,48 @@ export interface Signal<T>
 	extends MinimalSignal<T>,
 		PipeOf<Signal<T>> {
 	/**
-	 * Adds a subscriber to this signal, which is a callback that will
-	 * be called immediately with the current value and then on every
-	 * subsequent update of the signal with the new value.
+	 * Given a callback, adds it as a subscriber to this signal.
+	 * The callback will be called immediately with the signal's
+	 * current value, and then on every subsequent update.
 	 *
-	 * Returns an unsubscriber, which is a function that, once called,
-	 * unregisters this subscriber.
+	 * Returns an unsubscriber – calling it will unregister the
+	 * subscriber and stop it from receiving any further updates.
 	 *
-	 * @see {Signal#listen}
+	 * If a signal doesn't have any subscribers, it becomes _cold_
+	 * and  it doesn't track any outside changes until you add
+	 * another subscriber.
+	 *
+	 * @example
+	 * ```ts
+	 * const name = mut("Joe");
+	 * const unsub = name.subscribe(n => console.log(n));
+	 * // logs "Joe"
+	 *
+	 * name.set("John");
+	 * // logs "John"
+	 *
+	 * unsub();
+	 * name.set("Bill");
+	 * // ... does not log anything
+	 * ```
+	 *
+	 * @param subscriber Called immediately on subscription
+	 * and then every time the signal gets a new value. The
+	 * subscriber receives the signal's new value, and a set
+	 * of [useful params](https://jsr.io/@typek/signalhead/doc/~/SubscriberParams).
+	 *
+	 * @param invalidate May be called before a value update.
+	 * You most likely won't need it, but Signalhead uses this
+	 * internally to avoid glitches when several signals update
+	 * at once.
+	 *
+	 * @param validate After `invalidate` has been called, the
+	 * signal can be marked as valid again either by calling
+	 * the subscriber with a new value, or by calling `validate`.
+	 * This is used internally to support glitchless filtered
+	 * signals.
+	 *
+	 * @see Signal#listen
 	 */
 	subscribe(
 		subscriber: Subscriber<T>,
@@ -46,10 +80,20 @@ export interface Signal<T>
 	): Pipable<Unsubscriber>;
 
 	/**
-	 * Adds a listener, which is like a subscriber but it's **not** called
-	 * immediately, only on subsequent updates. Returns an unsubscriber.
+	 * Adds a listener, which is like a subscriber but it's
+	 * **not** called immediately, only on subsequent updates.
+	 * Returns an unsubscriber.
 	 *
-	 * @see {Signal#subscribe}
+	 * @example
+	 * ```ts
+	 * const name = mut("Joe");
+	 * const unsub = name.listen(n => console.log(n));
+	 * // does not log anything
+	 *
+	 * name.set("John"); // logs "John"
+	 * ```
+	 *
+	 * @see Signal#subscribe
 	 */
 	listen(
 		subscriber: Subscriber<T>,
@@ -57,8 +101,43 @@ export interface Signal<T>
 		validate?: Validator,
 	): Pipable<Unsubscriber>;
 
+	/**
+	 * Retrieves the signal's current value without subscribing
+	 * to further updates.
+	 *
+	 * If this signal doesn't have any subscribers (ie. is _cold_),
+	 * and its value depends on the _history_ of other signals'
+	 * values, the value returned by `.get()` likely won't be correct.
+	 *
+	 * @example
+	 * ```ts
+	 * const n = mut(1);
+	 * n.get(); // 1
+	 *
+	 * n.set(2);
+	 * n.get(); // 2
+	 * ```
+	 */
 	get(): T;
 
+	/**
+	 * If the signal contains a promise, this method “unwraps” it
+	 * into something much more useful.
+	 *
+	 * @example
+	 * ```ts
+	 * const p = mut(delay(500).then(() => "hello"));
+	 * p.await().subscribe(v => console.log(v));
+	 * // { status: "pending", lastValue: undefined }
+	 * // { status: "fulfilled", value: "hello" }
+	 *
+	 * p.set(delay(500).then(() => "world));
+	 * // { status: "pending", lastValue: "hello" }
+	 * // { status: "fulfilled", value: "world" }
+	 * ```
+	 *
+	 * @see AwaitedSignal
+	 */
 	awaited(): AwaitedSignal<Awaited<T>>;
 
 	/**
@@ -77,25 +156,9 @@ export interface Signal<T>
 	 * doubleNum.subscribe(x => console.log(x)); // logs 2
 	 * num.set(2); // logs 4
 	 *
-	 * @see {MappedSignal}
-	 * @see {derived}
+	 * @see derived
 	 */
 	map<S>(fn: (value: T, params: SubscriberParams<T>) => S): Signal<S>;
-
-	/**
-	 * Takes a signal and produces a new signal containing the original
-	 * value accompanied by a number which increases by one every time
-	 * the source signal updates.
-	 *
-	 * **FOOTGUN WARNING**: Because of the lazy nature of signals,
-	 * the index will be incorrect if this signal loses all
-	 * subscribers. To ensure the correct result regardless of the
-	 * subscriber count, use as `s.enumerate().keepAlive(d)` with a
-	 * suitable abort controller.
-	 *
-	 * @see {Signal#keepAlive}
-	 */
-	enumerate(): Signal<[number, T]>;
 
 	/**
 	 * Given a signal and a filtering function, produces a new signal
@@ -110,12 +173,40 @@ export interface Signal<T>
 		initialValue: T,
 	): Signal<T>;
 
+	/**
+	 * Given a signal which itself conains other signals as values,
+	 * returns a new signal which is recursively flattened up to
+	 * the specified depth.
+	 */
 	flat<D extends number = 1>(
 		depth?: D,
 	): Signal<FlatSignal<Signal<T>, D>>;
+
+	/**
+	 * Calls the provided callback on every value of the original
+	 * signal. The callback may return a signal, which will be
+	 * flattened into a new signal.
+	 *
+	 * This is identical to `.map(fn).flat(1)`.
+	 */
 	flatMap<S>(
 		fn: (value: T, params: SubscriberParams<T>) => S | Signal<S>,
 	): Signal<S>;
+
+	/**
+	 * Takes a signal and produces a new signal containing the original
+	 * value accompanied by a number which increases by one every time
+	 * the source signal updates.
+	 *
+	 * **FOOTGUN WARNING**: Because of the lazy nature of signals,
+	 * the index will be incorrect if this signal loses all
+	 * subscribers. To ensure the correct result regardless of the
+	 * subscriber count, use as `s.enumerate().keepAlive(d)` with a
+	 * suitable abort signal.
+	 *
+	 * @see {Signal#keepAlive}
+	 */
+	enumerate(): Signal<[number, T]>;
 
 	/**
 	 * Produces a new signal containing a number
@@ -125,7 +216,7 @@ export interface Signal<T>
 	 * the value of this signal will be incorrect if it loses all
 	 * subscribers. To ensure the correct result regardless of the
 	 * subscriber count, use as `s.count().keepAlive(d)` with a
-	 * suitable abort controller.
+	 * suitable abort signal.
 	 *
 	 * @see {Signal#keepAlive}
 	 */

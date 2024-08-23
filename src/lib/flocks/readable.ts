@@ -30,6 +30,16 @@ export interface MinimalFlock<T> {
 	iter(): Iterable<T>;
 }
 
+/**
+ * A reactive counterpart to `ReadonlySet<T>`.
+ *
+ * **Unstable:** This API is experimental and subject
+ * to change in future versions. If you use it, please
+ * [provide feedback](https://github.com/m93a/signalhead/issues)!
+ * We're especially interested in your use cases, and
+ * what inconveniences you ran into while using it.
+ */
+
 export interface Flock<T> extends MinimalFlock<T>, PipeOf<Flock<T>> {
 	toSet(): Signal<Set<T>>;
 }

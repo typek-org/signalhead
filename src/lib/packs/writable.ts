@@ -4,6 +4,15 @@ import { Defer } from "../utils/defer.ts";
 import { Pack, type PackUpdateSubscriber } from "./readable.ts";
 import { WriteonlyPack } from "./writeonly.ts";
 
+/**
+ * A reactive counterpart to `Array<T>`.
+ *
+ * **Unstable:** This API is experimental and subject
+ * to change in future versions. If you use it, please
+ * [provide feedback](https://github.com/m93a/signalhead/issues)!
+ * We're especially interested in your use cases, and
+ * what inconveniences you ran into while using it.
+ */
 export interface MutPack<T>
 	extends WriteonlyPack<T>,
 		Omit<Pack<T>, "pipe">,
