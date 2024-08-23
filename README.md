@@ -5,11 +5,12 @@ Signalhead is a lightweight, framework-agnostic toolkit for managing reactive st
 
 ```ts
 import { mut } from "@typek/signalhead";
+
 const count = mut(1);
 const double = count.map(n => 2 * n);
 
 const user = mut(fetchUserData());
-const name = user$.await().map(
+const name = user.await().map(
   (p) => p.status === "fullfilled" ? p.value.name : "Loading..."
 );
 
