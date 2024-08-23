@@ -3,9 +3,17 @@
   "version": "0.0.36",
   "exports": "./src/lib/mod.ts",
   "tasks": {
-    "dev": "deno run --watch main.ts"
+    "test": "deno test --clean --coverage && deno coverage --lcov --output=lcov.info",
+    "format": "deno lint --fix && prettier -w src"
   },
   "imports": {
-    "@std/assert": "jsr:@std/assert@1"
+    "@std/assert": "jsr:@std/assert@1",
+    "@std/expect": "jsr:@std/expect@^1.0.0",
+    "@typek/typek": "jsr:@typek/typek@^0.6.1"
+  },
+  "lint": {
+    "rules": {
+      "exclude": ["no-explicit-any"]
+    }
   }
 }

@@ -1,8 +1,8 @@
 import { fn } from "../utils/testUtils.ts";
-import { FlockUpdate, WriteonlyFlock } from "./mod.ts";
+import { type FlockUpdate, WriteonlyFlock } from "./mod.ts";
 
-describe("writeonly flock", () => {
-	test("basic", () => {
+Deno.test("writeonly flock", () => {
+	Deno.test("basic", () => {
 		const s = WriteonlyFlock<number>();
 
 		const f = fn<void, [FlockUpdate<number>[]]>();

@@ -1,9 +1,10 @@
+import { expect } from "@std/expect";
 import { fn } from "../utils/testUtils.ts";
 import { MappedSignal } from "./map.ts";
 import { mut } from "./writable.ts";
 
-describe("map", () => {
-	test("basic", () => {
+Deno.test("map", () => {
+	Deno.test("basic", () => {
 		for (const method of [true, false]) {
 			const orig = mut("hello world");
 
@@ -40,25 +41,28 @@ describe("map", () => {
 		}
 	});
 
-	test("get in the middle of updating gives the correct value", () => {
-		const a = mut("hey");
-		const b = a.map((s) => s.toUpperCase());
+	Deno.test(
+		"get in the middle of updating gives the correct value",
+		() => {
+			const a = mut("hey");
+			const b = a.map((s) => s.toUpperCase());
 
-		const f = fn<void, [string, string]>();
-		const g = fn<void, [string, string, string]>();
+			const f = fn<void, [string, string]>();
+			const g = fn<void, [string, string, string]>();
 
-		a.subscribe((s) => f(s, a.get()));
-		b.subscribe((s) => g(s, b.get(), a.get().toUpperCase()));
+			a.subscribe((s) => f(s, a.get()));
+			b.subscribe((s) => g(s, b.get(), a.get().toUpperCase()));
 
-		f.assertCalledOnce(["hey", "hey"]);
-		g.assertCalledOnce(["HEY", "HEY", "HEY"]);
+			f.assertCalledOnce(["hey", "hey"]);
+			g.assertCalledOnce(["HEY", "HEY", "HEY"]);
 
-		a.set("bye");
-		f.assertCalledOnce(["bye", "bye"]);
-		g.assertCalledOnce(["BYE", "BYE", "BYE"]);
-	});
+			a.set("bye");
+			f.assertCalledOnce(["bye", "bye"]);
+			g.assertCalledOnce(["BYE", "BYE", "BYE"]);
+		},
+	);
 
-	test("invalitation and revalidation", () => {
+	Deno.test("invalitation and revalidation", () => {
 		const a = mut(2);
 		const b = a.map((x) => 2 * x);
 

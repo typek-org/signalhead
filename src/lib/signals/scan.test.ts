@@ -2,8 +2,8 @@ import { fn } from "../utils/testUtils.ts";
 import { ScannedSignal } from "./scan.ts";
 import { mut } from "./writable.ts";
 
-describe("scan", () => {
-	test("basic", () => {
+Deno.test("scan", () => {
+	Deno.test("basic", () => {
 		for (const method of [true, false]) {
 			for (const init of [true, false]) {
 				const n = mut(1);
@@ -13,16 +13,16 @@ describe("scan", () => {
 						? n.scan((a, b) => a + b, 0)
 						: n.scan((a, b) => a + b)
 					: init
-					? ScannedSignal(n, (a, b) => a + b, 0)
-					: ScannedSignal(n, (a, b) => a + b);
+						? ScannedSignal(n, (a, b) => a + b, 0)
+						: ScannedSignal(n, (a, b) => a + b);
 
 				const prod = method
 					? init
 						? n.scan((a, b) => a * b, 1)
 						: n.scan((a, b) => a * b)
 					: init
-					? ScannedSignal(n, (a, b) => a * b, 1)
-					: ScannedSignal(n, (a, b) => a * b);
+						? ScannedSignal(n, (a, b) => a * b, 1)
+						: ScannedSignal(n, (a, b) => a * b);
 
 				const f = fn<void, [number]>();
 				const u1 = sum.subscribe((x) => f(x));

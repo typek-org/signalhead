@@ -1,6 +1,7 @@
-import { PipeOf, StartStop, mut, pipableOf } from "../mod.ts";
+import { toPipable, type PipeOf } from "@typek/typek";
+import { type StartStop, mut } from "../mod.ts";
 import { Defer } from "../utils/defer.ts";
-import { Flock, FlockUpdateSubscriber } from "./readable.ts";
+import { Flock, type FlockUpdateSubscriber } from "./readable.ts";
 import { WriteonlyFlock } from "./writeonly.ts";
 
 export interface MutFlockOptions extends StartStop {}
@@ -79,5 +80,5 @@ export const MutFlock = <T>(
 	const toWriteonly = () => wflock;
 	const toReadonly = () => rflock;
 
-	return pipableOf({ ...wflock, ...rflock, toWriteonly, toReadonly });
+	return toPipable({ ...wflock, ...rflock, toWriteonly, toReadonly });
 };

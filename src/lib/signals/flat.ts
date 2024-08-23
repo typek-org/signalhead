@@ -1,11 +1,11 @@
 import { cons } from "./cons.ts";
 import { Signal } from "./readable.ts";
-import {
+import type {
 	Validator,
-	type Invalidator,
-	type MinimalSignal,
-	type MinimalSubscriber,
-	type Unsubscriber,
+	Invalidator,
+	MinimalSignal,
+	MinimalSubscriber,
+	Unsubscriber,
 } from "./types.ts";
 
 export type FlatSignal<Signal, Depth extends number> = {

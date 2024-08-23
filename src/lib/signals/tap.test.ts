@@ -2,8 +2,8 @@ import { fn } from "../utils/testUtils.ts";
 import { TappedSignal } from "./tap.ts";
 import { mut } from "./writable.ts";
 
-describe("tap", () => {
-	test("basic get & subscribe", () => {
+Deno.test("tap", () => {
+	Deno.test("basic get & subscribe", () => {
 		for (const method of [true, false]) {
 			const a = mut("hello");
 

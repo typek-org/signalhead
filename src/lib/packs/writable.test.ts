@@ -1,13 +1,14 @@
+import { expect } from "@std/expect";
 import { expectType, fn } from "../utils/testUtils.ts";
-import { Pack, PackUpdate } from "./readable.ts";
+import type { Pack, PackUpdate } from "./readable.ts";
 import { MutPack } from "./writable.ts";
 
-describe("MutList", () => {
-	test("types", <T>() => {
+Deno.test("MutList", () => {
+	Deno.test("types", <T>() => {
 		expectType<MutPack<T>>().toExtend<Pack<T>>();
 	});
 
-	test("basic", () => {
+	Deno.test("basic", () => {
 		const pack = MutPack([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 		const listener = fn<void, [sub: PackUpdate<number>[]]>();
 		const u = pack.listenToUpdates(listener);

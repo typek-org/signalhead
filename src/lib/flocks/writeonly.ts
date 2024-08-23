@@ -1,7 +1,10 @@
-import { Unsubscriber } from "../mod.ts";
+import type { Unsubscriber } from "../mod.ts";
 import { Defer } from "../utils/defer.ts";
-import { FlockUpdate, FlockUpdateSubscriber } from "./readable.ts";
-import { MutFlockOptions } from "./writable.ts";
+import type {
+	FlockUpdate,
+	FlockUpdateSubscriber,
+} from "./readable.ts";
+import type { MutFlockOptions } from "./writable.ts";
 
 export interface WriteonlyFlock<T> {
 	add(value: T): void;

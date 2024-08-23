@@ -1,8 +1,8 @@
 import { effect, mut } from "../mod.ts";
 import { fn } from "../utils/testUtils.ts";
 
-describe("effect", () => {
-	test("basic", () => {
+Deno.test("effect", () => {
+	Deno.test("basic", () => {
 		const showName = mut(false);
 		const greeting = mut("Hello");
 		const name = mut("world");

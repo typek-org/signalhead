@@ -1,9 +1,10 @@
+import { expect } from "@std/expect";
 import { fn } from "../utils/testUtils.ts";
 import { EnumeratedSignal } from "./enumerate.ts";
 import { mut } from "./writable.ts";
 
-describe("tap", () => {
-	test("basic", () => {
+Deno.test("tap", () => {
+	Deno.test("basic", () => {
 		for (const method of [true, false]) {
 			const a = mut("hello");
 			const b = method ? a.enumerate() : EnumeratedSignal(a);

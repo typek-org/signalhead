@@ -1,8 +1,8 @@
 import { fn } from "../utils/testUtils.ts";
 import { mut } from "./writable.ts";
 
-describe("skipEqual", () => {
-	test("basic", () => {
+Deno.test("skipEqual", () => {
+	Deno.test("basic", () => {
 		const a = mut(4);
 		const b = a.skipEqual();
 		const f = fn<void, [number]>();
@@ -17,7 +17,7 @@ describe("skipEqual", () => {
 		f.assertNotCalled();
 	});
 
-	test("faux offscreen canvas", () => {
+	Deno.test("faux offscreen canvas", () => {
 		const createCanvas = (id: number) => ({
 			id,
 			transfered: false,
@@ -46,7 +46,7 @@ describe("skipEqual", () => {
 		f.assertNotCalled();
 	});
 
-	test("validation & invalidation", () => {
+	Deno.test("validation & invalidation", () => {
 		const a = mut(4);
 		const b = a.skipEqual();
 

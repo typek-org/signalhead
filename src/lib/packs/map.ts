@@ -1,9 +1,9 @@
-import { Unsubscriber } from "../mod.ts";
+import type { Unsubscriber } from "../mod.ts";
 import {
 	Pack,
-	PackUpdate,
-	PackUpdateSubscriber,
-	MinimalPack,
+	type PackUpdate,
+	type PackUpdateSubscriber,
+	type MinimalPack,
 } from "./readable.ts";
 
 export const MappedPack = <T, U>(

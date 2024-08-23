@@ -1,5 +1,5 @@
 import { FilteredSignal } from "./filter.ts";
-import { MinimalSignal, SubscriberParams } from "./types.ts";
+import type { MinimalSignal, SubscriberParams } from "./types.ts";
 
 /**
  * Given a signal and a filtering function, produces a new signal

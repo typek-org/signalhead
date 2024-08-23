@@ -1,10 +1,11 @@
+import { expect } from "@std/expect";
 import { fn } from "../utils/testUtils.ts";
 import { FlatSignal } from "./flat.ts";
 import { Signal } from "./readable.ts";
 import { mut } from "./writable.ts";
 
-describe("flat", () => {
-	test("basic", () => {
+Deno.test("flat", () => {
+	Deno.test("basic", () => {
 		for (const method of [true, false]) {
 			const inner1 = mut("cat");
 			const inner2 = mut("train");
@@ -44,7 +45,7 @@ describe("flat", () => {
 		}
 	});
 
-	describe("invalitation and revalidation", () => {
+	Deno.test("invalitation and revalidation", () => {
 		const inner1 = mut(101);
 		const inner2 = mut(202);
 		const outer = mut<number | Signal<number>>(inner1);
@@ -60,7 +61,7 @@ describe("flat", () => {
 		expect(isValid).toBe(true);
 		subscriber.assertCalledOnce([101]);
 
-		it("copies validation of outer", () => {
+		Deno.test("copies validation of outer", () => {
 			outer.invalidate();
 			expect(isValid).toBe(false);
 			subscriber.assertNotCalled();
@@ -78,7 +79,7 @@ describe("flat", () => {
 			subscriber.assertNotCalled();
 		});
 
-		it("copies validation of inner", () => {
+		Deno.test("copies validation of inner", () => {
 			inner1.invalidate();
 			expect(isValid).toBe(false);
 			subscriber.assertNotCalled();
@@ -96,7 +97,7 @@ describe("flat", () => {
 			subscriber.assertNotCalled();
 		});
 
-		it("becomes valid when outer changes", () => {
+		Deno.test("becomes valid when outer changes", () => {
 			inner1.invalidate();
 			expect(isValid).toBe(false);
 			subscriber.assertNotCalled();
@@ -106,7 +107,7 @@ describe("flat", () => {
 			subscriber.assertCalledOnce([202]);
 		});
 
-		test("invalidating both inner and outer", () => {
+		Deno.test("invalidating both inner and outer", () => {
 			outer.invalidate();
 			expect(isValid).toBe(false);
 			inner2.invalidate();
@@ -128,7 +129,7 @@ describe("flat", () => {
 			subscriber.assertNotCalled();
 		});
 
-		test("updating inner while outer is invalid", () => {
+		Deno.test("updating inner while outer is invalid", () => {
 			outer.invalidate();
 			expect(isValid).toBe(false);
 			subscriber.assertNotCalled();

@@ -1,9 +1,9 @@
 import { expectType } from "../utils/testUtils.ts";
-import { Signal } from "./readable.ts";
-import { WritableSignal } from "./writable.ts";
+import type { Signal } from "./readable.ts";
+import type { WritableSignal } from "./writable.ts";
 
-describe("writable", () => {
-	test("types", <T>() => {
+Deno.test("writable", () => {
+	Deno.test("types", <T>() => {
 		expectType<WritableSignal<T>>().toExtend<Signal<T>>();
 	});
 });

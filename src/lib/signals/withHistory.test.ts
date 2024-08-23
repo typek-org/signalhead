@@ -2,8 +2,8 @@ import { fn } from "../utils/testUtils.ts";
 import { SignalWithHistory } from "./withHistory.ts";
 import { mut } from "./writable.ts";
 
-describe("withHistory", () => {
-	test("basic", () => {
+Deno.test("withHistory", () => {
+	Deno.test("basic", () => {
 		for (const method of [true, false]) {
 			const a = mut(42);
 			const b = method ? a.withHistory(3) : SignalWithHistory(a, 3);

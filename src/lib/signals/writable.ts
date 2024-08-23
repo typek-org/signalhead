@@ -1,3 +1,4 @@
+import { type PipeOf, toPipable } from "@typek/typek";
 import type {
 	Updater,
 	WriteonlySignal,
@@ -10,7 +11,6 @@ import type {
 import { Signal } from "./readable.ts";
 import { MappedSetterSignal } from "./mappedSetter.ts";
 import { SetterSideEffectSignal } from "./setterSideEffect.ts";
-import { type PipeOf, pipableOf } from "../mod.ts";
 import { Defer } from "../utils/defer.ts";
 
 export interface WritableSignal<T>
@@ -222,7 +222,7 @@ export const WritableSignal: {
 				fn,
 			);
 
-		return pipableOf({
+		return toPipable({
 			...Signal.fromSubscribeAndGet({ subscribe, get }),
 			set,
 			update,

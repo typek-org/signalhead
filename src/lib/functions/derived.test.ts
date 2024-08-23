@@ -1,8 +1,9 @@
-import { Signal, derived, mut } from "../mod.ts";
+import { expect } from "@std/expect";
+import { type Signal, derived, mut } from "../mod.ts";
 import { fn } from "../utils/testUtils.ts";
 
-describe("derived", () => {
-	test("basic", () => {
+Deno.test("derived", () => {
+	Deno.test("basic", () => {
 		const num1 = mut(10);
 		const num2 = mut(8);
 
@@ -28,7 +29,7 @@ describe("derived", () => {
 		f.assertNotCalled();
 	});
 
-	test("nested", () => {
+	Deno.test("nested", () => {
 		const condition = mut(true);
 		const a = mut(42);
 
@@ -52,7 +53,7 @@ describe("derived", () => {
 		f.assertCalledOnce([42]);
 	});
 
-	test("nested function call", () => {
+	Deno.test("nested function call", () => {
 		const a = mut<number>(69);
 		const b = (s: Signal<number>) => derived(($) => 1000 + $(s));
 

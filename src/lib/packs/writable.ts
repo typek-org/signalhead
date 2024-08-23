@@ -1,11 +1,7 @@
-import {
-	PipeOf,
-	StartStop,
-	WritableSignal,
-	pipableOf,
-} from "../mod.ts";
+import { type PipeOf, toPipable } from "@typek/typek";
+import type { StartStop, WritableSignal } from "../mod.ts";
 import { Defer } from "../utils/defer.ts";
-import { Pack, PackUpdateSubscriber } from "./readable.ts";
+import { Pack, type PackUpdateSubscriber } from "./readable.ts";
 import { WriteonlyPack } from "./writeonly.ts";
 
 export interface MutPack<T>
@@ -40,7 +36,7 @@ export const MutPack = <T>(
 	const listenToUpdates = (sub: PackUpdateSubscriber<T>) => {
 		if (subs.size === 0) start();
 		subs.add(sub);
-		return pipableOf(() => {
+		return toPipable(() => {
 			subs.delete(sub);
 			if (subs.size === 0) stop();
 		});
@@ -63,10 +59,11 @@ export const MutPack = <T>(
 							arr.splice(u.index, 0, u.value!);
 							break;
 
-						case "move":
+						case "move": {
 							const [item] = arr.splice(u.fromIndex, 1);
 							arr.splice(u.toIndex, 0, item);
 							break;
+						}
 					}
 				}
 				if (arr.length !== wpack.length.get())
@@ -107,7 +104,7 @@ export const MutPack = <T>(
 	const rpack = Pack.fromMinimal({ getAt, listenToUpdates, length });
 	const toReadonly = () => rpack;
 
-	return pipableOf({
+	return toPipable({
 		...rpack,
 		...wpack,
 		length,

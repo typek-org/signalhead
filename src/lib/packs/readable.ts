@@ -1,13 +1,11 @@
+import { type Pipable, type PipeOf, toPipable } from "@typek/typek";
 import {
 	Defer,
-	MinimalSignal,
-	MinimalSubscriber,
-	Pipable,
-	PipeOf,
+	type MinimalSignal,
+	type MinimalSubscriber,
 	Signal,
-	Unsubscriber,
+	type Unsubscriber,
 	mut,
-	pipableOf,
 	range,
 } from "../mod.ts";
 import { MappedPack } from "./map.ts";
@@ -155,7 +153,7 @@ export const Pack: {
 		const { length, getAt, listenToUpdates: _listen } = pack;
 
 		const listenToUpdates = (...args: Parameters<typeof _listen>) =>
-			pipableOf(_listen(...args));
+			toPipable(_listen(...args));
 
 		const iter = function* (): Iterable<T> {
 			for (let index = 0; index < length.get(); index++) {
@@ -240,7 +238,7 @@ export const Pack: {
 				}
 			});
 
-			return pipableOf(() => {
+			return toPipable(() => {
 				unsub();
 				for (const { defered } of items) {
 					defered.forEach((d) => d());
@@ -252,7 +250,7 @@ export const Pack: {
 		const map = <S>(fn: (value: T | undefined) => S | undefined) =>
 			MappedPack({ length, getAt, listenToUpdates }, fn);
 
-		return pipableOf({
+		return toPipable({
 			length,
 			getAt,
 			iter,

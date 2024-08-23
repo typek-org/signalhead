@@ -1,24 +1,25 @@
+import { expect } from "@std/expect";
 import { expectType, fn } from "../utils/testUtils.ts";
 import {
 	AwaitedSignal,
-	AwaitedSignalResult,
+	type AwaitedSignalResult,
 	CurrentlyFulfilledAwaitedSignal,
 	LastFulfilledAwaitedSignal,
 } from "./awaited.ts";
-import { Signal } from "./readable.ts";
+import type { Signal } from "./readable.ts";
 import { mut } from "./writable.ts";
 
 const delay = (ms: number = 0) =>
 	new Promise<void>((res) => setTimeout(res, ms));
 
-describe("awaited", () => {
-	test("types", <T>() => {
+Deno.test("awaited", () => {
+	Deno.test("types", <T>() => {
 		expectType<AwaitedSignal<T>>().toExtend<
 			Signal<AwaitedSignalResult<T>>
 		>();
 	});
 
-	test("basic", async () => {
+	Deno.test("basic", async () => {
 		for (const method of [true, false]) {
 			const f = fn<void, [undefined | AwaitedSignalResult<number>]>();
 
@@ -62,7 +63,7 @@ describe("awaited", () => {
 		}
 	});
 
-	test("race conditions", async () => {
+	Deno.test("race conditions", async () => {
 		const f = fn<void, [undefined | AwaitedSignalResult<number>]>();
 
 		const p1 = delay(200).then(() => 420);
@@ -101,7 +102,7 @@ describe("awaited", () => {
 		f.assertNotCalled();
 	});
 
-	test("invalidation", async () => {
+	Deno.test("invalidation", async () => {
 		const p1 = delay(100).then(() => 1);
 		const a = mut(p1);
 		const b = a.awaited();
@@ -133,8 +134,8 @@ describe("awaited", () => {
 		f.assertNotCalled();
 	});
 
-	describe("last fulfilled", () => {
-		test("basic", async () => {
+	Deno.test("last fulfilled", () => {
+		Deno.test("basic", async () => {
 			for (const method of [true, false]) {
 				const f = fn<void, [number | undefined]>();
 
@@ -176,8 +177,8 @@ describe("awaited", () => {
 		});
 	});
 
-	describe("currently fulfilled", () => {
-		test("basic", async () => {
+	Deno.test("currently fulfilled", () => {
+		Deno.test("basic", async () => {
 			for (const method of [true, false]) {
 				const f = fn<void, [number | undefined]>();
 

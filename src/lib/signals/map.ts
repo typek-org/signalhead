@@ -1,10 +1,10 @@
 import { Defer } from "../utils/defer.ts";
 import { Signal } from "./readable.ts";
-import {
+import type {
 	Validator,
-	type Invalidator,
-	type MinimalSignal,
-	type MinimalSubscriber,
+	Invalidator,
+	MinimalSignal,
+	MinimalSubscriber,
 	SubscriberParams,
 } from "./types.ts";
 

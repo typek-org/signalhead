@@ -1,13 +1,12 @@
+import { type Pipable, toPipable } from "@typek/typek";
 import {
-	Pipable,
-	Unsubscriber,
-	WritableSignal,
+	type Unsubscriber,
+	type WritableSignal,
 	mut,
-	pipableOf,
 } from "../mod.ts";
 import { Defer } from "../utils/defer.ts";
-import { PackUpdate, PackUpdateSubscriber } from "./readable.ts";
-import { MutPackOptions } from "./writable.ts";
+import type { PackUpdate, PackUpdateSubscriber } from "./readable.ts";
+import type { MutPackOptions } from "./writable.ts";
 
 export interface WriteonlyPack<T> {
 	length: WritableSignal<number>;
@@ -50,7 +49,7 @@ export const WriteonlyPack = <T>(
 		if (subs.size === 0) onStart?.({ defer });
 
 		subs.add(sub);
-		return pipableOf(() => {
+		return toPipable(() => {
 			subs.delete(sub);
 
 			if (subs.size === 0) {

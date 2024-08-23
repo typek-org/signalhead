@@ -1,6 +1,6 @@
-import { PipeOf, pipableOf } from "../mod.ts";
+import { type PipeOf, toPipable } from "@typek/typek";
 import { Signal } from "./readable.ts";
-import { MinimalSignal } from "./types.ts";
+import type { MinimalSignal } from "./types.ts";
 import { mut } from "./writable.ts";
 
 export type AwaitedSignalResult<T> =
@@ -97,7 +97,7 @@ export const AwaitedSignal = <T>(
 		},
 	};
 
-	return pipableOf(result);
+	return toPipable(result);
 };
 
 export const LastFulfilledAwaitedSignal = <T>(

@@ -1,12 +1,12 @@
 import { expectType, fn } from "../utils/testUtils.ts";
-import { Flock, FlockUpdate, MutFlock } from "./mod.ts";
+import { type Flock, type FlockUpdate, MutFlock } from "./mod.ts";
 
-describe("writable flock", () => {
-	test("types", <T>() => {
+Deno.test("writable flock", () => {
+	Deno.test("types", <T>() => {
 		expectType<MutFlock<T>>().toExtend<Flock<T>>();
 	});
 
-	test("basic", () => {
+	Deno.test("basic", () => {
 		const s = MutFlock([1, 2, 3]);
 
 		const f = fn<void, [Set<number>]>();
@@ -26,7 +26,7 @@ describe("writable flock", () => {
 		u();
 	});
 
-	test("updates", () => {
+	Deno.test("updates", () => {
 		const s = MutFlock([1, 2, 3]);
 
 		const f = fn<void, [FlockUpdate<number>[]]>();

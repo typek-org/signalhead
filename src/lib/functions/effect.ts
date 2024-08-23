@@ -1,4 +1,4 @@
-import { Pipable, pipableOf } from "../mod.ts";
+import { type Pipable, toPipable } from "@typek/typek";
 import type {
 	Invalidator,
 	MinimalSignal,
@@ -125,7 +125,7 @@ export function effect(
 
 	depsChanged();
 
-	return pipableOf(() => {
+	return toPipable(() => {
 		running = true; // prevent depsChanged from doing anything
 
 		cleanup();

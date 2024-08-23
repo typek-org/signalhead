@@ -1,6 +1,6 @@
 import { MapSet } from "../utils/collections.ts";
 import { CountedSignal } from "./count.ts";
-import { TappedSignal, TappedSignalOptions } from "./tap.ts";
+import { TappedSignal, type TappedSignalOptions } from "./tap.ts";
 import { EnumeratedSignal } from "./enumerate.ts";
 import { FlatSignal } from "./flat.ts";
 import { FlatMappedSignal } from "./flatMap.ts";
@@ -22,9 +22,9 @@ import { FilteredSignal } from "./filter.ts";
 import { SkippedSignal } from "./skip.ts";
 import { SignalWithSkippedEqual } from "./skipEqual.ts";
 import { AwaitedSignal } from "./awaited.ts";
-import { Pipable, PipeOf, pipableOf } from "../mod.ts";
-import { Defer, DeferLike } from "../utils/defer.ts";
+import { Defer, type DeferLike } from "../utils/defer.ts";
 import { KeepAliveSignal } from "./keepAlive.ts";
+import { type Pipable, type PipeOf, toPipable } from "@typek/typek";
 
 export interface Signal<T>
 	extends MinimalSignal<T>,
@@ -281,7 +281,7 @@ export const Signal: {
 	}: SignalSubscribeAndGet<T>): Signal<T> {
 		const subscribe = (
 			...args: Parameters<typeof unpipableSubscribe>
-		) => pipableOf(unpipableSubscribe(...args));
+		) => toPipable(unpipableSubscribe(...args));
 
 		const listen = (
 			subscriber: Subscriber<T>,
@@ -350,7 +350,7 @@ export const Signal: {
 		const zip = (...signals: MinimalSignal<any>[]): Signal<any> =>
 			ZippedSignal({ subscribe, get }, ...signals);
 
-		return pipableOf({
+		return toPipable({
 			subscribe,
 			listen,
 			get,

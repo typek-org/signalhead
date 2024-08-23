@@ -1,10 +1,9 @@
+import { type PipeOf, toPipable } from "@typek/typek";
 import {
-	MinimalSubscriber,
-	PipeOf,
-	Signal,
-	Unsubscriber,
+	type MinimalSubscriber,
+	type Signal,
+	type Unsubscriber,
 	mut,
-	pipableOf,
 } from "../mod.ts";
 
 export type FlockUpdate<T> =
@@ -51,6 +50,6 @@ export const Flock: {
 			});
 			return set.toReadonly();
 		};
-		return pipableOf({ ...flock, toSet });
+		return toPipable({ ...flock, toSet });
 	},
 };

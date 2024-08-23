@@ -1,9 +1,10 @@
+import { expect } from "@std/expect";
 import { fn } from "../utils/testUtils.ts";
 import { CountedSignal } from "./count.ts";
 import { mut } from "./writable.ts";
 
-describe("count", () => {
-	test("basic", () => {
+Deno.test("count", () => {
+	Deno.test("basic", () => {
 		for (const method of [true, false]) {
 			const a = mut("hello");
 			const b = method ? a.count() : CountedSignal(a);

@@ -1,6 +1,6 @@
 import { mutDerived } from "./mutDerived.ts";
 import type { MinimalSignal, Signal } from "../signals/mod.ts";
-import { Defer } from "../utils/defer.ts";
+import type { Defer } from "../utils/defer.ts";
 
 export interface DerivedParams<T> {
 	defer: Defer;

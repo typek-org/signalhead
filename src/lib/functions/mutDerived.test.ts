@@ -1,9 +1,10 @@
-import { mut } from "../mod";
-import { fn } from "../utils/testUtils";
-import { mutDerived } from "./mutDerived";
+import { expect } from "@std/expect";
+import { mut } from "../mod.ts";
+import { fn } from "../utils/testUtils.ts";
+import { mutDerived } from "./mutDerived.ts";
 
-describe("mutDerived", () => {
-	test("prevSet", () => {
+Deno.test("mutDerived", () => {
+	Deno.test("prevSet", () => {
 		const a = mut(0);
 		const subscriber = fn<void, [number | undefined]>();
 
