@@ -1,4 +1,4 @@
-import type { Defer } from "../mod";
+import type { Defer } from "../mod.ts";
 
 export type MinimalSubscriber<T> = (value: T) => void;
 export type Unsubscriber = () => void;

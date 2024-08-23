@@ -1,5 +1,5 @@
-import { Defer, DeferLike, MinimalSignal } from "../mod";
-import { Signal } from "./readable";
+import { Defer, type DeferLike, type MinimalSignal } from "../mod.ts";
+import { Signal } from "./readable.ts";
 
 /**
  * Ensures a signal is kept alive even if it has no subscribers, until

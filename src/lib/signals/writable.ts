@@ -1,16 +1,16 @@
-import {
-	type Updater,
-	type WriteonlySignal,
-	type MinimalSubscriber,
-	type Invalidator,
-	type MinimalWritableSignal,
-	type StartStop,
+import type {
+	Updater,
+	WriteonlySignal,
+	MinimalSubscriber,
+	Invalidator,
+	MinimalWritableSignal,
+	StartStop,
 	Validator,
 } from "./types.ts";
 import { Signal } from "./readable.ts";
 import { MappedSetterSignal } from "./mappedSetter.ts";
 import { SetterSideEffectSignal } from "./setterSideEffect.ts";
-import { PipeOf, pipableOf } from "../mod.ts";
+import { type PipeOf, pipableOf } from "../mod.ts";
 import { Defer } from "../utils/defer.ts";
 
 export interface WritableSignal<T>
@@ -177,7 +177,21 @@ export const mut: {
 	});
 };
 
-export const WritableSignal = Object.assign(mut, {
+export const WritableSignal: {
+	<T>(
+		initialValue: T,
+		opts?: WritableSignalOptions,
+	): WritableSignal<T>;
+	<T>(): WritableSignal<T | undefined>;
+
+	fromMinimal<T>(signal: MinimalWritableSignal<T>): WritableSignal<T>;
+	fromSetAndSubscribeAndGet<T>(
+		signal: Pick<
+			WritableSignal<T>,
+			"set" | "subscribe" | "get" | "invalidate" | "validate"
+		>,
+	): WritableSignal<T>;
+} = Object.assign(mut, {
 	fromSetAndSubscribeAndGet<T>({
 		set,
 		invalidate,

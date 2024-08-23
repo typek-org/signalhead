@@ -147,7 +147,10 @@ const createReadablePack = <T>(
 	return pack;
 };
 
-export const Pack = Object.assign(createReadablePack, {
+export const Pack: {
+	<T>(...items: Array<T | MinimalSignal<T>>): Pack<T>;
+	fromMinimal<T>(pack: MinimalPack<T>): Pack<T>;
+} = Object.assign(createReadablePack, {
 	fromMinimal<T>(pack: MinimalPack<T>): Pack<T> {
 		const { length, getAt, listenToUpdates: _listen } = pack;
 
@@ -217,7 +220,7 @@ export const Pack = Object.assign(createReadablePack, {
 							}
 							items.splice(update.index, 1);
 							break;
-						case "insert":
+						case "insert": {
 							const value = mut(update.value);
 							const index = mut(update.index);
 							const defered = new Set<Unsubscriber>();
@@ -231,7 +234,8 @@ export const Pack = Object.assign(createReadablePack, {
 							}
 
 							items.splice(update.index, 0, item);
-							return;
+							break;
+						}
 					}
 				}
 			});

@@ -1,5 +1,5 @@
+import type { Signal, MinimalSignal } from "./mod.ts";
 import { SkippedSignal } from "./skip.ts";
-import { MinimalSignal } from "./types.ts";
 
 /**
  * Produces a new signal whose value only updates if it
@@ -7,7 +7,7 @@ import { MinimalSignal } from "./types.ts";
  */
 export const SignalWithSkippedEqual = <T>(
 	signal: MinimalSignal<T>,
-) => {
+): Signal<T> => {
 	return SkippedSignal(
 		signal,
 		(value, { prev, isFirstRun }) => {

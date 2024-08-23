@@ -6,12 +6,9 @@ export type Equal<X, Y> =
 		: false;
 
 export const expectType = <T>() => ({
-	// @ts-expect-error unused params
-	toExtend<U>(...args: T extends U ? [] : [never]) {},
-	// @ts-expect-error unused type argument
+	toExtend<U>(..._args: T extends U ? [] : [never]) {},
 	toBeExtendedBy<U extends T>() {},
-	// @ts-expect-error unused params
-	toBe<U>(...args: Equal<T, U> extends true ? [] : [never]) {},
+	toBe<U>(..._args: Equal<T, U> extends true ? [] : [never]) {},
 });
 
 export const expectTypes = <X, Y>(): Equal<X, Y> extends true

@@ -257,7 +257,16 @@ export interface SignalSubscribeAndGet<T> {
 	get: Signal<T>["get"];
 }
 
-export const Signal = {
+export const Signal: {
+	get<T>(signal: MinimalSignal<T>): T;
+	fromSubscribeAndGet<T>({
+		subscribe,
+		get,
+	}: SignalSubscribeAndGet<T>): Signal<T>;
+	fromMinimal<T>(signal: MinimalSignal<T>): Signal<T>;
+	isReadable(s: unknown): s is MinimalSignal<unknown>;
+	isWritable(s: unknown): s is WriteonlySignal<unknown>;
+} = {
 	get<T>(signal: MinimalSignal<T>): T {
 		if (signal.get) return signal.get()!;
 
@@ -454,17 +463,19 @@ export const Signal = {
 		return Signal.fromSubscribeAndGet({ subscribe, get });
 	},
 
-	isReadable(s: any): s is MinimalSignal<any> {
+	isReadable(s: unknown): s is MinimalSignal<unknown> {
 		return (
 			(typeof s === "object" || typeof s === "function") &&
+			s !== null &&
 			"subscribe" in s &&
 			typeof s.subscribe === "function"
 		);
 	},
 
-	isWritable(s: any): s is WriteonlySignal<any> {
+	isWritable(s: unknown): s is WriteonlySignal<unknown> {
 		return (
 			(typeof s === "object" || typeof s === "function") &&
+			s !== null &&
 			"set" in s &&
 			typeof s.set === "function"
 		);

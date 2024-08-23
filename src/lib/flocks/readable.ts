@@ -35,23 +35,22 @@ export interface Flock<T> extends MinimalFlock<T>, PipeOf<Flock<T>> {
 	toSet(): Signal<Set<T>>;
 }
 
-export const Flock = Object.assign(
-	{},
-	{
-		fromMinimal<T>(flock: MinimalFlock<T>): Flock<T> {
-			const toSet = () => {
-				const set = mut(new Set(flock.iter()), {
-					onStart({ defer }) {
-						defer(
-							flock.listenToUpdates(() =>
-								set.set(new Set(flock.iter())),
-							),
-						);
-					},
-				});
-				return set.toReadonly();
-			};
-			return pipableOf({ ...flock, toSet });
-		},
+export const Flock: {
+	fromMinimal<T>(flock: MinimalFlock<T>): Flock<T>;
+} = {
+	fromMinimal<T>(flock: MinimalFlock<T>): Flock<T> {
+		const toSet = () => {
+			const set = mut(new Set(flock.iter()), {
+				onStart({ defer }) {
+					defer(
+						flock.listenToUpdates(() =>
+							set.set(new Set(flock.iter())),
+						),
+					);
+				},
+			});
+			return set.toReadonly();
+		};
+		return pipableOf({ ...flock, toSet });
 	},
-);
+};
