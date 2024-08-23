@@ -1,4 +1,3 @@
-import { todo } from "@typek/typek";
 import {
 	Defer,
 	MinimalSignal,
@@ -39,7 +38,7 @@ export type PackUpdateSubscriber<T> = MinimalSubscriber<
 	Array<PackUpdate<T>>
 >;
 
-export interface ForEachItemParams<T> {
+export interface ForEachParams<T> {
 	/**
 	 * A signal that updates every time the item changes its value.
 	 */
@@ -84,9 +83,13 @@ export interface Pack<T> extends MinimalPack<T>, PipeOf<Pack<T>> {
 	 *
 	 * The function itself returns an unsubscriber. By calling
 	 * this unsubscriber, you opt out from any further updates.
+	 * Upon calling the unsubscriber, the deferred cleanups of
+	 * all items will be performed.
+	 *
+	 * The callback should **not** mutate the pack.
 	 */
 	forEach(
-		fn: (params: ForEachItemParams<T>) => Unsubscriber | undefined,
+		fn: (params: ForEachParams<T>) => void,
 	): Pipable<Unsubscriber>;
 
 	// every(fn: (value: T) => unknown): Signal<boolean>;
@@ -166,7 +169,7 @@ export const Pack = Object.assign(createReadablePack, {
 			return arr.toReadonly();
 		};
 
-		const forEach = (fn: (params: ForEachItemParams<T>) => void) => {
+		const forEach = (fn: (params: ForEachParams<T>) => void) => {
 			const items = Array.from({ length: length.get() }).map(
 				(_, i) => ({
 					value: mut(getAt(i)),
@@ -183,7 +186,9 @@ export const Pack = Object.assign(createReadablePack, {
 				});
 			}
 
-			return listenToUpdates((updates) => {
+			const unsub = listenToUpdates((updates) => {
+				// TODO batch all updates
+
 				for (const update of updates) {
 					switch (update.type) {
 						case "modify":
@@ -206,11 +211,37 @@ export const Pack = Object.assign(createReadablePack, {
 							break;
 						}
 						case "delete":
-							todo();
+							items[update.index].defered.forEach((d) => d());
+							for (let i = update.index + 1; i < items.length; i++) {
+								items[i].index.set(i - 1);
+							}
+							items.splice(update.index, 1);
+							break;
 						case "insert":
-							todo();
+							const value = mut(update.value);
+							const index = mut(update.index);
+							const defered = new Set<Unsubscriber>();
+							const defer = Defer.from((f) => defered.add(f));
+
+							const item = { value, index, defered };
+							fn({ value, index, defer });
+
+							for (let i = update.index; i < items.length; i++) {
+								items[i].index.set(i + 1);
+							}
+
+							items.splice(update.index, 0, item);
+							return;
 					}
 				}
+			});
+
+			return pipableOf(() => {
+				unsub();
+				for (const { defered } of items) {
+					defered.forEach((d) => d());
+				}
+				items.length = 0;
 			});
 		};
 
