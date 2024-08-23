@@ -1,6 +1,6 @@
 {
   "name": "@typek/signalhead",
-  "version": "0.0.36",
+  "version": "0.0.37",
   "exports": "./src/lib/mod.ts",
   "tasks": {
     "test": "deno test --clean --coverage && deno coverage --lcov --output=lcov.info",
