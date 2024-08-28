@@ -63,4 +63,45 @@ Deno.test("Pack", () => {
 		u();
 		expect(map.size).toBe(0);
 	});
+
+	Deno.test("reduceSimple", () => {
+		const pack = MutPack([0, 1, 2, 3, 4]);
+		const sum = pack.reduce((acc, value) => acc + (value ?? 0), 0);
+
+		expect(sum.get()).toBe(10);
+
+		pack.setAt(0, 5);
+		expect(sum.get()).toBe(15);
+
+		pack.insertAt(1, 5);
+		expect(sum.get()).toBe(20);
+
+		pack.deleteAt(2);
+		expect(sum.get()).toBe(18);
+
+		pack.swap(0, 3);
+		expect(sum.get()).toBe(18);
+	});
+	Deno.test("reduceWithInverse", () => {
+		const pack = MutPack([0, 1, 2, 3, 4]);
+		const sum = pack.reduce(
+			(acc, value) => acc + (value ?? 0),
+			0,
+			(acc, value) => acc - (value ?? 0),
+		);
+
+		expect(sum.get()).toBe(10);
+
+		pack.setAt(0, 5);
+		expect(sum.get()).toBe(15);
+
+		pack.insertAt(1, 5);
+		expect(sum.get()).toBe(20);
+
+		pack.deleteAt(2);
+		expect(sum.get()).toBe(18);
+
+		pack.swap(0, 3);
+		expect(sum.get()).toBe(18);
+	});
 });

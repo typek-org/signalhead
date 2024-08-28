@@ -107,6 +107,22 @@ export interface Pack<T> extends MinimalPack<T>, PipeOf<Pack<T>> {
 	// filter(fn: (value: T) => unknown): Pack<T>;
 	map<S>(fn: (value: T | undefined) => S | undefined): Pack<S>;
 
+	/**  Reduces a Pack into a Signal in the same manner as `Array.prototype.reduce` does
+	 *
+	 * If only `include` is provided the entire pack is traversed and reduced with every update
+	 *
+	 * If also provided with `exclude`, on update will this function be used to remove values
+	 * from the accumulator before adding in the new values
+	 *
+	 * The user is responsible for making sure `include(exclude) = Id`
+	 * and that they commute when creating the accumulator
+	 */
+	reduce<S>(
+		include: (acc: S, value: T | undefined, index: number) => S,
+		initial: S,
+		exclude?: (acc: S, value: T | undefined, index: number) => S,
+	): Signal<S>;
+
 	// findAny<S extends T>(fn: (v: T) => v is S): Signal<S | undefined>;
 	// findAny(fn: (value: T) => unknown): Signal<T | undefined>;
 	// findFirst<S extends T>(fn: (v: T) => v is S): Signal<S | undefined>;
@@ -256,6 +272,87 @@ export const Pack: {
 			});
 		};
 
+		const reduce = <S>(
+			include: (acc: S, value: T | undefined, index: number) => S,
+			initial: S,
+			exclude?: (acc: S, value: T | undefined, index: number) => S,
+		) => {
+			if (exclude === undefined) {
+				return toArray().map((arr) =>
+					arr.reduce(
+						(acc, value, index) => include(acc, value, index),
+						initial,
+					),
+				);
+			}
+
+			const items = Array(length.get()).map((_, i) => getAt(i));
+
+			const res = mut(
+				items.reduce(
+					(acc, curr, index) => include(acc, curr, index),
+					initial,
+				),
+			);
+
+			listenToUpdates((updates) =>
+				updates.forEach((update) => {
+					const oldValue = items.at(
+						"index" in update ? update.index : update.fromIndex,
+					);
+					switch (update.type) {
+						case "delete": {
+							items.splice(update.index, 1);
+
+							res.update((acc) =>
+								exclude(acc, oldValue, update.index),
+							);
+							break;
+						}
+						case "insert": {
+							items.splice(update.index, 0, update.value);
+							res.update((acc) =>
+								include(acc, update.value, update.index),
+							);
+							break;
+						}
+						case "move": {
+							const [x] = items.splice(update.fromIndex, 1);
+							items.splice(update.toIndex, 0, x);
+							res.update((acc) => {
+								const excludedAcc = exclude(
+									acc,
+									oldValue,
+									update.fromIndex,
+								);
+								return include(excludedAcc, oldValue, update.toIndex);
+							});
+
+							break;
+						}
+						case "modify": {
+							items[update.index] = update.value;
+							res.update((acc) => {
+								const excludedAcc = exclude(
+									acc,
+									oldValue,
+									update.index,
+								);
+								return include(
+									excludedAcc,
+									update.value,
+									update.index,
+								);
+							});
+							break;
+						}
+					}
+				}),
+			);
+
+			return res.toReadonly();
+		};
+
 		const map = <S>(fn: (value: T | undefined) => S | undefined) =>
 			MappedPack({ length, getAt, listenToUpdates }, fn);
 
@@ -266,6 +363,7 @@ export const Pack: {
 			toArray,
 			forEach,
 			map,
+			reduce,
 			listenToUpdates,
 		});
 	},
