@@ -9,6 +9,9 @@ Deno.test("Pack", () => {
 		const str = mut("world");
 		const pack = Pack<number | string>(1, 2, n, "hello", str);
 
+		expect(Pack.isPack(n)).toEqual(false);
+		expect(Pack.isPack(pack)).toEqual(true);
+
 		expect(pack.toArray().get()).toEqual([1, 2, 3, "hello", "world"]);
 
 		n.set(4);

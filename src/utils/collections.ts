@@ -23,19 +23,19 @@ export class MapSet<K, V> implements Map<K, Set<V>> {
 		return s;
 	}
 
-	keys(): IterableIterator<K> {
+	keys(): MapIterator<K> {
 		return this.#data.keys();
 	}
 
-	values(): IterableIterator<Set<V>> {
+	values(): MapIterator<Set<V>> {
 		return this.#data.values();
 	}
 
-	entries(): IterableIterator<[K, Set<V>]> {
+	entries(): MapIterator<[K, Set<V>]> {
 		return this.#data.entries();
 	}
 
-	[Symbol.iterator](): IterableIterator<[K, Set<V>]> {
+	[Symbol.iterator](): MapIterator<[K, Set<V>]> {
 		return this.entries();
 	}
 

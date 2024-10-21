@@ -173,7 +173,20 @@ const createReadablePack = <T>(
 export const Pack: {
 	<T>(...items: Array<T | MinimalSignal<T>>): Pack<T>;
 	fromMinimal<T>(pack: MinimalPack<T>): Pack<T>;
+	isPack(p: unknown): p is MinimalPack<unknown>;
 } = Object.assign(createReadablePack, {
+	isPack(p: unknown): p is MinimalPack<unknown> {
+		return (
+			(typeof p === "object" || typeof p === "function") &&
+			p !== null &&
+			"length" in p &&
+			Signal.isReadable(p.length) &&
+			"getAt" in p &&
+			typeof p.getAt === "function" &&
+			"listenToUpdates" in p &&
+			typeof p.listenToUpdates === "function"
+		);
+	},
 	fromMinimal<T>(pack: MinimalPack<T>): Pack<T> {
 		const { length, getAt, listenToUpdates: _listen } = pack;
 
